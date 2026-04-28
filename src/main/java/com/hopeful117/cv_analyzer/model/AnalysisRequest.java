@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class AnalysisRequest {
     private String resumeText;
-    private String jobOfferText;
+    private String jobOfferUrl;
 }
 

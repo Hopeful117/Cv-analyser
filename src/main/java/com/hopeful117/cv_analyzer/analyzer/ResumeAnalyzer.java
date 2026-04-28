@@ -1,6 +1,8 @@
 package com.hopeful117.cv_analyzer.analyzer;
 
+import com.hopeful117.cv_analyzer.extractor.JobKeyWordExtractor;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,7 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
+@RequiredArgsConstructor
 public class ResumeAnalyzer {
+    private final JobKeyWordExtractor keywordExtractor;
     public ResumeAnalysis analyze(String resumeText, String jobOfferText) {
         List<String> risks = new ArrayList<>();
         List<String> recommendations = new ArrayList<>();
@@ -137,32 +141,10 @@ public class ResumeAnalyzer {
 
     private List<String> extractKeywords(
             String offer){
+        return keywordExtractor.extract(offer);
 
-        List<String> knownKeywords =
-                List.of(
-                        "java",
-                        "spring",
-                        "sql",
-                        "docker",
-                        "aws",
-                        "api",
-                        "kubernetes"
-                );
 
-        List<String> found =
-                new ArrayList<>();
 
-        for(String word : knownKeywords){
-
-            if(offer.contains(word)){
-
-                found.add(word);
-
-            }
-
-        }
-
-        return found;
     }
 
 }

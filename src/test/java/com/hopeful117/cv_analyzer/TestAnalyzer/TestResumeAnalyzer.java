@@ -3,12 +3,17 @@ package com.hopeful117.cv_analyzer.TestAnalyzer;
 
 import com.hopeful117.cv_analyzer.analyzer.ResumeAnalyzer;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import com.hopeful117.cv_analyzer.service.PdfParserService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 public class TestResumeAnalyzer {
-    private final ResumeAnalyzer analyzer = new ResumeAnalyzer();
+     private final ResumeAnalyzer analyzer = new ResumeAnalyzer();
 
     @Test
     void shouldDetectMissingKeywords() {

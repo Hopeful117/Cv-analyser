@@ -1,18 +1,21 @@
 package com.hopeful117.cv_analyzer.analyzer;
 
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
+@Service
 public class ResumeAnalyzer {
     public ResumeAnalysis analyze(String resumeText, String jobOfferText) {
-     List<String> risks = new ArrayList<>();
-     List<String> recommendations = new ArrayList<>();
-     List<String> missingKeywords = new ArrayList<>();
-     String resume = resumeText.toLowerCase();
-     String offer = jobOfferText.toLowerCase();
+        List<String> risks = new ArrayList<>();
+        List<String> recommendations = new ArrayList<>();
+        List<String> missingKeywords = new ArrayList<>();
+        String resume = resumeText.toLowerCase();
+        String offer = jobOfferText.toLowerCase();
         int cvScore = scoreCV(
                 resume,
                 risks,

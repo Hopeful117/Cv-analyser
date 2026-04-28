@@ -1,2 +1,4 @@
 /home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/CvAnalyzerApplicationTests.java
 /home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestAnalyzer/TestResumeAnalyzer.java
+/home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestService/TestPdfParserService.java
+/home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestService/TestResumeAnalysisService.java

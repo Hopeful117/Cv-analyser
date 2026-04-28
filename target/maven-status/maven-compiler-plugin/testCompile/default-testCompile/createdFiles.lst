@@ -1,2 +1,3 @@
-com/hopeful117/cv_analyzer/CvAnalyzerApplicationTests.class
+com/hopeful117/cv_analyzer/TestService/TestPdfParserService.class
 com/hopeful117/cv_analyzer/TestAnalyzer/TestResumeAnalyzer.class
+com/hopeful117/cv_analyzer/CvAnalyzerApplicationTests.class

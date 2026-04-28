@@ -1,8 +1,10 @@
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/CvAnalyzerApplication.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/analyzer/ResumeAnalyzer.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/controller/ResumeController.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/controller/ResumeUploadController.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/AnalysisRequest.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/JobOfferRequest.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/ResumeAnalysis.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/ResumeRequest.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/service/PdfParserService.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/service/ResumeAnalysisService.java

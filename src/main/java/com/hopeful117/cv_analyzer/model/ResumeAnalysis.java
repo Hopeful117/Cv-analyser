@@ -1,18 +1,22 @@
 package com.hopeful117.cv_analyzer.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 public class ResumeAnalysis {
-    private int score;
+    private int overallScore;
+    private int cvQualityScore;
+    private int atsScore;
+    private int jobMatchScore;
     private List<String> atsRisks;
     private List<String> recommendations;
+    private List<String> missingKeywords;
 
-    public ResumeAnalysis(int score, List<String> atsRisks, List<String> recommendations) {
-        this.score = score;
-        this.atsRisks = atsRisks;
-        this.recommendations = recommendations;
-    }
+
+
+
 }

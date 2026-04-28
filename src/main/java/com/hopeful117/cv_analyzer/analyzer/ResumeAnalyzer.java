@@ -8,27 +8,158 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ResumeAnalyzer {
     public ResumeAnalysis analyze(String resumeText, String jobOfferText) {
-     AtomicInteger score= new AtomicInteger(100);
      List<String> risks = new ArrayList<>();
      List<String> recommendations = new ArrayList<>();
-     if (resumeText.length() < 300) {
-         score.addAndGet(-20);
-         risks.add("Resume is too short, may not provide enough information.");
-         recommendations.add("Consider adding more details about your experience and skills.");
-     }
-     List<String> keywords = List.of("Java", "Spring", "SQL", "AWS");
-     keywords.forEach(keyword -> {;
-         if (!resumeText.contains(keyword)) {
-             score.addAndGet(-10);
-             risks.add("Missing keyword: " + keyword);
-             recommendations.add("Include relevant keywords from the job offer to improve ATS compatibility.");
-         }
-     });
-     score.set(Math.max(score.get(), 0));
-     final int finalScore = score.get();
-     return new ResumeAnalysis(finalScore, risks, recommendations);
+     List<String> missingKeywords = new ArrayList<>();
+     String resume = resumeText.toLowerCase();
+     String offer = jobOfferText.toLowerCase();
+        int cvScore = scoreCV(
+                resume,
+                risks,
+                recommendations
+        );
+
+        int atsScore = scoreATS(
+                resume,
+                risks
+        );
+
+        int matchScore = scoreJobMatch(
+                resume,
+                offer,
+                missingKeywords,
+                recommendations
+        );
+
+
+        int overallScore =
+                (cvScore + atsScore + matchScore) / 3;
+
+
+        return new ResumeAnalysis(
+                overallScore,
+                cvScore,
+                atsScore,
+                matchScore,
+                risks,
+                recommendations,
+                missingKeywords
+        );
     }
 
 
+    private int scoreCV(
+            String resume,
+            List<String> risks,
+            List<String> recs){
+
+        AtomicInteger score =
+                new AtomicInteger(100);
+
+        if(resume.length() < 300){
+
+            score.addAndGet(-20);
+
+            risks.add(
+                    "CV trop court."
+            );
+
+            recs.add(
+                    "Ajouter davantage d'expérience."
+            );
+        }
+
+        return Math.max(score.get(),0);
+    }
+
+
+    private int scoreATS(
+            String resume,
+            List<String> risks){
+
+        int score = 100;
+
+        if(resume.contains("table")){
+
+            score -= 20;
+
+            risks.add(
+                    "Tableaux potentiellement problématiques ATS"
+            );
+        }
+
+        return Math.max(score,0);
+    }
+
+
+
+    private int scoreJobMatch(
+            String resume,
+            String offer,
+            List<String> missing,
+            List<String> recs){
+
+        List<String> extractedKeywords =
+                extractKeywords(offer);
+
+        int found = 0;
+
+        for(String keyword : extractedKeywords){
+
+            if(resume.contains(keyword)){
+
+                found++;
+
+            } else {
+
+                missing.add(keyword);
+
+            }
+
+        }
+
+        if(!missing.isEmpty()){
+
+            recs.add(
+                    "Ajouter certains mots-clés présents dans l'annonce."
+            );
+        }
+
+        return extractedKeywords.isEmpty()
+                ? 100
+                : (found * 100 / extractedKeywords.size());
+    }
+
+
+
+    private List<String> extractKeywords(
+            String offer){
+
+        List<String> knownKeywords =
+                List.of(
+                        "java",
+                        "spring",
+                        "sql",
+                        "docker",
+                        "aws",
+                        "api",
+                        "kubernetes"
+                );
+
+        List<String> found =
+                new ArrayList<>();
+
+        for(String word : knownKeywords){
+
+            if(offer.contains(word)){
+
+                found.add(word);
+
+            }
+
+        }
+
+        return found;
+    }
 
 }

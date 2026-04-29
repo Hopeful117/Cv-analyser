@@ -53,24 +53,51 @@ public class JobImportanceDetector implements ImportanceDetector {
 
             Iterable<String> signals){
 
-        for(String signal : signals){
+        String[] words =
+                text.split("\\s+");
 
-            if(
-                    text.contains(
-                            signal + " " + keyword
-                    )
+        for(int i=0; i<words.length; i++){
 
-                            ||
+            if(words[i].equals(keyword)){
 
-                            text.contains(
-                                    keyword + " " + signal
-                            )
-            ){
-                return true;
+                int start =
+                        Math.max(0, i-5);
+
+                int end =
+                        Math.min(
+                                words.length,
+                                i+6
+                        );
+
+
+                StringBuilder context =
+                        new StringBuilder();
+
+                for(int j=start; j<end; j++){
+
+                    context.append(
+                            words[j]
+                    ).append(" ");
+                }
+
+                String window =
+                        context.toString();
+
+
+                for(String signal : signals){
+
+                    if(window.contains(signal)){
+
+                        return true;
+                    }
+                }
             }
         }
 
         return false;
+
+
+
     }
     }
 

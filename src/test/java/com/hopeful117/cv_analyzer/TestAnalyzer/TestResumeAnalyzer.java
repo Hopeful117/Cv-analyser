@@ -2,8 +2,9 @@ package com.hopeful117.cv_analyzer.TestAnalyzer;
 
 
 import com.hopeful117.cv_analyzer.analyzer.ResumeAnalyzer;
-import com.hopeful117.cv_analyzer.extractor.JobKeyWordExtractor;
+import com.hopeful117.cv_analyzer.extractor.KeywordExtractor;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import com.hopeful117.cv_analyzer.model.SkillRequirement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -19,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestResumeAnalyzer {
 
     @Mock
-    private JobKeyWordExtractor keywordExtractor;
+    private KeywordExtractor keywordExtractor;
 
     private ResumeAnalyzer analyzer;
 
@@ -29,10 +30,18 @@ public class TestResumeAnalyzer {
 
         String resume = "Java Spring SQL developer";
         String offer = "Java Spring SQL Docker AWS Kubernetes developer";
+        List<SkillRequirement> requirements = List.of(
+                new SkillRequirement("java", 5,true),
+                new SkillRequirement("spring", 4,true),
+                new SkillRequirement("sql", 3,true),
+                new SkillRequirement("docker", 2,false),
+                new SkillRequirement("aws", 1,false),
+                new SkillRequirement("kubernetes", 1,false)
+        );
 
         // Mock du comportement de l'extracteur
         Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
-                .thenReturn(List.of("java", "spring", "sql", "docker", "aws", "kubernetes"));
+                .thenReturn(requirements);
 
         ResumeAnalysis result = analyzer.analyze(resume, offer);
 
@@ -51,9 +60,18 @@ public class TestResumeAnalyzer {
         String resume = "Java Spring SQL Docker AWS Kubernetes";
         String offer = "Java Spring SQL Docker AWS Kubernetes";
 
-        // Mock du comportement de l'extracteur
+        List<SkillRequirement> requirements = List.of(
+                new SkillRequirement("java", 5,true),
+                new SkillRequirement("spring", 4,true),
+                new SkillRequirement("sql", 3,true),
+                new SkillRequirement("docker", 2,false),
+                new SkillRequirement("aws", 1,false),
+                new SkillRequirement("kubernetes", 1,false)
+        );
+
+
         Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
-                .thenReturn(List.of("java", "spring", "sql", "docker", "aws", "kubernetes"));
+                .thenReturn(requirements);
 
         ResumeAnalysis result = analyzer.analyze(resume, offer);
 
@@ -72,9 +90,15 @@ public class TestResumeAnalyzer {
         String resume = "Java Spring";
         String offer = "Java Spring SQL";
 
-        // Mock du comportement de l'extracteur
+        List<SkillRequirement> requirements = List.of(
+                new SkillRequirement("java", 5,true),
+                new SkillRequirement("spring", 4,true),
+                new SkillRequirement("sql", 3,true)
+        );
+
+
         Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
-                .thenReturn(List.of("java", "spring", "sql"));
+                .thenReturn(requirements);
 
         ResumeAnalysis result = analyzer.analyze(resume, offer);
 
@@ -93,9 +117,16 @@ public class TestResumeAnalyzer {
         String resume = "Java Spring SQL";
         String offer = "Java Spring SQL Docker";
 
-        // Mock du comportement de l'extracteur
+        List<SkillRequirement> requirements = List.of(
+                new SkillRequirement("java", 5,true),
+                new SkillRequirement("spring", 4,true),
+                new SkillRequirement("sql", 3,true),
+                new SkillRequirement("docker", 2,false)
+        );
+
+
         Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
-                .thenReturn(List.of("java", "spring", "sql", "docker"));
+                .thenReturn(requirements);
 
         ResumeAnalysis result = analyzer.analyze(resume, offer);
 
@@ -104,4 +135,58 @@ public class TestResumeAnalyzer {
         assertThat(result.getOverallScore()).isEqualTo(expectedAverage);
     }
 
+    @Test
+    void shouldApplyWeightingToJobMatchScore(){
+        analyzer = new ResumeAnalyzer(keywordExtractor);
+
+        String resume = "Java Spring"; // Only has Java and Spring
+        String offer = "Java Spring SQL Docker";
+
+
+        List<SkillRequirement> requirements = List.of(
+                new SkillRequirement("java", 5, true),     // Found - high weight
+                new SkillRequirement("spring", 4, true),   // Found - medium weight
+                new SkillRequirement("sql", 3, true),      // Missing - medium weight
+                new SkillRequirement("docker", 1, false)   // Missing - low weight
+        );
+
+        Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
+                .thenReturn(requirements);
+
+        ResumeAnalysis result = analyzer.analyze(resume, offer);
+
+
+        assertThat(result.getJobMatchScore())
+                .isEqualTo(69);  // Exact calculation with weighting
+
+        assertThat(result.getMissingKeywords())
+                .contains("sql", "docker");
+    }
+
+    @Test
+    void shouldPrioritizeMandatorySkills(){
+        analyzer = new ResumeAnalyzer(keywordExtractor);
+
+        String resume = "Docker AWS"; // Has non-mandatory skills
+        String offer = "Java Spring Docker AWS";
+
+        List<SkillRequirement> requirements = List.of(
+                new SkillRequirement("java", 5, true),      // Missing - mandatory, high weight
+                new SkillRequirement("spring", 4, true),    // Missing - mandatory, high weight
+                new SkillRequirement("docker", 1, false),   // Found - non-mandatory, low weight
+                new SkillRequirement("aws", 1, false)       // Found - non-mandatory, low weight
+        );
+
+        Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
+                .thenReturn(requirements);
+
+        ResumeAnalysis result = analyzer.analyze(resume, offer);
+
+
+        assertThat(result.getJobMatchScore())
+                .isEqualTo(18);  // Low score due to missing mandatory skills
+
+        assertThat(result.getMissingKeywords())
+                .contains("java", "spring");
+    }
 }

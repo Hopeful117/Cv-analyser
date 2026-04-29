@@ -1,7 +1,9 @@
 package com.hopeful117.cv_analyzer.analyzer;
 
 import com.hopeful117.cv_analyzer.extractor.JobKeyWordExtractor;
+import com.hopeful117.cv_analyzer.extractor.KeywordExtractor;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import com.hopeful117.cv_analyzer.model.SkillRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @RequiredArgsConstructor
 public class ResumeAnalyzer {
-    private final JobKeyWordExtractor keywordExtractor;
+    private final KeywordExtractor keywordExtractor;
     public ResumeAnalysis analyze(String resumeText, String jobOfferText) {
         List<String> risks = new ArrayList<>();
         List<String> recommendations = new ArrayList<>();
@@ -106,27 +108,23 @@ public class ResumeAnalyzer {
             List<String> missing,
             List<String> recs){
 
-        List<String> extractedKeywords =
+        List<SkillRequirement> extractedKeywords =
                 extractKeywords(offer);
 
-        int found = 0;
+        int totalWeight = 0;
+        int foundWeight = 0;
 
-        for(String keyword : extractedKeywords){
+        for(SkillRequirement extractedSkill : extractedKeywords){
+            totalWeight += extractedSkill.getWeight();
 
-            if(resume.contains(keyword)){
-
-                found++;
-
+            if(resume.contains(extractedSkill.getName())){
+                foundWeight += extractedSkill.getWeight();
             } else {
-
-                missing.add(keyword);
-
+                missing.add(extractedSkill.getName());
             }
-
         }
 
         if(!missing.isEmpty()){
-
             recs.add(
                     "Ajouter certains mots-clés présents dans l'annonce."
             );
@@ -134,12 +132,12 @@ public class ResumeAnalyzer {
 
         return extractedKeywords.isEmpty()
                 ? 100
-                : (found * 100 / extractedKeywords.size());
+                : (foundWeight * 100 / totalWeight);
     }
 
 
 
-    private List<String> extractKeywords(
+    private List<SkillRequirement> extractKeywords(
             String offer){
         return keywordExtractor.extract(offer);
 

@@ -2,11 +2,14 @@
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/analyzer/ResumeAnalyzer.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/controller/ResumeController.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/controller/ResumeUploadController.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/AIKeywordExtractor.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/JobKeyWordExtractor.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/KeywordExtractor.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/AnalysisRequest.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/JobOfferRequest.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/ResumeAnalysis.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/ResumeRequest.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/SkillRequirement.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/service/JobScrapperService.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/service/PdfParserService.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/service/ResumeAnalysisService.java

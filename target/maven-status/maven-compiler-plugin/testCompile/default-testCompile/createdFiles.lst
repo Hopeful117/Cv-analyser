@@ -1,3 +1,7 @@
+com/hopeful117/cv_analyzer/TestExtractor/TestKeywordExtractor.class
 com/hopeful117/cv_analyzer/TestService/TestPdfParserService.class
+com/hopeful117/cv_analyzer/TestExtractor/TestImportanceDetector.class
 com/hopeful117/cv_analyzer/TestAnalyzer/TestResumeAnalyzer.class
 com/hopeful117/cv_analyzer/CvAnalyzerApplicationTests.class
+com/hopeful117/cv_analyzer/TestService/TestJobScrapperService.class
+com/hopeful117/cv_analyzer/TestService/TestResumeAnalysisService.class

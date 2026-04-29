@@ -1,4 +1,7 @@
 /home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/CvAnalyzerApplicationTests.java
 /home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestAnalyzer/TestResumeAnalyzer.java
+/home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestExtractor/TestImportanceDetector.java
+/home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestExtractor/TestKeywordExtractor.java
+/home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestService/TestJobScrapperService.java
 /home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestService/TestPdfParserService.java
 /home/ludo/Bureau/cv-analyzer/src/test/java/com/hopeful117/cv_analyzer/TestService/TestResumeAnalysisService.java

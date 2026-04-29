@@ -184,7 +184,7 @@ public class TestResumeAnalyzer {
 
 
         assertThat(result.getJobMatchScore())
-                .isEqualTo(18);  // Low score due to missing mandatory skills
+                .isEqualTo(18);
 
         assertThat(result.getMissingKeywords())
                 .contains("java", "spring");

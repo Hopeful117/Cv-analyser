@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.hopeful117.cv_analyzer.TestExtractor.TestKeywordExtractor
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.784 s -- in com.hopeful117.cv_analyzer.TestExtractor.TestKeywordExtractor

@@ -3,6 +3,9 @@
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/controller/ResumeController.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/controller/ResumeUploadController.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/AIKeywordExtractor.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/ImportanceDetector.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/ImportanceSignals.java
+/home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/JobImportanceDetector.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/JobKeyWordExtractor.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/extractor/KeywordExtractor.java
 /home/ludo/Bureau/cv-analyzer/src/main/java/com/hopeful117/cv_analyzer/model/AnalysisRequest.java

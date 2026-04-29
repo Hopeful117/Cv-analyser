@@ -1,11 +1,16 @@
 com/hopeful117/cv_analyzer/extractor/KeywordExtractor.class
+com/hopeful117/cv_analyzer/extractor/ImportanceDetector.class
 com/hopeful117/cv_analyzer/controller/ResumeController.class
 com/hopeful117/cv_analyzer/model/AnalysisRequest.class
+com/hopeful117/cv_analyzer/controller/ResumeUploadController.class
+com/hopeful117/cv_analyzer/extractor/JobImportanceDetector.class
 com/hopeful117/cv_analyzer/service/JobScrapperService.class
 com/hopeful117/cv_analyzer/model/ResumeRequest.class
 com/hopeful117/cv_analyzer/analyzer/ResumeAnalyzer.class
+com/hopeful117/cv_analyzer/service/PdfParserService.class
 com/hopeful117/cv_analyzer/model/JobOfferRequest.class
 com/hopeful117/cv_analyzer/service/ResumeAnalysisService.class
+com/hopeful117/cv_analyzer/extractor/ImportanceSignals.class
 com/hopeful117/cv_analyzer/extractor/AIKeywordExtractor.class
 com/hopeful117/cv_analyzer/extractor/JobKeyWordExtractor.class
 com/hopeful117/cv_analyzer/model/ResumeAnalysis.class

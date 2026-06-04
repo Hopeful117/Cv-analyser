@@ -9,7 +9,10 @@ import java.io.IOException;
 @Service
 public class JobScrapperService {
     public String extractTextFromUrl(String url) throws IOException {
-        Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0").get();
+        Document doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36")
+                .header("Accept-Language", "fr-FR,fr;q=0.9,en;q=0.8")
+                .get();
         doc.select("script,style,nav,header,footer").remove();
         return doc.body().text();
     }

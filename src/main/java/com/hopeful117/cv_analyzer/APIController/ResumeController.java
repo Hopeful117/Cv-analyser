@@ -1,4 +1,4 @@
-package com.hopeful117.cv_analyzer.controller;
+package com.hopeful117.cv_analyzer.APIController;
 
 import com.hopeful117.cv_analyzer.model.AnalysisRequest;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;

@@ -1,10 +1,8 @@
-package com.hopeful117.cv_analyzer.controller;
+package com.hopeful117.cv_analyzer.WebInterfaceController;
 
+import com.hopeful117.cv_analyzer.exception.InvalidJobOfferException;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
 import com.hopeful117.cv_analyzer.service.AnalysisFace;
-import com.hopeful117.cv_analyzer.service.JobScrapperService;
-import com.hopeful117.cv_analyzer.service.PdfParserService;
-import com.hopeful117.cv_analyzer.service.ResumeAnalysisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,9 +20,18 @@ public class ViewController {
         return "index";
     }
     @PostMapping("/analyze")
-    public String analyze(Model model,MultipartFile file, String jobOffer,String jobOfferUrl) throws Exception {
+    public String analyze(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String jobOffer,
+            @RequestParam(required = false) String jobOfferUrl,
+            Model model) throws Exception {
 
-        ResumeAnalysis analysis= analysisFace.analyze(file,jobOffer,jobOfferUrl);
+        ResumeAnalysis analysis =
+                analysisFace.analyze(
+                        file,
+                        jobOffer,
+                        jobOfferUrl
+                );
 
         model.addAttribute(
                 "analysis",

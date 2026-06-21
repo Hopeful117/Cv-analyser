@@ -1,5 +1,6 @@
 package com.hopeful117.cv_analyzer.service;
 
+import com.hopeful117.cv_analyzer.exception.InvalidJobOfferException;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,28 @@ public class AnalysisFace{
             String jobOfferUrl
     ) throws IOException {
 
-        if (jobOfferUrl != null
-                && !jobOfferUrl.isBlank()) {
+       ;
+        boolean hasText =
+                jobOffer != null
+                        && !jobOffer.isBlank();
 
+        boolean hasUrl =
+                jobOfferUrl != null
+                        && !jobOfferUrl.isBlank();
+
+        if (hasText && hasUrl) {
+            throw new InvalidJobOfferException(
+                    "Provide either a job offer text or a URL, not both."
+            );
+        }
+
+        if (!hasText && !hasUrl) {
+            throw new InvalidJobOfferException(
+                    "A job offer text or URL is required."
+            );
+        }
+
+        if (hasUrl) {
             return jobScrapperService
                     .extractTextFromUrl(jobOfferUrl);
         }

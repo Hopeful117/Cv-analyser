@@ -1,5 +1,6 @@
 package com.hopeful117.cv_analyzer.service;
 
+import com.hopeful117.cv_analyzer.exception.PdfParserException;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -20,7 +21,7 @@ public class PdfParserService {
             document.close();
             return text;
         } catch (IOException e) {
-            throw new IOException("Failed to parse PDF file: " + e.getMessage(), e);
+            throw new PdfParserException("Failed to parse PDF file: " + file.getName(), e);
         }
     }
 

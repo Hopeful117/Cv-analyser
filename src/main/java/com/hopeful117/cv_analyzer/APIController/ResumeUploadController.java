@@ -1,9 +1,7 @@
-package com.hopeful117.cv_analyzer.controller;
+package com.hopeful117.cv_analyzer.APIController;
 
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
 import com.hopeful117.cv_analyzer.service.AnalysisFace;
-import com.hopeful117.cv_analyzer.service.PdfParserService;
-import com.hopeful117.cv_analyzer.service.ResumeAnalysisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

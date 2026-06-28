@@ -14,8 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
-public class ResumeAnalyzer {
+public class ResumeAnalyzer implements Analyzer{
     private final KeywordExtractor keywordExtractor;
+
+    @Override
     public ResumeAnalysis analyze(String resumeText, String jobOfferText) {
         List<String> risks = new ArrayList<>();
         List<String> recommendations = new ArrayList<>();

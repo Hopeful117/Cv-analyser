@@ -4,7 +4,7 @@ CV analyzer is a tool that helps you analyze and evaluate CVs (Curriculum Vitae)
 ## Stack 
 - Java
 - Spring Boot
-- Spring AI (no yet implemented)
+- Spring AI 
 - MySQL(not yet implemented)
 
 ## Features
@@ -15,6 +15,7 @@ CV analyzer is a tool that helps you analyze and evaluate CVs (Curriculum Vitae)
 - Match CVs against job descriptions to assess suitability for specific roles.
 - Generate a score or rating for the CV based on predefined criteria.
 - Provide recommendations for optimizing the CV to increase chances of getting shortlisted.
+- AI powered analysis for more accurate and personalized feedback.
 
 ## Installation
 1. Clone the repository:
@@ -35,12 +36,19 @@ CV analyzer is a tool that helps you analyze and evaluate CVs (Curriculum Vitae)
     ```bash
       mvn spring-boot:run
       ```
+5.Set up your OpenAI API key in the application.properties file:
+    ```properties
+      openai.api.key=YOUR_API_KEY
+      ```
+6.Set up your OpenAI Model in the application.properties file:
+    ```properties
+      openai.model=gpt-4
+      ```
 
 ## Future Enhancements
-- Implement Spring AI for advanced analysis and recommendations.
+
 - Integrate MySQL database for storing CVs and analysis results.
 - Add user authentication and authorization for secure access to the application.
-- Implement a web interface for users to upload and analyze their CVs easily.
 - Add support for additional file formats and languages for CV analysis.
 - Implement machine learning algorithms to provide more accurate and personalized feedback on CVs.
 - Add a feature to compare multiple CVs and provide a ranking based on suitability for specific job roles.

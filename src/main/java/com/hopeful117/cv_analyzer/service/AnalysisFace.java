@@ -1,6 +1,7 @@
 package com.hopeful117.cv_analyzer.service;
 
 import com.hopeful117.cv_analyzer.exception.InvalidJobOfferException;
+import com.hopeful117.cv_analyzer.helper.ResolveOffer;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import java.io.IOException;
 public class AnalysisFace{
     private final PdfParserService pdfParserService;
     private final ResumeAnalysisService resumeAnalysisService;
-    private final JobScrapperService jobScrapperService;
+    private final ResolveOffer resolveOffer;
 
     public ResumeAnalysis analyze(
             MultipartFile file,
@@ -25,7 +26,7 @@ public class AnalysisFace{
                 pdfParserService.extractText(file);
 
         String offerText =
-                resolveOffer(jobOffer, jobOfferUrl);
+                resolveOffer.resolveOffer(jobOffer, jobOfferUrl);
 
         return resumeAnalysisService.analyzeResume(
                 resumeText,
@@ -33,39 +34,7 @@ public class AnalysisFace{
         );
     }
 
-    private String resolveOffer(
-            String jobOffer,
-            String jobOfferUrl
-    ) throws IOException {
 
-       ;
-        boolean hasText =
-                jobOffer != null
-                        && !jobOffer.isBlank();
-
-        boolean hasUrl =
-                jobOfferUrl != null
-                        && !jobOfferUrl.isBlank();
-
-        if (hasText && hasUrl) {
-            throw new InvalidJobOfferException(
-                    "Provide either a job offer text or a URL, not both."
-            );
-        }
-
-        if (!hasText && !hasUrl) {
-            throw new InvalidJobOfferException(
-                    "A job offer text or URL is required."
-            );
-        }
-
-        if (hasUrl) {
-            return jobScrapperService
-                    .extractTextFromUrl(jobOfferUrl);
-        }
-
-        return jobOffer;
-    }
 }
 
 

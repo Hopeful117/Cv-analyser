@@ -16,6 +16,7 @@ CV analyzer is a tool that helps you analyze and evaluate CVs (Curriculum Vitae)
 - Generate a score or rating for the CV based on predefined criteria.
 - Provide recommendations for optimizing the CV to increase chances of getting shortlisted.
 - AI powered analysis for more accurate and personalized feedback.
+- AI powered cover letter generation based on the CV and job description.
 
 ## Installation
 1. Clone the repository:

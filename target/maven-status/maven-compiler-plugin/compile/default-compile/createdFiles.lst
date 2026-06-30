@@ -1,17 +1,13 @@
 com/hopeful117/cv_analyzer/exception/CvAnalyzerException.class
 com/hopeful117/cv_analyzer/extractor/ImportanceDetector.class
 com/hopeful117/cv_analyzer/exception/AIAnalysisException.class
-com/hopeful117/cv_analyzer/model/AnalysisRequest.class
 com/hopeful117/cv_analyzer/extractor/JobImportanceDetector.class
-com/hopeful117/cv_analyzer/model/JobOfferRequest.class
 com/hopeful117/cv_analyzer/exception/PdfParserException.class
 com/hopeful117/cv_analyzer/extractor/ImportanceSignals.class
-com/hopeful117/cv_analyzer/extractor/AIKeywordExtractor.class
 com/hopeful117/cv_analyzer/model/ResumeAnalysis.class
 com/hopeful117/cv_analyzer/extractor/KeywordExtractor.class
 com/hopeful117/cv_analyzer/exception/JobScrapperException.class
 com/hopeful117/cv_analyzer/service/JobScrapperService.class
-com/hopeful117/cv_analyzer/model/ResumeRequest.class
 com/hopeful117/cv_analyzer/analyzer/ResumeAnalyzer.class
 com/hopeful117/cv_analyzer/service/PdfParserService.class
 com/hopeful117/cv_analyzer/service/ResumeAnalysisService.class

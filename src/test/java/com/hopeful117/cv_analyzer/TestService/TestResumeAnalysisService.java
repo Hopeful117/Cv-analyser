@@ -1,9 +1,11 @@
 package com.hopeful117.cv_analyzer.TestService;
 
+import com.hopeful117.cv_analyzer.analyzer.AiResumeAnalyzer;
 import com.hopeful117.cv_analyzer.analyzer.ResumeAnalyzer;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
 import com.hopeful117.cv_analyzer.service.ResumeAnalysisService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,11 +16,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 @ExtendWith(MockitoExtension.class)
 public class TestResumeAnalysisService {
 
     @Mock
-    private ResumeAnalyzer resumeAnalyzer;
+    private AiResumeAnalyzer resumeAnalyzer;
 
     private ResumeAnalysisService resumeAnalysisService;
 

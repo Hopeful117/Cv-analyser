@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Interview Report</title>
+</head>
+<body>
+
+<h1>Final Report</h1>
+
+<h2>Score: <span th:text="${report.overallScore}"></span></h2>
+
+<h3>Strengths</h3>
+<ul>
+    <li th:each="s : ${report.globalStrengths}"
+        th:text="${s}"></li>
+</ul>
+
+<h3>Improvements</h3>
+<ul>
+    <li th:each="i : ${report.globalImprovements}"
+        th:text="${i}"></li>
+</ul>
+
+</body>
+</html>

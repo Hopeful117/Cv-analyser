@@ -5,7 +5,7 @@ import com.hopeful117.cv_analyzer.exception.InvalidJobOfferException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
+/*
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return "index";
+        return "home";
     }
     @ExceptionHandler(Exception.class)
     public String handleUnexpectedError(
@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
                 "Une erreur inattendue est survenue."
         );
 
-        return "index";
+        return "home";
     }
 }
+*/

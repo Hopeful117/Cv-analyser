@@ -20,7 +20,8 @@ public class AiResumeAnalyzer implements Analyzer {
     @Override
     public ResumeAnalysis analyze(String resumeText, String jobOfferText) {
         try {
-            ResumeAnalysis result = chatClient.prompt()
+
+            return chatClient.prompt()
                     .system("""
                             Tu es un expert ATS et recruteur senior spécialisé dans les métiers de l'informatique.
                             
@@ -46,8 +47,6 @@ public class AiResumeAnalyzer implements Analyzer {
                             .param("job", jobOfferText))
                     .call()
                     .entity(ResumeAnalysis.class);
-
-            return result;
         } catch (Exception e) {
             throw new AIAnalysisException("Erreur lors de l'analyse du CV avec l'IA : " + e.getMessage(), e);
 

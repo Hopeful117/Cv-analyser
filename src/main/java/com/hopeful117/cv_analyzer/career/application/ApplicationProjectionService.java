@@ -24,7 +24,12 @@ public class ApplicationProjectionService {
         stateService.markPending(applicationId);
         if (!properties.configured()) return;
         try {
-            port.upsert(projection);
+            Integer legacyRow = queryService.getLegacySheetRow(applicationId);
+            if (legacyRow == null || legacyRow <= properties.headerRow()) {
+                port.upsert(projection);
+            } else {
+                port.updateLegacyRow(legacyRow, projection);
+            }
             stateService.markSuccess(applicationId);
         } catch (GoogleSheetsFunctionalException exception) {
             fail(applicationId, exception.getCode(), exception.getMessage(), exception);

@@ -5,41 +5,41 @@
 <div class="app-shell">
     <aside th:replace="~{fragments/sidebar :: sidebar('applications')}"></aside>
     <div class="app-main">
-        <header th:replace="~{fragments/topbar :: topbar(${application.jobTitle}, ${application.companyName})}"></header>
+        <header th:replace="~{fragments/topbar :: topbar(${applicationDetails.jobTitle}, ${applicationDetails.companyName})}"></header>
         <main class="app-content" id="main-content">
             <div class="page-stack">
                 <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <section class="section-heading">
-                    <div><div class="d-flex gap-2 flex-wrap"><span class="os-badge" th:text="${application.status.frenchLabel}"></span><span class="os-badge os-badge-warning" th:text="${application.priority.frenchLabel}"></span><span class="os-badge os-badge-ai" th:if="${application.analysisId != null}">Analyse IA liée</span></div><h2 class="section-title mt-3" th:text="${application.jobTitle}">Poste</h2><p class="section-description" th:text="${application.companyName}">Entreprise</p></div>
-                    <div class="action-row"><a class="os-button os-button-secondary" th:href="@{/applications/{id}/edit(id=${application.id})}">Modifier</a><a class="os-button os-button-ghost" th:href="@{/applications}">Retour</a></div>
+                    <div><div class="d-flex gap-2 flex-wrap"><span class="os-badge" th:text="${applicationDetails.status == null ? 'Non démarché' : applicationDetails.status.frenchLabel}"></span><span class="os-badge os-badge-warning" th:text="${applicationDetails.priority == null ? 'Moyenne' : applicationDetails.priority.frenchLabel}"></span><span class="os-badge os-badge-ai" th:if="${applicationDetails.analysisId != null}">Analyse IA liée</span></div><h2 class="section-title mt-3" th:text="${applicationDetails.jobTitle}">Poste</h2><p class="section-description" th:text="${applicationDetails.companyName}">Entreprise</p></div>
+                    <div class="action-row"><a class="os-button os-button-secondary" th:href="@{/applications/{id}/edit(id=${applicationDetails.id})}">Modifier</a><a class="os-button os-button-ghost" th:href="@{/applications}">Retour</a></div>
                 </section>
                 <div class="os-grid os-grid-2">
                     <section class="os-card">
                         <div class="eyebrow">Entreprise et opportunité</div>
                         <dl class="result-list mt-3">
-                            <div class="result-list-item"><dt>Entreprise</dt><dd th:text="${application.companyName}"></dd></div>
-                            <div class="result-list-item" th:if="${application.city != null}"><dt>Ville</dt><dd th:text="${application.city}"></dd></div>
-                            <div class="result-list-item" th:if="${application.email != null}"><dt>Email</dt><dd th:text="${application.email}"></dd></div>
-                            <div class="result-list-item" th:if="${application.phone != null}"><dt>Téléphone</dt><dd th:text="${application.phone}"></dd></div>
-                            <div class="result-list-item" th:if="${application.offerUrl != null}"><dt>Offre</dt><dd><a th:href="${application.offerUrl}" rel="noopener noreferrer">Ouvrir le lien</a></dd></div>
-                            <div class="result-list-item"><dt>Contrat</dt><dd th:text="${application.contractType != null ? application.contractType : application.contractRaw}"></dd></div>
-                            <div class="result-list-item"><dt>Télétravail</dt><dd th:text="${application.remoteMode}"></dd></div>
-                            <div class="result-list-item" th:if="${application.salary != null}"><dt>Salaire</dt><dd th:text="${application.salary}"></dd></div>
+                            <div class="result-list-item"><dt>Entreprise</dt><dd th:text="${applicationDetails.companyName}"></dd></div>
+                            <div class="result-list-item" th:if="${applicationDetails.city != null}"><dt>Ville</dt><dd th:text="${applicationDetails.city}"></dd></div>
+                            <div class="result-list-item" th:if="${applicationDetails.email != null}"><dt>Email</dt><dd th:text="${applicationDetails.email}"></dd></div>
+                            <div class="result-list-item" th:if="${applicationDetails.phone != null}"><dt>Téléphone</dt><dd th:text="${applicationDetails.phone}"></dd></div>
+                            <div class="result-list-item" th:if="${applicationDetails.offerUrl != null}"><dt>Offre</dt><dd><a th:href="${applicationDetails.offerUrl}" rel="noopener noreferrer">Ouvrir le lien</a></dd></div>
+                            <div class="result-list-item"><dt>Contrat</dt><dd th:text="${applicationDetails.contractType != null ? applicationDetails.contractType : applicationDetails.contractRaw}"></dd></div>
+                            <div class="result-list-item"><dt>Télétravail</dt><dd th:text="${applicationDetails.remoteMode}"></dd></div>
+                            <div class="result-list-item" th:if="${applicationDetails.salary != null}"><dt>Salaire</dt><dd th:text="${applicationDetails.salary}"></dd></div>
                         </dl>
                     </section>
                     <section class="os-card">
                         <div class="eyebrow">Suivi</div>
                         <div class="os-grid os-grid-2 mt-3">
-                            <div><span class="stat-label">Candidature</span><strong th:text="${application.appliedAt == null ? 'Non renseignée' : #temporals.format(application.appliedAt,'dd/MM/yyyy')}"></strong></div>
-                            <div><span class="stat-label">Relance prévue</span><strong th:text="${application.followUpPlannedAt == null ? 'Aucune' : #temporals.format(application.followUpPlannedAt,'dd/MM/yyyy')}"></strong></div>
-                            <div><span class="stat-label">Dernière relance</span><strong th:text="${application.lastFollowUpAt == null ? 'Aucune' : #temporals.format(application.lastFollowUpAt,'dd/MM/yyyy')}"></strong></div>
-                            <div><span class="stat-label">Entretien</span><strong th:text="${application.interviewStatus}"></strong></div>
+                            <div><span class="stat-label">Candidature</span><strong th:text="${applicationDetails.appliedAt == null ? 'Non renseignée' : #temporals.format(applicationDetails.appliedAt,'dd/MM/yyyy')}"></strong></div>
+                            <div><span class="stat-label">Relance prévue</span><strong th:text="${applicationDetails.followUpPlannedAt == null ? 'Aucune' : #temporals.format(applicationDetails.followUpPlannedAt,'dd/MM/yyyy')}"></strong></div>
+                            <div><span class="stat-label">Dernière relance</span><strong th:text="${applicationDetails.lastFollowUpAt == null ? 'Aucune' : #temporals.format(applicationDetails.lastFollowUpAt,'dd/MM/yyyy')}"></strong></div>
+                            <div><span class="stat-label">Entretien</span><strong th:text="${applicationDetails.interviewStatus}"></strong></div>
                         </div>
-                        <form class="mt-3" method="post" th:action="@{/applications/{id}/status(id=${application.id})}">
+                        <form class="mt-3" method="post" th:action="@{/applications/{id}/status(id=${applicationDetails.id})}">
                             <label class="os-label" for="nextStatus">Changer le statut</label>
-                            <div class="action-row"><select class="os-select" id="nextStatus" name="status"><option th:each="v:${statuses}" th:value="${v}" th:text="${v.frenchLabel}" th:selected="${v==application.status}"></option></select><input class="os-input" name="comment" placeholder="Commentaire facultatif"><button class="os-button os-button-primary">Appliquer</button></div>
+                            <div class="action-row"><select class="os-select" id="nextStatus" name="status"><option th:each="v:${statuses}" th:value="${v}" th:text="${v.frenchLabel}" th:selected="${v==applicationDetails.status}"></option></select><input class="os-input" name="comment" placeholder="Commentaire facultatif"><button class="os-button os-button-primary">Appliquer</button></div>
                         </form>
-                        <form class="mt-3" method="post" th:action="@{/applications/{id}/follow-ups(id=${application.id})}">
+                        <form class="mt-3" method="post" th:action="@{/applications/{id}/follow-ups(id=${applicationDetails.id})}">
                             <label class="os-label" for="followUpDate">Planifier une relance</label>
                             <div class="action-row"><input class="os-input" type="date" id="followUpDate" name="date" required><input type="hidden" name="action" value="plan"><button class="os-button os-button-secondary">Planifier</button></div>
                         </form>
@@ -49,34 +49,40 @@
                     <section class="os-card">
                         <div class="eyebrow">Documents associés</div>
                         <ul class="result-list mt-3">
-                            <li class="result-list-item">CV <strong th:text="${application.resumeVersionId == null ? 'Non lié' : 'Version ' + application.resumeVersionNumber}"></strong></li>
-                            <li class="result-list-item">Lettre <strong th:text="${application.coverLetterId == null ? 'Non liée' : 'Liée'}"></strong></li>
-                            <li class="result-list-item">Analyse <strong th:text="${application.analysisId == null ? 'Non liée' : application.aiScore + '/100 · estimation IA'}"></strong></li>
+                            <li class="result-list-item">CV <strong th:text="${applicationDetails.resumeVersionId == null ? 'Non lié' : 'Version ' + applicationDetails.resumeVersionNumber}"></strong></li>
+                            <li class="result-list-item">Lettre <strong th:text="${applicationDetails.coverLetterId == null ? 'Non liée' : 'Liée'}"></strong></li>
+                            <li class="result-list-item">Analyse <strong th:text="${applicationDetails.analysisId == null ? 'Non liée' : applicationDetails.aiScore + '/100 · estimation IA'}"></strong></li>
                         </ul>
-                        <p class="mt-3" th:if="${application.notes != null}" th:text="${application.notes}"></p>
-                        <div class="os-alert os-alert-info mt-3" th:if="${application.privateNotes != null}"><strong>Notes privées</strong><p th:text="${application.privateNotes}"></p></div>
+                        <p class="mt-3" th:if="${applicationDetails.notes != null}" th:text="${applicationDetails.notes}"></p>
+                        <div class="os-alert os-alert-info mt-3" th:if="${applicationDetails.privateNotes != null}"><strong>Notes privées</strong><p th:text="${applicationDetails.privateNotes}"></p></div>
                     </section>
                     <section class="os-card">
-                        <div class="section-heading"><div><div class="eyebrow">Projection Google Sheets</div><h3 class="feature-title mt-2" th:text="${application.projection == null ? 'En attente' : application.projection.status}"></h3></div></div>
-                        <p class="form-help" th:if="${application.projection == null}">Aucune tentative de projection.</p>
-                        <div th:if="${application.projection != null}">
-                            <p class="form-help" th:if="${application.projection.lastSuccessfulSyncAt != null}">Dernier succès : <time th:text="${#temporals.format(application.projection.lastSuccessfulSyncAt,'dd/MM/yyyy HH:mm')}"></time></p>
-                            <div class="os-alert os-alert-error" th:if="${application.projection.lastErrorMessage != null}" role="alert"><strong>Synchronisation impossible</strong><p th:text="${application.projection.lastErrorMessage}"></p></div>
+                        <div class="section-heading"><div><div class="eyebrow">Projection Google Sheets</div><h3 class="feature-title mt-2" th:text="${applicationDetails.projection == null ? 'En attente' : applicationDetails.projection.status}"></h3></div></div>
+                        <p class="form-help" th:if="${applicationDetails.projection == null}">Aucune tentative de projection.</p>
+                        <div th:if="${applicationDetails.projection != null}">
+                            <p class="form-help" th:if="${applicationDetails.projection.lastSuccessfulSyncAt != null}">Dernier succès : <time th:text="${#temporals.format(applicationDetails.projection.lastSuccessfulSyncAt,'dd/MM/yyyy HH:mm')}"></time></p>
+                            <div class="os-alert os-alert-error" th:if="${applicationDetails.projection.lastErrorMessage != null}" role="alert"><strong>Synchronisation impossible</strong><p th:text="${applicationDetails.projection.lastErrorMessage}"></p></div>
                         </div>
-                        <form class="mt-3" method="post" th:action="@{/applications/{id}/google-sheets/sync(id=${application.id})}">
+                        <form class="mt-3" method="post" th:action="@{/applications/{id}/google-sheets/sync(id=${applicationDetails.id})}">
                             <button class="os-button os-button-secondary" type="submit">Resynchroniser</button>
                         </form>
                     </section>
                 </div>
                 <section class="os-card">
                     <div class="eyebrow">Historique des statuts</div>
-                    <div class="empty-state" th:if="${application.history.isEmpty()}"><p>Aucune transition.</p></div>
-                    <ol class="result-list mt-3" th:if="${!application.history.isEmpty()}">
-                        <li class="result-list-item" th:each="event:${application.history}"><strong th:text="${event.newStatus.frenchLabel}"></strong><span class="stat-meta" th:text="${#temporals.format(event.changedAt,'dd/MM/yyyy HH:mm') + ' · ' + event.source}"></span><span th:if="${event.comment != null}" th:text="${event.comment}"></span></li>
+                    <div class="empty-state" th:if="${applicationDetails.history.isEmpty()}"><p>Aucune transition.</p></div>
+                    <ol class="status-history mt-3" th:if="${!applicationDetails.history.isEmpty()}">
+                        <li class="status-history-item" th:each="event:${applicationDetails.history}">
+                            <div class="status-history-heading">
+                                <strong class="status-history-title" th:text="${event.newStatus == null ? 'Statut non renseigné' : event.newStatus.frenchLabel}"></strong>
+                                <span class="stat-meta" th:text="${#temporals.format(event.changedAt,'dd/MM/yyyy HH:mm') + ' · ' + event.source}"></span>
+                            </div>
+                            <p class="status-history-comment" th:if="${event.comment != null && !event.comment.isBlank()}" th:text="${event.comment}"></p>
+                        </li>
                     </ol>
                 </section>
                 <section class="os-card os-card-warning">
-                    <form method="post" th:action="@{/applications/{id}/delete(id=${application.id})}" onsubmit="return confirm('Supprimer cette candidature et son historique ?');">
+                    <form method="post" th:action="@{/applications/{id}/delete(id=${applicationDetails.id})}" onsubmit="return confirm('Supprimer cette candidature et son historique ?');">
                         <button class="os-button os-button-danger" type="submit">Supprimer la candidature</button>
                     </form>
                 </section>

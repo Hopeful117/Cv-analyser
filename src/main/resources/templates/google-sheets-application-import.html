@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Importer une ligne Google Sheets')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('sheets-consultation')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Importer dans le CRM', 'Prévisualisation et confirmation explicite')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="os-alert os-alert-warning">
+                    <strong>Ligne Google Sheets <span th:text="${preview.row.rowNumber}">0</span></strong>
+                    <p>La confirmation crée une candidature dans MySQL. Career Intelligence devient ensuite la source de vérité et republie la candidature sur cette même ligne.</p>
+                </section>
+                <section class="os-card" th:if="${!preview.warnings.isEmpty()}">
+                    <h2 class="feature-title">Points à vérifier</h2>
+                    <ul class="result-list mt-3">
+                        <li class="result-list-item" th:each="warning:${preview.warnings}"
+                            th:text="${warning}"></li>
+                    </ul>
+                </section>
+                <form class="os-card page-stack" method="post"
+                      th:action="@{/google-sheets/applications/rows/{row}/import(row=${preview.row.rowNumber})}"
+                      th:object="${applicationForm}">
+                    <div>
+                        <h2 class="feature-title">Entreprise et opportunité</h2>
+                        <p class="form-help">Le poste doit être complété lorsqu’il était absent du document historique.</p>
+                    </div>
+                    <div class="os-grid os-grid-2">
+                        <div><label class="os-label" for="companyName">Entreprise *</label><input class="os-input" id="companyName" th:field="*{companyName}" required><p class="field-error" th:errors="*{companyName}"></p></div>
+                        <div><label class="os-label" for="jobTitle">Poste *</label><input class="os-input" id="jobTitle" th:field="*{jobTitle}" required><p class="field-error" th:errors="*{jobTitle}"></p></div>
+                        <div><label class="os-label" for="city">Ville</label><input class="os-input" id="city" th:field="*{city}"></div>
+                        <div><label class="os-label" for="address">Adresse</label><input class="os-input" id="address" th:field="*{address}"></div>
+                        <div><label class="os-label" for="phone">Téléphone</label><input class="os-input" id="phone" th:field="*{phone}"></div>
+                        <div><label class="os-label" for="email">Email <span class="form-help">(facultatif)</span></label><input class="os-input" id="email" type="email" th:field="*{email}" placeholder="Si disponible"><p class="field-error" th:errors="*{email}"></p></div>
+                        <div><label class="os-label" for="website">Site</label><input class="os-input" id="website" type="url" th:field="*{website}"><p class="field-error" th:errors="*{website}"></p></div>
+                        <div><label class="os-label" for="offerUrl">Lien de l’offre</label><input class="os-input" id="offerUrl" type="url" th:field="*{offerUrl}"><p class="field-error" th:errors="*{offerUrl}"></p></div>
+                        <div><label class="os-label" for="contractTypeRaw">Contrat</label><input class="os-input" id="contractTypeRaw" th:field="*{contractTypeRaw}"></div>
+                        <div><label class="os-label" for="workScheduleRaw">Temps</label><input class="os-input" id="workScheduleRaw" th:field="*{workScheduleRaw}"></div>
+                        <div><label class="os-label" for="source">Source</label><input class="os-input" id="source" th:field="*{source}"></div>
+                        <div><label class="os-label" for="remoteMode">Télétravail</label><select class="os-select" id="remoteMode" th:field="*{remoteMode}"><option th:each="value:${remoteModes}" th:value="${value}" th:text="${value}"></option></select></div>
+                    </div>
+                    <h2 class="feature-title">Suivi</h2>
+                    <div class="os-grid os-grid-2">
+                        <div><label class="os-label" for="status">Statut</label><select class="os-select" id="status" th:field="*{status}"><option th:each="value:${statuses}" th:value="${value}" th:text="${value.frenchLabel}"></option></select></div>
+                        <div><label class="os-label" for="priority">Priorité</label><select class="os-select" id="priority" th:field="*{priority}"><option th:each="value:${priorities}" th:value="${value}" th:text="${value.frenchLabel}"></option></select></div>
+                        <div><label class="os-label" for="appliedAt">Date de candidature</label><input class="os-input" id="appliedAt" type="date" th:field="*{appliedAt}"></div>
+                        <div><label class="os-label" for="followUpPlannedAt">Relance prévue</label><input class="os-input" id="followUpPlannedAt" type="date" th:field="*{followUpPlannedAt}"></div>
+                        <div><label class="os-label" for="lastFollowUpAt">Dernière relance</label><input class="os-input" id="lastFollowUpAt" type="date" th:field="*{lastFollowUpAt}"></div>
+                        <div><label class="os-label" for="distanceText">Distance</label><input class="os-input" id="distanceText" th:field="*{distanceText}"></div>
+                    </div>
+                    <div><label class="os-label" for="notes">Notes partagées</label><textarea class="os-textarea" id="notes" rows="5" th:field="*{notes}"></textarea><p class="field-error" th:errors="*{notes}"></p></div>
+                    <label class="d-flex gap-2 align-items-center"><input type="checkbox" th:field="*{portfolioSent}"> Portfolio envoyé</label>
+                    <div class="action-row">
+                        <button class="os-button os-button-primary" type="submit"
+                                onclick="return confirm('Créer cette candidature dans MySQL et lier la ligne Google Sheets ?');">Confirmer l’import</button>
+                        <a class="os-button os-button-ghost" th:href="@{/google-sheets/applications/rows/{row}(row=${preview.row.rowNumber})}">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

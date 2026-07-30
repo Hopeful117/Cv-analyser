@@ -4,7 +4,9 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.hopeful117.cv_analyzer.career.application.port.ApplicationSheetProjection;
+import com.hopeful117.cv_analyzer.career.application.port.GoogleSheetsConsultationPort;
 import com.hopeful117.cv_analyzer.career.application.port.GoogleSheetsProjectionPort;
+import com.hopeful117.cv_analyzer.career.application.consultation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -17,12 +19,43 @@ import java.util.regex.Pattern;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "career.google-sheets", name = "enabled", havingValue = "true")
-public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort {
+public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort, GoogleSheetsConsultationPort {
     private static final Pattern LAST_ROW = Pattern.compile(".*![A-Z]+(\\d+):[A-Z]+(\\d+)");
     private final GoogleSheetsClient client;
     private final CareerGoogleSheetsProperties properties;
     private final GoogleSheetHeaderResolver headerResolver = new GoogleSheetHeaderResolver();
     private final GoogleSheetRowMapper rowMapper = new GoogleSheetRowMapper();
+    private final GoogleSheetConsultationRowMapper consultationRowMapper =
+            new GoogleSheetConsultationRowMapper();
+
+    @Override
+    public GoogleSheetConsultationReport readApplications() {
+        SheetData data = readSheet();
+        ensureRequired(data.headers());
+        List<GoogleSheetApplicationRow> rows = new ArrayList<>();
+        for (int index = 1; index < data.rows().size(); index++) {
+            List<Object> rawRow = data.rows().get(index);
+            if (!isBlank(rawRow)) {
+                rows.add(consultationRowMapper.map(index + properties.headerRow(), rawRow,
+                        data.headers()));
+            }
+        }
+        var snapshot = new GoogleSheetApplicationSnapshot(data.headers().displayed(),
+                List.copyOf(rows), java.time.Instant.now());
+        return new GoogleSheetConsultationReport(snapshot, List.of(),
+                data.headers().missingRequired(), java.time.Instant.now());
+    }
+
+    @Override
+    public Optional<GoogleSheetApplicationRow> findByCareerIntelligenceId(String externalId) {
+        List<GoogleSheetApplicationRow> matches = readApplications().snapshot().rows().stream()
+                .filter(row -> Objects.equals(externalId, row.careerIntelligenceId())).toList();
+        if (matches.size() > 1) {
+            throw new GoogleSheetsFunctionalException("DUPLICATE_EXTERNAL_ID",
+                    "Plusieurs lignes utilisent l’identifiant Career Intelligence " + externalId + ".");
+        }
+        return matches.stream().findFirst();
+    }
 
     @Override
     public ConnectionReport validateConnection() {
@@ -99,6 +132,24 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
                 "Deux lignes ou plus possèdent le même Career Intelligence ID.");
         return matches.isEmpty() ? append(projection, data.headers()) :
                 update(projection, data.headers(), matches.getFirst());
+    }
+
+    @Override
+    public UpsertResult updateLegacyRow(int rowNumber, ApplicationSheetProjection projection) {
+        SheetData data = readSheet();
+        ensureRequired(data.headers());
+        int dataIndex = rowNumber - properties.headerRow();
+        if (dataIndex < 1 || dataIndex >= data.rows().size()) {
+            throw new GoogleSheetsFunctionalException("LEGACY_ROW_NOT_FOUND",
+                    "La ligne Google Sheets sélectionnée n’existe plus.");
+        }
+        int idColumn = data.headers().require("Career Intelligence ID");
+        String currentId = cell(data.rows().get(dataIndex), idColumn);
+        if (!currentId.isBlank() && !currentId.equals(projection.careerIntelligenceId())) {
+            throw new GoogleSheetsFunctionalException("LEGACY_ROW_ALREADY_LINKED",
+                    "Cette ligne Google Sheets est déjà liée à une autre candidature.");
+        }
+        return update(projection, data.headers(), rowNumber);
     }
 
     @Override
@@ -226,6 +277,10 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
     }
     private static String cell(List<Object> row, int index) {
         return index < row.size() && row.get(index) != null ? String.valueOf(row.get(index)).trim() : "";
+    }
+    private static boolean isBlank(List<Object> row) {
+        return row == null || row.stream().allMatch(value ->
+                value == null || String.valueOf(value).trim().isBlank());
     }
     private static int parseRow(String updatedRange) {
         Matcher matcher = LAST_ROW.matcher(updatedRange == null ? "" : updatedRange);

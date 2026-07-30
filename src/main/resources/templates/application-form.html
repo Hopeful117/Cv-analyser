@@ -18,7 +18,7 @@
                             <div><label class="os-label" for="city">Ville</label><input class="os-input" id="city" th:field="*{city}" maxlength="160"></div>
                             <div><label class="os-label" for="address">Adresse</label><input class="os-input" id="address" th:field="*{address}" maxlength="500"></div>
                             <div><label class="os-label" for="phone">Téléphone</label><input class="os-input" id="phone" th:field="*{phone}" maxlength="80"></div>
-                            <div><label class="os-label" for="email">Email</label><input class="os-input" type="email" id="email" th:field="*{email}" maxlength="254"><p class="field-error" th:errors="*{email}"></p></div>
+                            <div><label class="os-label" for="email">Email <span class="form-help">(facultatif)</span></label><input class="os-input" type="email" id="email" th:field="*{email}" maxlength="254" placeholder="Si disponible"><p class="field-error" th:errors="*{email}"></p></div>
                             <div><label class="os-label" for="website">Site web</label><input class="os-input" type="url" id="website" th:field="*{website}" maxlength="2048"><p class="field-error" th:errors="*{website}"></p></div>
                         </div>
                     </section>

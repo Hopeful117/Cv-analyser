@@ -31,6 +31,20 @@ public class ApplicationProjectionQueryService {
                 .map(entity -> map(entity, now, ProjectionStatus.PENDING)).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Integer getLegacySheetRow(long id) {
+        String legacyId = applicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable."))
+                .getLegacyExternalId();
+        String prefix = "GOOGLE-SHEET-ROW:";
+        if (legacyId == null || !legacyId.startsWith(prefix)) return null;
+        try {
+            return Integer.valueOf(legacyId.substring(prefix.length()));
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
     private ApplicationSheetProjection map(ApplicationEntity application, Instant synchronizedAt,
                                            ProjectionStatus projectionStatus) {
         OpportunityEntity opportunity = application.getOpportunity();

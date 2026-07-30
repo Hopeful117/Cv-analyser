@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Consultation Google Sheets')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('sheets-consultation')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Consultation Google Sheets', 'Lecture externe et diagnostic — MySQL reste la source de vérité')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="os-alert os-alert-info">
+                    <strong>Vue strictement en lecture.</strong>
+                    <p>Aucune valeur du Sheet ne modifie automatiquement Career Intelligence.</p>
+                </section>
+                <section class="os-grid os-grid-4" aria-label="Diagnostic de consultation">
+                    <article class="os-card stat-card"><span class="stat-label">Lignes du Sheet</span><span class="stat-value" th:text="${consultation.totalSheetRows}">0</span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Synchronisées</span><span class="stat-value" th:text="${consultation.synchronizedCount}">0</span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Différentes</span><span class="stat-value" th:text="${consultation.differentCount}">0</span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Absentes du CRM</span><span class="stat-value" th:text="${consultation.missingInCrmCount}">0</span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Absentes du Sheet</span><span class="stat-value" th:text="${consultation.missingInSheetCount}">0</span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Doublons</span><span class="stat-value" th:text="${consultation.duplicateCount}">0</span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Invalides</span><span class="stat-value" th:text="${consultation.invalidCount}">0</span></article>
+                </section>
+                <form class="os-card" method="get" th:action="@{/google-sheets/applications}">
+                    <div class="os-grid os-grid-4">
+                        <div><label class="os-label" for="query">Entreprise, poste ou identifiant</label><input class="os-input" id="query" name="query" th:value="${query}"></div>
+                        <div><label class="os-label" for="sheetStatus">Statut dans le Sheet</label><select class="os-select" id="sheetStatus" name="sheetStatus"><option value="">Tous</option><option value="Candidature envoyée" th:selected="${sheetStatus=='Candidature envoyée'}">Candidature envoyée</option><option value="En attente" th:selected="${sheetStatus=='En attente'}">En attente</option><option value="Entretien" th:selected="${sheetStatus=='Entretien'}">Entretien</option><option value="Relance effectuée" th:selected="${sheetStatus=='Relance effectuée'}">Relance effectuée</option><option value="Refus" th:selected="${sheetStatus=='Refus'}">Refus</option><option value="Succès" th:selected="${sheetStatus=='Succès'}">Succès</option><option value="Non démarché" th:selected="${sheetStatus=='Non démarché'}">Non démarché</option></select></div>
+                        <div><label class="os-label" for="state">État</label><select class="os-select" id="state" name="state"><option value="">Tous</option><option th:each="value:${states}" th:value="${value}" th:selected="${value==selectedState}" th:text="${value.frenchLabel}"></option></select></div>
+                        <div><label class="os-label" for="sort">Trier par</label><select class="os-select" id="sort" name="sort"><option value="title" th:selected="${sort=='title'}">Poste</option><option value="company" th:selected="${sort=='company'}">Entreprise</option><option value="status" th:selected="${sort=='status'}">Statut</option><option value="state" th:selected="${sort=='state'}">État</option></select></div>
+                        <div><label class="os-label" for="direction">Ordre</label><select class="os-select" id="direction" name="direction"><option value="asc" th:selected="${direction=='asc'}">Croissant</option><option value="desc" th:selected="${direction=='desc'}">Décroissant</option></select></div>
+                    </div>
+                    <div class="action-row mt-3"><button class="os-button os-button-primary">Appliquer</button><a class="os-button os-button-ghost" th:href="@{/google-sheets/applications}">Actualiser la lecture</a></div>
+                </form>
+                <section class="os-card" th:if="${consultation.results.empty}"><div class="empty-state"><h2 class="empty-state-title">Aucune ligne à afficher</h2><p>Le Sheet et le CRM ne contiennent aucun résultat pour ces filtres.</p></div></section>
+                <section class="os-table-wrap" th:if="${!consultation.results.empty}">
+                    <table class="os-table">
+                        <thead><tr><th>Entreprise</th><th>Poste</th><th>Statut</th><th>Priorité</th><th>Date</th><th>Relance</th><th>Career Intelligence ID</th><th>Synchronisation</th><th>État</th><th>Actions</th></tr></thead>
+                        <tbody>
+                        <tr th:each="item:${consultation.results.content}">
+                            <td th:text="${item.companyName}">Entreprise</td>
+                            <td th:text="${item.jobTitle == null || item.jobTitle.isBlank() ? 'Poste non renseigné' : item.jobTitle}">Poste</td>
+                            <td th:text="${item.sheetRow == null ? 'Absente du Sheet' : item.sheetRow.status}">Statut</td>
+                            <td th:text="${item.sheetRow == null ? '—' : item.sheetRow.priority}">Priorité</td>
+                            <td th:text="${item.sheetRow == null ? '—' : item.sheetRow.appliedAt}">Date</td>
+                            <td th:text="${item.sheetRow == null ? '—' : item.sheetRow.followUpPlannedAt}">Relance</td>
+                            <td th:text="${item.careerIntelligenceId}">ID</td>
+                            <td th:text="${item.sheetRow == null ? '—' : item.sheetRow.synchronizationStatus}">Sync</td>
+                            <td><span class="os-badge" th:classappend="${item.state.name()=='SYNCHRONIZED'} ? ' os-badge-success' : (${item.state.name()=='DIFFERENT'} ? ' os-badge-warning' : ' os-badge-danger')" th:text="${item.state.frenchLabel}">État</span></td>
+                            <td><div class="action-row"><a class="os-button os-button-secondary" th:if="${item.sheetRow != null && item.careerIntelligenceId != null && !item.careerIntelligenceId.isBlank()}" th:href="@{/google-sheets/applications/{id}(id=${item.careerIntelligenceId})}">Détails</a><a class="os-button os-button-secondary" th:if="${item.sheetRow != null && (item.careerIntelligenceId == null || item.careerIntelligenceId.isBlank())}" th:href="@{/google-sheets/applications/rows/{row}(row=${item.sheetRow.rowNumber})}">Détails</a><a class="os-button os-button-primary" th:if="${item.state.name()=='MISSING_IN_CRM' && item.sheetRow != null && (item.careerIntelligenceId == null || item.careerIntelligenceId.isBlank())}" th:href="@{/google-sheets/applications/rows/{row}/import(row=${item.sheetRow.rowNumber})}">Importer</a><a class="os-button os-button-ghost" th:if="${item.crmApplicationId != null}" th:href="@{/applications/{id}(id=${item.crmApplicationId})}">CRM</a></div></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <nav class="action-row" aria-label="Pagination" th:if="${consultation.results.totalPages > 1}">
+                    <a class="os-button os-button-secondary" th:if="${consultation.results.hasPrevious()}" th:href="@{/google-sheets/applications(page=${consultation.results.number-1},query=${query},sheetStatus=${sheetStatus},state=${selectedState},sort=${sort},direction=${direction})}">Précédent</a>
+                    <span class="os-badge">Page <span th:text="${consultation.results.number+1}"></span> / <span th:text="${consultation.results.totalPages}"></span></span>
+                    <a class="os-button os-button-secondary" th:if="${consultation.results.hasNext()}" th:href="@{/google-sheets/applications(page=${consultation.results.number+1},query=${query},sheetStatus=${sheetStatus},state=${selectedState},sort=${sort},direction=${direction})}">Suivant</a>
+                </nav>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

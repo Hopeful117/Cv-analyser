@@ -52,6 +52,10 @@
                         <input type="checkbox" name="followUpsDue" value="true" th:checked="${followUpsDue}">
                         Relances à effectuer uniquement
                     </label>
+                    <label class="mt-3 d-flex gap-2 align-items-center">
+                        <input type="checkbox" name="sentOnly" value="true" th:checked="${sentOnly}">
+                        Candidatures envoyées uniquement
+                    </label>
                     <div class="action-row mt-3">
                         <button class="os-button os-button-primary" type="submit">Filtrer</button>
                         <a class="os-button os-button-ghost" th:href="@{/applications}">Réinitialiser</a>
@@ -93,11 +97,11 @@
                     </article>
                     <nav class="action-row" aria-label="Pagination">
                         <a class="os-button os-button-secondary" th:if="${applicationsPage.hasPrevious()}"
-                           th:href="@{/applications(page=${applicationsPage.number - 1},query=${query},status=${selectedStatus},priority=${selectedPriority},followUpsDue=${followUpsDue},direction=${direction})}">Précédent</a>
+                           th:href="@{/applications(page=${applicationsPage.number - 1},query=${query},status=${selectedStatus},priority=${selectedPriority},followUpsDue=${followUpsDue},sentOnly=${sentOnly},direction=${direction})}">Précédent</a>
                         <span class="os-badge">Page <span th:text="${applicationsPage.number + 1}">1</span>
                             / <span th:text="${applicationsPage.totalPages}">1</span></span>
                         <a class="os-button os-button-secondary" th:if="${applicationsPage.hasNext()}"
-                           th:href="@{/applications(page=${applicationsPage.number + 1},query=${query},status=${selectedStatus},priority=${selectedPriority},followUpsDue=${followUpsDue},direction=${direction})}">Suivant</a>
+                           th:href="@{/applications(page=${applicationsPage.number + 1},query=${query},status=${selectedStatus},priority=${selectedPriority},followUpsDue=${followUpsDue},sentOnly=${sentOnly},direction=${direction})}">Suivant</a>
                     </nav>
                 </section>
             </div>

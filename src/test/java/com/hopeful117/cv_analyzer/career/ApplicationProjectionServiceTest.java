@@ -31,6 +31,25 @@ class ApplicationProjectionServiceTest {
         verify(state, never()).markSuccess(anyLong());
     }
 
+    @Test
+    void importedLegacyApplicationUpdatesItsOriginalRow() {
+        GoogleSheetsProjectionPort port = mock(GoogleSheetsProjectionPort.class);
+        ProjectionStateService state = mock(ProjectionStateService.class);
+        ApplicationProjectionQueryService query = mock(ApplicationProjectionQueryService.class);
+        CareerGoogleSheetsProperties properties = new CareerGoogleSheetsProperties(
+                true, "sheet-id", "Candidatures", "Tableau de bord", 1);
+        ApplicationSheetProjection projection = projection();
+        when(query.get(eq(42L), any(Instant.class), eq(ProjectionStatus.SYNCHRONIZED)))
+                .thenReturn(projection);
+        when(query.getLegacySheetRow(42L)).thenReturn(3);
+
+        new ApplicationProjectionService(port, properties, state, query).synchronize(42L);
+
+        verify(port).updateLegacyRow(3, projection);
+        verify(port, never()).upsert(any());
+        verify(state).markSuccess(42L);
+    }
+
     private ApplicationSheetProjection projection() {
         return new ApplicationSheetProjection("42", "APPLICATION-42", "Test", null, null,
                 null, null, null, "Java", null, null, null, null, null,

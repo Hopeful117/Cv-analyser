@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Détail projection Google Sheets')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('sheets-consultation')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Détail de la projection', ${detail.careerIntelligenceId})}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="section-heading">
+                    <div><span class="os-badge" th:text="${detail.comparison.state.frenchLabel}">État</span><h2 class="section-title mt-3" th:text="${detail.comparison.jobTitle}">Poste</h2><p class="section-description" th:text="${detail.comparison.companyName}">Entreprise</p></div>
+                    <div class="action-row"><a class="os-button os-button-secondary" th:href="@{/google-sheets/applications}">Actualiser la lecture</a><a class="os-button os-button-ghost" th:if="${detail.comparison.crmApplicationId != null}" th:href="@{/applications/{id}(id=${detail.comparison.crmApplicationId})}">Voir dans le CRM</a></div>
+                </section>
+                <section class="os-alert os-alert-warning" th:if="${detail.matchingSheetRows.size() > 1}" role="alert"><strong>Identifiant dupliqué</strong><p th:text="${detail.matchingSheetRows.size() + ' lignes utilisent cet identifiant.'}"></p></section>
+                <section class="os-card" th:if="${!detail.comparison.differences.isEmpty()}">
+                    <div class="eyebrow">Différences détectées</div>
+                    <div class="page-stack mt-3">
+                        <article th:each="difference:${detail.comparison.differences}">
+                            <h3 class="feature-title" th:text="${difference.field}">Champ</h3>
+                            <div class="comparison-pair">
+                                <div class="comparison-value"><span class="stat-label">Google Sheets</span><div th:text="${difference.googleSheetsValue}"></div></div>
+                                <div class="comparison-value"><span class="stat-label">Career Intelligence</span><div th:text="${difference.careerIntelligenceValue}"></div></div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+                <div class="os-grid os-grid-2">
+                    <section class="os-card">
+                        <div class="eyebrow">Toutes les colonnes Google Sheets</div>
+                        <div th:if="${detail.matchingSheetRows.isEmpty()}" class="empty-state"><p>Cette candidature est absente du Sheet.</p></div>
+                        <div class="page-stack mt-3" th:each="row:${detail.matchingSheetRows}">
+                            <span class="os-badge" th:text="${'Ligne ' + row.rowNumber}"></span>
+                            <dl class="result-list"><div class="result-list-item" th:each="entry:${row.columns.entrySet()}"><dt th:text="${entry.key}"></dt><dd th:text="${#strings.isEmpty(entry.value) ? 'Non renseigné' : entry.value}"></dd></div></dl>
+                        </div>
+                    </section>
+                    <section class="os-card">
+                        <div class="eyebrow">Valeurs Career Intelligence</div>
+                        <div th:if="${detail.crmColumns.isEmpty()}" class="empty-state"><p>Aucune candidature correspondante dans MySQL.</p></div>
+                        <dl class="result-list mt-3" th:if="${!detail.crmColumns.isEmpty()}"><div class="result-list-item" th:each="entry:${detail.crmColumns.entrySet()}"><dt th:text="${entry.key}"></dt><dd th:text="${#strings.isEmpty(entry.value) ? 'Non renseigné' : entry.value}"></dd></div></dl>
+                    </section>
+                </div>
+                <form th:if="${detail.comparison.crmApplicationId != null}" method="post" th:action="@{/google-sheets/applications/{externalId}/sync(externalId=${detail.careerIntelligenceId})}" onsubmit="return confirm('Republier les valeurs MySQL vers Google Sheets ?');">
+                    <button class="os-button os-button-primary" type="submit">Resynchroniser cette candidature</button>
+                </form>
+                <section class="os-card" th:if="${detail.comparison.state.name() == 'MISSING_IN_CRM' && detail.comparison.sheetRow != null && (detail.comparison.sheetRow.careerIntelligenceId == null || detail.comparison.sheetRow.careerIntelligenceId.isBlank())}">
+                    <h2 class="feature-title">Importer cette ligne</h2>
+                    <p class="form-help">Une prévisualisation permet de compléter les informations manquantes avant toute création dans MySQL.</p>
+                    <a class="os-button os-button-primary mt-3" th:href="@{/google-sheets/applications/rows/{row}/import(row=${detail.comparison.sheetRow.rowNumber})}">Prévisualiser l’import</a>
+                </section>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

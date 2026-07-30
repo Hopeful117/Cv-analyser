@@ -90,7 +90,7 @@ public class ExcelApplicationImportService {
         form.setCity(text(row, h, "Ville", formatter));
         form.setAddress(text(row, h, "Adresse", formatter));
         form.setPhone(text(row, h, "Téléphone", formatter));
-        form.setEmail(text(row, h, "Email", formatter));
+        form.setEmail(optionalEmail(text(row, h, "Email", formatter)));
         form.setWebsite(url(text(row, h, "Site", formatter), warnings));
         form.setJobTitle(text(row, h, "Poste", formatter));
         form.setOfferUrl(url(text(row, h, "Lien offre", formatter), warnings));
@@ -196,6 +196,12 @@ public class ExcelApplicationImportService {
     }
     private boolean yes(String value) {
         return Set.of("oui", "yes", "x", "1").contains(GoogleSheetHeaderResolver.normalize(value));
+    }
+    private String optionalEmail(String value) {
+        if (blank(value)) return null;
+        String normalized = GoogleSheetHeaderResolver.normalize(value);
+        return Set.of("-", "n/a", "na", "non disponible", "non renseigne",
+                "aucun", "inconnu").contains(normalized) ? null : value.trim();
     }
     private boolean empty(Row row, DataFormatter formatter) {
         for (Cell cell : row) if (!formatter.formatCellValue(cell).trim().isBlank()) return false;

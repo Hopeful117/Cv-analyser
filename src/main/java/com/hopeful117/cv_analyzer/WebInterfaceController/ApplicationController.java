@@ -26,15 +26,18 @@ public class ApplicationController {
                        @RequestParam(required = false) ApplicationStatus status,
                        @RequestParam(required = false) ApplicationPriority priority,
                        @RequestParam(defaultValue = "false") boolean followUpsDue,
+                       @RequestParam(defaultValue = "false") boolean sentOnly,
                        @RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "desc") String direction,
                        Model model) {
         model.addAttribute("applicationsPage",
-                crmService.search(query, status, priority, followUpsDue, page, 20, direction));
+                crmService.search(query, status, priority, followUpsDue, sentOnly,
+                        page, 20, direction));
         model.addAttribute("query", query);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedPriority", priority);
         model.addAttribute("followUpsDue", followUpsDue);
+        model.addAttribute("sentOnly", sentOnly);
         model.addAttribute("direction", direction);
         model.addAttribute("statuses", ApplicationStatus.values());
         model.addAttribute("priorities", ApplicationPriority.values());
@@ -65,7 +68,7 @@ public class ApplicationController {
 
     @GetMapping("/{id}")
     public String details(@PathVariable long id, Model model) {
-        model.addAttribute("application", crmService.getDetails(id));
+        model.addAttribute("applicationDetails", crmService.getDetails(id));
         model.addAttribute("statuses", ApplicationStatus.values());
         return "application-detail";
     }

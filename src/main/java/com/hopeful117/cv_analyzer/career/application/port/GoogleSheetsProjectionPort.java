@@ -9,6 +9,7 @@ public interface GoogleSheetsProjectionPort {
     List<String> readHeaders();
     Optional<RemoteProjection> findByExternalId(String externalId);
     UpsertResult upsert(ApplicationSheetProjection projection);
+    UpsertResult updateLegacyRow(int rowNumber, ApplicationSheetProjection projection);
     RebuildReport rebuild(List<ApplicationSheetProjection> projections);
 
     record ConnectionReport(boolean success, String sheetName, int headerCount,

@@ -90,6 +90,11 @@
             <span class="nav-icon" aria-hidden="true">⚙</span>
             Google Sheets
         </a>
+        <a class="nav-item-os" th:classappend="${activePage == 'sheets-consultation'} ? ' active'"
+           th:href="@{/google-sheets/applications}">
+            <span class="nav-icon" aria-hidden="true">⌕</span>
+            Consultation
+        </a>
     </nav>
 
     <div class="sidebar-label">À venir</div>

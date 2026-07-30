@@ -30,7 +30,7 @@
                         <a class="os-button os-button-secondary" th:href="@{/applications}">Gérer les candidatures</a>
                     </div>
                     <div class="os-grid os-grid-4">
-                        <article class="os-card stat-card"><span class="stat-label">Candidatures envoyées</span><span class="stat-value" th:text="${crmDashboard.applicationsSent}">0</span></article>
+                        <a class="os-card stat-card os-card-interactive" th:href="@{/applications(sentOnly=true)}"><span class="stat-label">Candidatures envoyées</span><span class="stat-value" th:text="${crmDashboard.applicationsSent}">0</span><span class="stat-meta">Voir la liste</span></a>
                         <article class="os-card stat-card"><span class="stat-label">En attente</span><span class="stat-value" th:text="${crmDashboard.waiting}">0</span></article>
                         <article class="os-card stat-card"><span class="stat-label">Entretiens</span><span class="stat-value" th:text="${crmDashboard.interviews}">0</span></article>
                         <article class="os-card stat-card"><span class="stat-label">Relances à effectuer</span><span class="stat-value" th:text="${crmDashboard.followUpsDue}">0</span></article>

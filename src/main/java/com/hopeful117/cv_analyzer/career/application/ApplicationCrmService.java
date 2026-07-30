@@ -21,6 +21,10 @@ import static com.hopeful117.cv_analyzer.career.application.CrmViewModels.*;
 public class ApplicationCrmService {
     private static final Set<ApplicationStatus> CLOSED =
             EnumSet.of(ApplicationStatus.REJECTED, ApplicationStatus.SUCCESS, ApplicationStatus.ARCHIVED);
+    private static final Set<ApplicationStatus> SENT =
+            EnumSet.of(ApplicationStatus.APPLIED, ApplicationStatus.WAITING,
+                    ApplicationStatus.INTERVIEW, ApplicationStatus.FOLLOWED_UP,
+                    ApplicationStatus.REJECTED, ApplicationStatus.SUCCESS);
 
     private final CompanyRepository companyRepository;
     private final OpportunityRepository opportunityRepository;
@@ -42,7 +46,17 @@ public class ApplicationCrmService {
         return createInternal(form, ChangeSource.IMPORT, clean(legacyExternalId));
     }
 
+    @Transactional
+    public Long createImportedFromGoogleSheet(ApplicationForm form, int rowNumber) {
+        return createInternal(form, ChangeSource.IMPORT, "GOOGLE-SHEET-ROW:" + rowNumber, false);
+    }
+
     private Long createInternal(ApplicationForm form, ChangeSource source, String legacyExternalId) {
+        return createInternal(form, source, legacyExternalId, true);
+    }
+
+    private Long createInternal(ApplicationForm form, ChangeSource source, String legacyExternalId,
+                                boolean publishProjection) {
         CompanyEntity company = findOrCreateCompany(form);
         OpportunityEntity opportunity = createOpportunity(form, company);
         opportunityRepository.save(opportunity);
@@ -53,7 +67,9 @@ public class ApplicationCrmService {
         application.setLegacyExternalId(legacyExternalId);
         applicationRepository.save(application);
         recordHistory(application, null, application.getStatus(), source, "Création de la candidature");
-        eventPublisher.publishEvent(new ApplicationChangedEvent(application.getId()));
+        if (publishProjection) {
+            eventPublisher.publishEvent(new ApplicationChangedEvent(application.getId()));
+        }
         return application.getId();
     }
 
@@ -110,7 +126,7 @@ public class ApplicationCrmService {
     @Transactional(readOnly = true)
     public Page<ApplicationListItem> search(String query, ApplicationStatus status,
                                             ApplicationPriority priority, boolean followUpsDue,
-                                            int page, int size, String direction) {
+                                            boolean sentOnly, int page, int size, String direction) {
         Specification<ApplicationEntity> specification =
                 (root, ignored, cb) -> cb.conjunction();
         if (hasText(query)) {
@@ -129,6 +145,10 @@ public class ApplicationCrmService {
             specification = specification.and((root, ignored, cb) -> cb.and(
                     cb.lessThanOrEqualTo(root.get("followUpPlannedAt"), LocalDate.now()),
                     root.get("status").in(CLOSED).not()));
+        }
+        if (sentOnly) {
+            specification = specification.and(
+                    (root, ignored, cb) -> root.get("status").in(SENT));
         }
         Sort sort = Sort.by("updatedAt");
         sort = "asc".equalsIgnoreCase(direction) ? sort.ascending() : sort.descending();
@@ -154,9 +174,9 @@ public class ApplicationCrmService {
                 opportunity.getSourceUrl(), opportunity.getContractType(), opportunity.getContractTypeRaw(),
                 opportunity.getWorkSchedule(), opportunity.getWorkScheduleRaw(), opportunity.getRemoteMode(),
                 opportunity.getSource(), opportunity.getSalaryText(), opportunity.getDistanceText(),
-                opportunity.getLocation(), opportunity.getNormalizedDescription(), application.getStatus(),
-                application.getPriority(), application.getAppliedAt(), application.getFollowUpPlannedAt(),
-                application.getLastFollowUpAt(), application.getInterviewStatus(), application.getDecision(),
+                opportunity.getLocation(), opportunity.getNormalizedDescription(), statusOf(application),
+                priorityOf(application), application.getAppliedAt(), application.getFollowUpPlannedAt(),
+                application.getLastFollowUpAt(), interviewOf(application), decisionOf(application),
                 application.isPortfolioSent(), application.getNotes(), application.getPrivateNotes(),
                 id(application.getResumeVersion()), application.getResumeVersion() == null ? null
                         : application.getResumeVersion().getVersionNumber(),
@@ -191,13 +211,13 @@ public class ApplicationCrmService {
         form.setDistanceText(opportunity.getDistanceText());
         form.setLocation(opportunity.getLocation());
         form.setDescription(opportunity.getNormalizedDescription());
-        form.setStatus(application.getStatus());
-        form.setPriority(application.getPriority());
+        form.setStatus(statusOf(application));
+        form.setPriority(priorityOf(application));
         form.setAppliedAt(application.getAppliedAt());
         form.setFollowUpPlannedAt(application.getFollowUpPlannedAt());
         form.setLastFollowUpAt(application.getLastFollowUpAt());
-        form.setInterviewStatus(application.getInterviewStatus());
-        form.setDecision(application.getDecision());
+        form.setInterviewStatus(interviewOf(application));
+        form.setDecision(decisionOf(application));
         form.setPortfolioSent(application.isPortfolioSent());
         form.setNotes(application.getNotes());
         form.setPrivateNotes(application.getPrivateNotes());
@@ -241,7 +261,7 @@ public class ApplicationCrmService {
         List<StatusHistoryItem> transitions = historyRepository.findAllByOrderByChangedAtDesc(
                 PageRequest.of(0, 5)).stream().map(this::toHistory).toList();
         return new CrmDashboard(opportunityRepository.count(),
-                applicationRepository.countByStatusIn(List.of(ApplicationStatus.APPLIED, ApplicationStatus.FOLLOWED_UP)),
+                applicationRepository.countByStatusIn(SENT),
                 applicationRepository.countByStatus(ApplicationStatus.WAITING),
                 applicationRepository.countByStatus(ApplicationStatus.INTERVIEW),
                 applicationRepository.countByFollowUpPlannedAtLessThanEqualAndStatusNotIn(LocalDate.now(), CLOSED),
@@ -330,7 +350,7 @@ public class ApplicationCrmService {
         application.setResumeVersion(optional(form.getResumeVersionId(), resumeVersionRepository, "Version de CV"));
         application.setCoverLetter(optional(form.getCoverLetterId(), coverLetterRepository, "Lettre"));
         application.setAnalysis(optional(form.getAnalysisId(), analysisRepository, "Analyse"));
-        if (!update && application.getStatus() == ApplicationStatus.APPLIED && application.getAppliedAt() == null) {
+        if (!update && SENT.contains(application.getStatus()) && application.getAppliedAt() == null) {
             application.setAppliedAt(LocalDate.now());
         }
     }
@@ -345,7 +365,7 @@ public class ApplicationCrmService {
             return;
         }
         application.setStatus(newStatus);
-        if (newStatus == ApplicationStatus.APPLIED && application.getAppliedAt() == null) {
+        if (SENT.contains(newStatus) && application.getAppliedAt() == null) {
             application.setAppliedAt(LocalDate.now());
         }
         recordHistory(application, previous, newStatus, source, clean(comment));
@@ -374,13 +394,34 @@ public class ApplicationCrmService {
                 .map(ExternalProjectionEntity::getStatus).orElse(ProjectionStatus.PENDING);
         return new ApplicationListItem(application.getId(), companyName(opportunity), opportunity.getTitle(),
                 opportunity.getContractType(), opportunity.getContractTypeRaw(), application.getAppliedAt(),
-                application.getStatus(), application.getPriority(), application.getFollowUpPlannedAt(),
+                statusOf(application), priorityOf(application), application.getFollowUpPlannedAt(),
                 application.getResumeVersion() != null, application.getCoverLetter() != null, projection);
     }
 
     private StatusHistoryItem toHistory(ApplicationStatusHistoryEntity history) {
-        return new StatusHistoryItem(history.getPreviousStatus(), history.getNewStatus(),
+        return new StatusHistoryItem(history.getPreviousStatus(),
+                history.getNewStatus() == null ? ApplicationStatus.NOT_CONTACTED : history.getNewStatus(),
                 history.getChangedAt(), history.getChangeSource(), history.getComment());
+    }
+
+    private static ApplicationStatus statusOf(ApplicationEntity application) {
+        return application.getStatus() == null ? ApplicationStatus.NOT_CONTACTED
+                : application.getStatus();
+    }
+
+    private static ApplicationPriority priorityOf(ApplicationEntity application) {
+        return application.getPriority() == null ? ApplicationPriority.MEDIUM
+                : application.getPriority();
+    }
+
+    private static InterviewStatus interviewOf(ApplicationEntity application) {
+        return application.getInterviewStatus() == null ? InterviewStatus.NONE
+                : application.getInterviewStatus();
+    }
+
+    private static ApplicationDecision decisionOf(ApplicationEntity application) {
+        return application.getDecision() == null ? ApplicationDecision.PENDING
+                : application.getDecision();
     }
 
     private ProjectionView toProjection(ExternalProjectionEntity projection) {

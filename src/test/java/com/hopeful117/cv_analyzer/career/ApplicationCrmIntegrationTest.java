@@ -17,6 +17,7 @@ class ApplicationCrmIntegrationTest {
 
     @Test
     void createsApplicationAndOnlyHistoriesRealStatusChanges() {
+        long sentBefore = service.dashboard().applicationsSent();
         ApplicationForm form = new ApplicationForm();
         form.setCompanyName("Entreprise test CRM");
         form.setJobTitle("Développeur Java");
@@ -37,5 +38,11 @@ class ApplicationCrmIntegrationTest {
         assertThat(historyRepository.findByApplicationIdOrderByChangedAtDesc(id))
                 .hasSize(2).first().extracting(event -> event.getNewStatus())
                 .isEqualTo(ApplicationStatus.APPLIED);
+
+        service.changeStatus(id, ApplicationStatus.WAITING, "Réponse attendue");
+        assertThat(service.dashboard().applicationsSent()).isEqualTo(sentBefore + 1);
+        assertThat(service.search(null, null, null, false, true,
+                0, 20, "desc").getContent())
+                .extracting(item -> item.id()).contains(id);
     }
 }

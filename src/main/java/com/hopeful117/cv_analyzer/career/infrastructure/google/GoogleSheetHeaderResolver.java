@@ -19,7 +19,7 @@ public class GoogleSheetHeaderResolver {
         for (int i = 0; i < rawHeaders.size(); i++) {
             String displayedName = Objects.toString(rawHeaders.get(i), "").trim();
             displayed.add(displayedName);
-            String normalized = canonical(displayedName);
+            String normalized = canonicalName(displayedName);
             if (!normalized.isBlank()) {
                 if (byCanonicalName.putIfAbsent(normalized, i) != null) {
                     throw new GoogleSheetsFunctionalException("DUPLICATE_HEADER",
@@ -29,7 +29,7 @@ public class GoogleSheetHeaderResolver {
         }
         List<String> missing = REQUIRED.stream()
                 .filter(name -> !(allowLegacyMissingId && name.equals("Career Intelligence ID")))
-                .filter(name -> !byCanonicalName.containsKey(canonical(name))).toList();
+                .filter(name -> !byCanonicalName.containsKey(canonicalName(name))).toList();
         return new ResolvedHeaders(displayed, byCanonicalName, missing);
     }
 
@@ -41,7 +41,7 @@ public class GoogleSheetHeaderResolver {
                 .replaceAll("[_\\s]+", " ");
     }
 
-    private static String canonical(String value) {
+    public static String canonicalName(String value) {
         String normalized = normalize(value);
         return ALIASES.getOrDefault(normalized, normalized);
     }
@@ -49,13 +49,13 @@ public class GoogleSheetHeaderResolver {
     public record ResolvedHeaders(List<String> displayed, Map<String, Integer> indexes,
                                   List<String> missingRequired) {
         public int require(String name) {
-            Integer index = indexes.get(canonical(name));
+            Integer index = indexes.get(canonicalName(name));
             if (index == null) throw new GoogleSheetsFunctionalException("MISSING_COLUMN",
                     "La colonne obligatoire « " + name + " » est absente.");
             return index;
         }
         public OptionalInt find(String name) {
-            Integer index = indexes.get(canonical(name));
+            Integer index = indexes.get(canonicalName(name));
             return index == null ? OptionalInt.empty() : OptionalInt.of(index);
         }
         public Map<String, Integer> displayIndexes() {

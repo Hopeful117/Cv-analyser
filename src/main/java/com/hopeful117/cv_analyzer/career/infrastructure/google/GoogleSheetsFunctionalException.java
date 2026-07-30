@@ -1,6 +1,8 @@
 package com.hopeful117.cv_analyzer.career.infrastructure.google;
 
-public class GoogleSheetsFunctionalException extends RuntimeException {
+import com.hopeful117.cv_analyzer.exception.CvAnalyzerException;
+
+public class GoogleSheetsFunctionalException extends CvAnalyzerException {
     private final String code;
 
     public GoogleSheetsFunctionalException(String code, String message) {

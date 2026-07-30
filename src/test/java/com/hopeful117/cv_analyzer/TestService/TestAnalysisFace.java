@@ -53,6 +53,7 @@ class TestAnalysisFace {
         String offerText = "Offre résolue";
         ResumeAnalysis analysis = new ResumeAnalysis(
                 75, 80, 90, 55,
+                "en",
                 List.of("Risque ATS"),
                 List.of("Recommandation"),
                 List.of("Compétence absente")
@@ -72,6 +73,7 @@ class TestAnalysisFace {
         ResumeAnalysisResult result = analysisFace.analyze(file, "offre", null);
 
         assertThat(result.analysis()).isSameAs(analysis);
+        assertThat(result.analysis().getJobOfferLanguage()).isEqualTo("en");
         assertThat(result.generatedResume()).isSameAs(generatedResume);
         var order = inOrder(resumeAnalysisService, resumeGenerationService);
         order.verify(resumeAnalysisService).analyzeResume(resumeText, offerText);

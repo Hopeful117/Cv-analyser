@@ -52,10 +52,38 @@ public class ResumeAnalyzer implements Analyzer{
                 cvScore,
                 atsScore,
                 matchScore,
+                detectOfferLanguage(jobOfferText),
                 risks,
                 recommendations,
                 missingKeywords
         );
+    }
+
+    private String detectOfferLanguage(String jobOfferText) {
+        String offer = jobOfferText.toLowerCase();
+        int frenchSignals = countOccurrences(
+                offer,
+                " le ", " la ", " les ", " des ", " une ", " vous ", " expérience ", " compétences "
+        );
+        int englishSignals = countOccurrences(
+                offer,
+                " the ", " and ", " with ", " you ", " experience ", " skills ", " required ", " role "
+        );
+
+        return englishSignals > frenchSignals ? "en" : "fr";
+    }
+
+    private int countOccurrences(String text, String... signals) {
+        int count = 0;
+        String paddedText = " " + text + " ";
+
+        for (String signal : signals) {
+            if (paddedText.contains(signal)) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
 

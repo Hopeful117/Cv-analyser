@@ -34,6 +34,10 @@ public class AiResumeAnalyzer implements Analyzer {
                             Lorsque certaines informations sont absentes, tu retournes simplement une liste vide ou une valeur cohérente.
                             
                             Les scores sont toujours compris entre 0 et 100.
+
+                            Détecte la langue dominante de l'offre d'emploi et retourne son code ISO 639-1
+                            en minuscules dans le champ jobOfferLanguage (par exemple : fr, en, de, es).
+                            Base cette détection uniquement sur l'offre, jamais sur la langue du CV.
                             """).user(u -> u.text("""
                                     Analyse ce CV par rapport à cette offre d'emploi.
                                     

@@ -189,4 +189,34 @@ public class TestResumeAnalyzer {
         assertThat(result.getMissingKeywords())
                 .contains("java", "spring");
     }
+
+    @Test
+    void shouldDetectFrenchJobOfferLanguage() {
+        analyzer = new ResumeAnalyzer(keywordExtractor);
+
+        String resume = "Développeur Java";
+        String offer = "Nous recherchons une personne avec une expérience en Java et des compétences SQL";
+
+        Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
+                .thenReturn(List.of());
+
+        ResumeAnalysis result = analyzer.analyze(resume, offer);
+
+        assertThat(result.getJobOfferLanguage()).isEqualTo("fr");
+    }
+
+    @Test
+    void shouldDetectEnglishJobOfferLanguage() {
+        analyzer = new ResumeAnalyzer(keywordExtractor);
+
+        String resume = "Développeur Java";
+        String offer = "We are looking for a developer with Java experience and SQL skills for the role";
+
+        Mockito.when(keywordExtractor.extract(offer.toLowerCase()))
+                .thenReturn(List.of());
+
+        ResumeAnalysis result = analyzer.analyze(resume, offer);
+
+        assertThat(result.getJobOfferLanguage()).isEqualTo("en");
+    }
 }

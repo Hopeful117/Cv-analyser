@@ -7,6 +7,10 @@
 </head>
 <body class="m-2 d-flex flex-column gap-5">
 <h1 class="h1">Résultat de l'analyse</h1>
+<p class="text-muted">
+    Langue détectée dans l'annonce :
+    <span class="fw-semibold" th:text="${analysis.jobOfferLanguage}"></span>
+</p>
 <div class="card">
     <h2 class="card-header h2">Résultats</h2>
     <div class="card-body">
@@ -64,14 +68,48 @@
         <p class="text-muted">
             Cette version utilise uniquement les informations du CV original.
             Les éléments entre crochets sont à compléter par vos soins.
+            Le PDF respecte un format d'une page A4 ; raccourcissez le texte si nécessaire.
         </p>
-        <button class="btn btn-outline-secondary mb-3" type="button" onclick="copyResume()">
-            Copier le CV
-        </button>
-        <textarea id="resumeContent"
-                  class="form-control"
-                  rows="24"
-                  th:text="${generatedResume.content}"></textarea>
+        <form method="post" th:action="@{/resume/pdf}">
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label for="candidateName" class="form-label">Nom affiché dans l'en-tête</label>
+                    <input id="candidateName"
+                           name="candidateName"
+                           class="form-control"
+                           th:value="${generatedResume.candidateName}">
+                </div>
+                <div class="col-md-6">
+                    <label for="professionalTitle" class="form-label">Titre professionnel</label>
+                    <input id="professionalTitle"
+                           name="professionalTitle"
+                           class="form-control"
+                           th:value="${generatedResume.professionalTitle}">
+                </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-end gap-2 mb-3">
+                <button class="btn btn-outline-secondary" type="button" onclick="copyResume()">
+                    Copier le CV
+                </button>
+                <div>
+                    <label for="pdfStyle" class="form-label mb-1">Style du PDF</label>
+                    <select id="pdfStyle" name="style" class="form-select">
+                        <option value="PROFESSIONAL">Professionnel</option>
+                        <option value="MODERN">Moderne</option>
+                        <option value="MINIMAL">Minimaliste</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">
+                    Télécharger le PDF
+                </button>
+            </div>
+            <textarea id="resumeContent"
+                      name="resumeContent"
+                      class="form-control"
+                      rows="24"
+                      required
+                      th:text="${generatedResume.content}"></textarea>
+        </form>
     </div>
 </div>
 <div class="card" th:if="${generatedResume.placeholders != null and !generatedResume.placeholders.isEmpty()}">

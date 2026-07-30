@@ -44,6 +44,33 @@ public class AiResumeGenerator {
                             - Le champ placeholders doit lister uniquement les placeholders réellement présents
                               dans content, avec exactement le même texte.
                             - Le champ appliedCorrections doit décrire brièvement les corrections réellement appliquées.
+                            - La langue cible est une contrainte absolue : rédige chaque titre, phrase,
+                              description, placeholder et correction dans cette langue.
+                            - Si le CV source est dans une autre langue, traduis tout son texte descriptif dans
+                              la langue cible sans ajouter, supprimer ni modifier les faits.
+                            - Ne conserve jamais la langue du CV source par préférence ou par défaut.
+                            - Ne traduis pas les noms propres, technologies, certifications ni intitulés officiels
+                              lorsqu'une traduction altérerait le fait source.
+                            - Le CV corrigé doit être conçu pour tenir sur une seule page A4 avec une police lisible.
+                            - Utilise une structure de CV standard et compatible ATS : identité et coordonnées,
+                              titre professionnel, résumé court si pertinent, expériences, formation et compétences.
+                            - Supprime les répétitions, les formulations vagues et les paragraphes longs.
+                            - Utilise des formulations courtes et factuelles ; limite chaque expérience aux éléments
+                              les plus pertinents qui existent réellement dans le CV source.
+                            - N'ajoute aucune section vide. Un placeholder nécessaire peut rester dans sa section.
+                            - N'utilise ni tableau, ni colonne, ni icône, ni élément graphique dans le champ content.
+                            - Dans le champ content, écris les titres de sections seuls sur leur ligne et en MAJUSCULES.
+                            - La toute première ligne doit contenir uniquement le nom complet du candidat.
+                            - La deuxième ligne doit contenir uniquement son titre professionnel.
+                            - Copie aussi ces deux valeurs respectivement dans les champs candidateName et
+                              professionalTitle, quelle que soit la langue utilisée dans le CV.
+                            - candidateName ne doit jamais contenir un libellé de section tel que CONTACT.
+                            - Place ensuite la section CONTACT et ses coordonnées ; ne place jamais CONTACT avant le nom.
+                            - Écris chaque poste ou formation sur une ligne structurée ainsi :
+                              « Intitulé | Organisation | Dates » en conservant uniquement les faits disponibles.
+                            - Place le lieu ou une autre métadonnée sur une ligne séparée si elle existe.
+                            - Préfixe chaque réalisation ou responsabilité par « - ».
+                            - N'utilise pas de syntaxe Markdown (*, **, #, tableaux ou blocs de code).
                             - Réponds uniquement conformément au schéma Java fourni par l'application.
                             """)
                     .user(u -> u.text("""
@@ -56,15 +83,21 @@ public class AiResumeGenerator {
                                     {job}
 
                                     RÉSULTATS DE L'ANALYSE :
+                                    Langue cible obligatoire : {targetLanguage}
                                     Score qualité CV : {cvScore}/100
                                     Score ATS : {atsScore}/100
                                     Score d'adéquation : {matchScore}/100
                                     Risques ATS : {risks}
                                     Recommandations : {recommendations}
                                     Mots-clés manquants : {missingKeywords}
+
+                                    CONTRAINTE FINALE : le champ content complet, tous ses placeholders et
+                                    appliedCorrections doivent être rédigés en {targetLanguage}. Le CV complet
+                                    doit être suffisamment concis pour tenir sur une seule page A4 lisible.
                                     """)
                             .param("cv", resumeText)
                             .param("job", jobOfferText)
+                            .param("targetLanguage", getLanguageInstruction(analysis.getJobOfferLanguage()))
                             .param("cvScore", analysis.getCvQualityScore())
                             .param("atsScore", analysis.getAtsScore())
                             .param("matchScore", analysis.getJobMatchScore())
@@ -79,5 +112,22 @@ public class AiResumeGenerator {
                     e
             );
         }
+    }
+
+    private String getLanguageInstruction(String languageCode) {
+        if (languageCode == null || languageCode.isBlank()) {
+            return "French (fr)";
+        }
+
+        return switch (languageCode.toLowerCase()) {
+            case "en", "english", "anglais" -> "English (en)";
+            case "fr", "french", "français", "francais" -> "French (fr)";
+            case "de", "german", "allemand" -> "German (de)";
+            case "es", "spanish", "espagnol" -> "Spanish (es)";
+            case "it", "italian", "italien" -> "Italian (it)";
+            case "pt", "portuguese", "portugais" -> "Portuguese (pt)";
+            case "nl", "dutch", "néerlandais", "neerlandais" -> "Dutch (nl)";
+            default -> "the language identified by ISO 639-1 code " + languageCode.toLowerCase();
+        };
     }
 }

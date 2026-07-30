@@ -1,1 +1,6 @@
 *.env
+target/
+*.class
+*.jar
+*.war
+*.ear

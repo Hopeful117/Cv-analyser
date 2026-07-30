@@ -1,22 +1,22 @@
 package com.hopeful117.cv_analyzer.service;
 
-import com.hopeful117.cv_analyzer.exception.InvalidJobOfferException;
 import com.hopeful117.cv_analyzer.helper.ResolveOffer;
+import com.hopeful117.cv_analyzer.model.GeneratedResume;
 import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import com.hopeful117.cv_analyzer.model.ResumeAnalysisResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
 public class AnalysisFace{
     private final PdfParserService pdfParserService;
     private final ResumeAnalysisService resumeAnalysisService;
+    private final ResumeGenerationService resumeGenerationService;
     private final ResolveOffer resolveOffer;
 
-    public ResumeAnalysis analyze(
+    public ResumeAnalysisResult analyze(
             MultipartFile file,
             String jobOffer,
             String jobOfferUrl
@@ -28,13 +28,21 @@ public class AnalysisFace{
         String offerText =
                 resolveOffer.resolveOffer(jobOffer, jobOfferUrl);
 
-        return resumeAnalysisService.analyzeResume(
+        ResumeAnalysis analysis = resumeAnalysisService.analyzeResume(
                 resumeText,
                 offerText
         );
+
+        GeneratedResume generatedResume =
+                resumeGenerationService.generateCorrectedResume(
+                        resumeText,
+                        offerText,
+                        analysis
+                );
+
+        return new ResumeAnalysisResult(analysis, generatedResume);
     }
 
 
 }
-
 

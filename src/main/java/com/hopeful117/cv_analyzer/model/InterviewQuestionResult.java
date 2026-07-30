@@ -26,6 +26,7 @@ public class InterviewQuestionResult {
         @JoinColumn(name = "question_id", nullable = false)
         private InterviewQuestion question;
 
+        @Lob
         private String userAnswer;
 
         @Transient

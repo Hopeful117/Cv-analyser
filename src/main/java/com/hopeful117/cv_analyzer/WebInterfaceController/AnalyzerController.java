@@ -1,6 +1,6 @@
 package com.hopeful117.cv_analyzer.WebInterfaceController;
 
-import com.hopeful117.cv_analyzer.model.ResumeAnalysis;
+import com.hopeful117.cv_analyzer.model.ResumeAnalysisResult;
 import com.hopeful117.cv_analyzer.service.AnalysisFace;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -27,7 +27,7 @@ public class AnalyzerController {
             @RequestParam(required = false) String jobOfferUrl,
             Model model) throws Exception {
 
-        ResumeAnalysis analysis =
+        ResumeAnalysisResult result =
                 analysisFace.analyze(
                         file,
                         jobOffer,
@@ -36,7 +36,11 @@ public class AnalyzerController {
 
         model.addAttribute(
                 "analysis",
-                analysis
+                result.analysis()
+        );
+        model.addAttribute(
+                "generatedResume",
+                result.generatedResume()
         );
 
         return "result-analyzer";

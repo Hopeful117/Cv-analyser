@@ -23,6 +23,7 @@ public class InterviewSession {
     @Lob
     private String jobDescription;
 
+
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<InterviewQuestion> questions;

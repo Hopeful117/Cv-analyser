@@ -58,8 +58,44 @@
 </div>
 </div>
 </div>
+<div class="card border-primary">
+    <h2 class="card-header h2">CV corrigé</h2>
+    <div class="card-body">
+        <p class="text-muted">
+            Cette version utilise uniquement les informations du CV original.
+            Les éléments entre crochets sont à compléter par vos soins.
+        </p>
+        <button class="btn btn-outline-secondary mb-3" type="button" onclick="copyResume()">
+            Copier le CV
+        </button>
+        <textarea id="resumeContent"
+                  class="form-control"
+                  rows="24"
+                  th:text="${generatedResume.content}"></textarea>
+    </div>
+</div>
+<div class="card" th:if="${generatedResume.placeholders != null and !generatedResume.placeholders.isEmpty()}">
+    <h2 class="card-header h2">Informations à compléter</h2>
+    <div class="card-body">
+        <ul class="mb-0">
+            <li th:each="placeholder : ${generatedResume.placeholders}"
+                class="text-danger fw-semibold"
+                th:text="${placeholder}"></li>
+        </ul>
+    </div>
+</div>
+<div class="card" th:if="${generatedResume.appliedCorrections != null and !generatedResume.appliedCorrections.isEmpty()}">
+    <h2 class="card-header h2">Corrections appliquées</h2>
+    <div class="card-body">
+        <ul class="mb-0">
+            <li th:each="correction : ${generatedResume.appliedCorrections}"
+                th:text="${correction}"></li>
+        </ul>
+    </div>
+</div>
 <a class="btn btn-primary" th:href="@{/}">Home</a>
 
 </body>
+<script th:src="@{/js/copyResume.js}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </html>

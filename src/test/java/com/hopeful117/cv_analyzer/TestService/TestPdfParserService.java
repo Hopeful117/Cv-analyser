@@ -1,6 +1,7 @@
 package com.hopeful117.cv_analyzer.TestService;
 
 import com.hopeful117.cv_analyzer.service.PdfParserService;
+import com.hopeful117.cv_analyzer.exception.PdfParserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +63,7 @@ public class TestPdfParserService {
 
         // Vérifier que l'exception est bien lancée
         assertThatThrownBy(() -> pdfParserService.extractText(invalidFile))
-            .isInstanceOf(IOException.class)
+            .isInstanceOf(PdfParserException.class)
             .hasMessageContaining("Failed to parse PDF file");
     }
 
@@ -79,6 +80,6 @@ public class TestPdfParserService {
 
         // Vérifier que l'exception est bien lancée pour un fichier vide
         assertThatThrownBy(() -> pdfParserService.extractText(emptyFile))
-            .isInstanceOf(IOException.class);
+            .isInstanceOf(PdfParserException.class);
     }
 }

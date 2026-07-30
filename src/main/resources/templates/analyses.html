@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Historique des analyses')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('history')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Historique', 'Retrouvez vos analyses sauvegardées')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="section-heading">
+                    <div>
+                        <div class="eyebrow">Career Workspace</div>
+                        <h2 class="section-title">Analyses de CV</h2>
+                        <p class="section-description mt-2">Affichage chronologique, 10 résultats par page.</p>
+                    </div>
+                    <a class="os-button os-button-primary" th:href="@{/analyze}">Nouvelle analyse</a>
+                </section>
+                <section class="os-card" th:if="${analysesPage.empty}">
+                    <div class="empty-state">
+                        <div class="empty-state-icon" aria-hidden="true">○</div>
+                        <h3 class="empty-state-title">Aucune analyse sauvegardée</h3>
+                        <p>Votre prochaine analyse apparaîtra ici.</p>
+                        <a class="os-button os-button-primary" th:href="@{/analyze}">Analyser un CV</a>
+                    </div>
+                </section>
+                <section class="page-stack" th:if="${!analysesPage.empty}">
+                    <article class="os-card os-card-interactive" th:each="item : ${analysesPage.content}">
+                        <div class="section-heading">
+                            <div>
+                                <span class="os-badge os-badge-ai">Estimation IA</span>
+                                <h3 class="feature-title mt-3" th:text="${item.opportunity.displayTitle()}">Poste</h3>
+                                <p class="form-help" th:text="${item.opportunity.displayCompany()}">Entreprise</p>
+                                <time class="stat-meta" th:text="${#temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm')}">date</time>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="stat-value"><span th:text="${item.overallScore}">0</span><small>/100</small></span>
+                                <a class="os-button os-button-secondary"
+                                   th:href="@{/analyses/{id}(id=${item.id})}">Consulter</a>
+                            </div>
+                        </div>
+                    </article>
+                    <nav class="action-row" aria-label="Pagination">
+                        <a class="os-button os-button-secondary" th:if="${analysesPage.hasPrevious()}"
+                           th:href="@{/analyses(page=${analysesPage.number - 1})}">Précédent</a>
+                        <span class="os-badge">Page <span th:text="${analysesPage.number + 1}">1</span>
+                            / <span th:text="${analysesPage.totalPages}">1</span></span>
+                        <a class="os-button os-button-secondary" th:if="${analysesPage.hasNext()}"
+                           th:href="@{/analyses(page=${analysesPage.number + 1})}">Suivant</a>
+                    </nav>
+                </section>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

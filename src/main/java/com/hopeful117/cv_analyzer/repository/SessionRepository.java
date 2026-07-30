@@ -10,6 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface SessionRepository extends JpaRepository<InterviewSession,Long> {
+public interface SessionRepository extends JpaRepository<InterviewSession, UUID> {
     Optional<InterviewSession> findBySessionId(UUID sessionId);
 }

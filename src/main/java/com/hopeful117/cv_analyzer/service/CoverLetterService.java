@@ -24,7 +24,10 @@ public class CoverLetterService {
         }
        String cvText= pdfParserService.extractText(cv);
        String offerText = resolveOffer.resolveOffer(jobOfferText, jobOfferUrl);
-       return aiCoverLetterGenerator.generateCoverLetter(letterText, cvText, offerText);
+       return generateFromTexts(letterText, cvText, offerText);
     }
 
+    public String generateFromTexts(String existingLetter, String cvText, String offerText) {
+        return aiCoverLetterGenerator.generateCoverLetter(existingLetter, cvText, offerText);
+    }
 }

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Importer des candidatures')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('applications')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Import Excel', 'Prévisualisez toujours les anciennes données avant de les enregistrer')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="os-card" th:if="${preview == null}">
+                    <div class="eyebrow">Étape 1 · Prévisualisation</div>
+                    <h2 class="section-title mt-2">Sélectionnez le fichier historique</h2>
+                    <p class="section-description">Le premier onglet, ou l’onglet Candidatures, est lu. Les formules sont ignorées comme données métier et la colonne Jours n’est jamais importée.</p>
+                    <form class="mt-3" method="post" enctype="multipart/form-data" th:action="@{/applications/import/preview}">
+                        <label class="os-label" for="file">Fichier .xlsx</label>
+                        <input class="os-input" id="file" name="file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+                        <button class="os-button os-button-primary mt-3" type="submit">Prévisualiser</button>
+                    </form>
+                </section>
+                <th:block th:if="${preview != null}">
+                    <section>
+                        <div class="eyebrow">Étape 2 · Confirmation</div>
+                        <div class="os-grid os-grid-4 mt-3">
+                            <article class="os-card stat-card"><span class="stat-label">Lignes détectées</span><span class="stat-value" th:text="${preview.detected}"></span></article>
+                            <article class="os-card stat-card"><span class="stat-label">Valides</span><span class="stat-value" th:text="${preview.valid}"></span></article>
+                            <article class="os-card stat-card"><span class="stat-label">Ignorées</span><span class="stat-value" th:text="${preview.ignored}"></span></article>
+                            <article class="os-card stat-card"><span class="stat-label">Doublons potentiels</span><span class="stat-value" th:text="${preview.duplicates}"></span></article>
+                        </div>
+                    </section>
+                    <section class="os-alert os-alert-warning" th:if="${!preview.warnings.isEmpty()}"><strong>Avertissements</strong><ul><li th:each="warning:${preview.warnings}" th:text="${warning}"></li></ul></section>
+                    <section class="os-alert os-alert-error" th:if="${!preview.errors.isEmpty()}" role="alert"><strong>Erreurs</strong><ul><li th:each="error:${preview.errors}" th:text="${error}"></li></ul></section>
+                    <section class="os-card">
+                        <h2 class="feature-title">Aperçu des lignes</h2>
+                        <ul class="result-list mt-3">
+                            <li class="result-list-item" th:each="row:${preview.sample}">
+                                <span th:text="${'Ligne ' + row.rowNumber + ' · ' + row.form.companyName + ' · ' + row.form.jobTitle}"></span>
+                                <span class="os-badge" th:classappend="${row.valid && !row.duplicate} ? ' os-badge-success' : ' os-badge-warning'" th:text="${row.duplicate ? 'Doublon' : (row.valid ? 'Valide' : 'Ignorée')}"></span>
+                            </li>
+                        </ul>
+                    </section>
+                    <div class="action-row">
+                        <form method="post" th:action="@{/applications/import/confirm}"><input type="hidden" name="token" th:value="${preview.token}"><button class="os-button os-button-primary" type="submit">Confirmer l’import</button></form>
+                        <a class="os-button os-button-ghost" th:href="@{/applications/import}">Annuler</a>
+                    </div>
+                </th:block>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

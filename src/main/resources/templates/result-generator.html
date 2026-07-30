@@ -8,6 +8,7 @@
         <header th:replace="~{fragments/topbar :: topbar('Lettre générée', 'Relisez et adaptez la proposition avant de l’utiliser')}"></header>
         <main class="app-content" id="main-content">
             <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <section class="section-heading">
                     <div>
                         <div class="d-flex flex-wrap gap-2 mb-3">
@@ -22,25 +23,32 @@
                     <a th:href="@{/generator}" class="os-button os-button-secondary">Préparer une nouvelle lettre</a>
                 </section>
 
-                <section class="os-card">
+                <form class="os-card" method="post" th:action="@{/cover-letters/{id}(id=${letter.id})}">
                     <label class="os-label" for="letterContent">Contenu de la lettre</label>
                     <textarea id="letterContent"
+                              name="content"
                               class="os-textarea editor-textarea"
                               rows="18"
+                              required
                               th:text="${coverLetter}"></textarea>
                     <div class="action-row">
-                        <button class="os-button os-button-primary"
+                        <button class="os-button os-button-primary" type="submit">Enregistrer</button>
+                        <button class="os-button os-button-secondary"
                                 type="button"
                                 data-copy-target="#letterContent">
                             Copier la lettre
                         </button>
                     </div>
                     <div class="copy-status" data-copy-status aria-live="polite"></div>
-                </section>
+                </form>
 
                 <div class="os-alert os-alert-info">
-                    Aucune lettre n’est sauvegardée ou envoyée automatiquement par l’application.
+                    Cette lettre est sauvegardée dans l’espace local. Elle n’est jamais envoyée automatiquement.
                 </div>
+                <form th:action="@{/cover-letters/{id}/delete(id=${letter.id})}" method="post"
+                      data-confirm="Supprimer définitivement cette lettre ?">
+                    <button class="os-button os-button-danger" type="submit">Supprimer la lettre</button>
+                </form>
             </div>
         </main>
         <footer th:replace="~{fragments/footer :: footer}"></footer>

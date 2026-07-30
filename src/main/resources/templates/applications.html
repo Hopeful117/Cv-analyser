@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Candidatures')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('applications')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Candidatures', 'Pilotez vos opportunités et vos relances')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="section-heading">
+                    <div>
+                        <div class="eyebrow">CRM personnel</div>
+                        <h2 class="section-title">Suivi des candidatures</h2>
+                    </div>
+                    <div class="action-row"><a class="os-button os-button-secondary" th:href="@{/applications/import}">Importer Excel</a><a class="os-button os-button-primary" th:href="@{/applications/new}">Nouvelle candidature</a></div>
+                </section>
+                <form class="os-card" method="get" th:action="@{/applications}">
+                    <div class="os-grid os-grid-4">
+                        <div>
+                            <label class="os-label" for="query">Entreprise ou poste</label>
+                            <input class="os-input" id="query" name="query" th:value="${query}">
+                        </div>
+                        <div>
+                            <label class="os-label" for="status">Statut</label>
+                            <select class="os-select" id="status" name="status">
+                                <option value="">Tous</option>
+                                <option th:each="value : ${statuses}" th:value="${value}"
+                                        th:selected="${selectedStatus == value}"
+                                        th:text="${value.frenchLabel}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="os-label" for="priority">Priorité</label>
+                            <select class="os-select" id="priority" name="priority">
+                                <option value="">Toutes</option>
+                                <option th:each="value : ${priorities}" th:value="${value}"
+                                        th:selected="${selectedPriority == value}"
+                                        th:text="${value.frenchLabel}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="os-label" for="direction">Tri</label>
+                            <select class="os-select" id="direction" name="direction">
+                                <option value="desc" th:selected="${direction == 'desc'}">Plus récentes</option>
+                                <option value="asc" th:selected="${direction == 'asc'}">Plus anciennes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="mt-3 d-flex gap-2 align-items-center">
+                        <input type="checkbox" name="followUpsDue" value="true" th:checked="${followUpsDue}">
+                        Relances à effectuer uniquement
+                    </label>
+                    <div class="action-row mt-3">
+                        <button class="os-button os-button-primary" type="submit">Filtrer</button>
+                        <a class="os-button os-button-ghost" th:href="@{/applications}">Réinitialiser</a>
+                    </div>
+                </form>
+                <section class="os-card" th:if="${applicationsPage.empty}">
+                    <div class="empty-state">
+                        <h3 class="empty-state-title">Aucune candidature trouvée</h3>
+                        <p>Créez une candidature ou modifiez vos filtres.</p>
+                    </div>
+                </section>
+                <section class="page-stack" th:if="${!applicationsPage.empty}">
+                    <article class="os-card os-card-interactive" th:each="item : ${applicationsPage.content}">
+                        <div class="section-heading">
+                            <div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="os-badge" th:text="${item.status.frenchLabel}">Statut</span>
+                                    <span class="os-badge os-badge-warning"
+                                          th:text="${item.priority.frenchLabel}">Priorité</span>
+                                    <span class="os-badge"
+                                          th:classappend="${item.projectionStatus.name() == 'FAILED'} ? ' os-badge-error' : ' os-badge-info'"
+                                          th:text="${item.projectionStatus}">PENDING</span>
+                                </div>
+                                <h3 class="feature-title mt-3" th:text="${item.jobTitle}">Poste</h3>
+                                <p class="form-help" th:text="${item.company}">Entreprise</p>
+                                <p class="stat-meta" th:if="${item.followUpPlannedAt != null}">
+                                    Relance : <time th:text="${#temporals.format(item.followUpPlannedAt, 'dd/MM/yyyy')}">date</time>
+                                </p>
+                            </div>
+                            <div class="action-row">
+                                <span class="os-badge" th:text="${item.hasResume ? 'CV lié' : 'Sans CV'}">CV</span>
+                                <span class="os-badge" th:text="${item.hasCoverLetter ? 'Lettre liée' : 'Sans lettre'}">Lettre</span>
+                                <a class="os-button os-button-secondary"
+                                   th:href="@{/applications/{id}(id=${item.id})}">Consulter</a>
+                                <a class="os-button os-button-ghost"
+                                   th:href="@{/applications/{id}/edit(id=${item.id})}">Modifier</a>
+                            </div>
+                        </div>
+                    </article>
+                    <nav class="action-row" aria-label="Pagination">
+                        <a class="os-button os-button-secondary" th:if="${applicationsPage.hasPrevious()}"
+                           th:href="@{/applications(page=${applicationsPage.number - 1},query=${query},status=${selectedStatus},priority=${selectedPriority},followUpsDue=${followUpsDue},direction=${direction})}">Précédent</a>
+                        <span class="os-badge">Page <span th:text="${applicationsPage.number + 1}">1</span>
+                            / <span th:text="${applicationsPage.totalPages}">1</span></span>
+                        <a class="os-button os-button-secondary" th:if="${applicationsPage.hasNext()}"
+                           th:href="@{/applications(page=${applicationsPage.number + 1},query=${query},status=${selectedStatus},priority=${selectedPriority},followUpsDue=${followUpsDue},direction=${direction})}">Suivant</a>
+                    </nav>
+                </section>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

@@ -8,6 +8,7 @@
         <header th:replace="~{fragments/topbar :: topbar('Vue d’ensemble', 'Votre espace de préparation aux candidatures')}"></header>
         <main class="app-content" id="main-content">
             <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <section class="hero-panel">
                     <div class="eyebrow">Career Intelligence</div>
                     <h2 class="hero-title">Transformez vos candidatures en décisions mieux informées.</h2>
@@ -20,6 +21,26 @@
                             Analyser un CV
                             <span aria-hidden="true">→</span>
                         </a>
+                    </div>
+                </section>
+
+                <section aria-labelledby="crm-title">
+                    <div class="section-heading">
+                        <div><div class="eyebrow">CRM candidatures</div><h2 class="section-title" id="crm-title">Votre recherche en temps réel</h2></div>
+                        <a class="os-button os-button-secondary" th:href="@{/applications}">Gérer les candidatures</a>
+                    </div>
+                    <div class="os-grid os-grid-4">
+                        <article class="os-card stat-card"><span class="stat-label">Candidatures envoyées</span><span class="stat-value" th:text="${crmDashboard.applicationsSent}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">En attente</span><span class="stat-value" th:text="${crmDashboard.waiting}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Entretiens</span><span class="stat-value" th:text="${crmDashboard.interviews}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Relances à effectuer</span><span class="stat-value" th:text="${crmDashboard.followUpsDue}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Refus</span><span class="stat-value" th:text="${crmDashboard.rejected}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Succès</span><span class="stat-value" th:text="${crmDashboard.success}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Erreurs de synchronisation</span><span class="stat-value" th:text="${crmDashboard.synchronizationErrors}">0</span></article>
+                    </div>
+                    <div class="os-grid os-grid-2 mt-3">
+                        <article class="os-card"><h3 class="feature-title">Candidatures récentes</h3><div class="empty-state" th:if="${crmDashboard.recent.isEmpty()}"><p>Aucune candidature.</p></div><ul class="result-list mt-3" th:if="${!crmDashboard.recent.isEmpty()}"><li class="result-list-item" th:each="item:${crmDashboard.recent}"><a th:href="@{/applications/{id}(id=${item.id})}" th:text="${item.company + ' · ' + item.jobTitle}"></a><span class="os-badge" th:text="${item.status.frenchLabel}"></span></li></ul></article>
+                        <article class="os-card"><h3 class="feature-title">Prochaines relances</h3><div class="empty-state" th:if="${crmDashboard.followUps.isEmpty()}"><p>Aucune relance en retard.</p></div><ul class="result-list mt-3" th:if="${!crmDashboard.followUps.isEmpty()}"><li class="result-list-item" th:each="item:${crmDashboard.followUps}"><a th:href="@{/applications/{id}(id=${item.id})}" th:text="${item.company + ' · ' + item.jobTitle}"></a><time th:text="${#temporals.format(item.followUpPlannedAt,'dd/MM/yyyy')}"></time></li></ul></article>
                     </div>
                 </section>
 
@@ -75,6 +96,64 @@
                     </div>
                 </section>
 
+                <section aria-labelledby="workspace-title">
+                    <div class="section-heading">
+                        <div>
+                            <div class="eyebrow">Données sauvegardées</div>
+                            <h2 class="section-title" id="workspace-title">Votre Career Workspace</h2>
+                        </div>
+                        <a class="os-button os-button-secondary" th:href="@{/analyses}">Voir l’historique</a>
+                    </div>
+                    <div class="os-grid os-grid-4">
+                        <article class="os-card stat-card"><span class="stat-label">Opportunités</span><span class="stat-value" th:text="${dashboard.opportunityCount}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Analyses</span><span class="stat-value" th:text="${dashboard.analysisCount}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">CV sauvegardés</span><span class="stat-value" th:text="${dashboard.resumeCount}">0</span></article>
+                        <article class="os-card stat-card"><span class="stat-label">Lettres</span><span class="stat-value" th:text="${dashboard.coverLetterCount}">0</span></article>
+                    </div>
+                </section>
+
+                <section class="os-grid os-grid-3" aria-label="Activité récente">
+                    <article class="os-card">
+                        <h3 class="feature-title">Analyses récentes</h3>
+                        <div class="empty-state" th:if="${dashboard.analyses.isEmpty()}">
+                            <p class="empty-state-title">Aucune analyse</p>
+                        </div>
+                        <ul class="result-list mt-3" th:if="${!dashboard.analyses.isEmpty()}">
+                            <li class="result-list-item" th:each="item : ${dashboard.analyses}">
+                                <a th:href="@{/analyses/{id}(id=${item.id})}"
+                                   th:text="${item.opportunity.displayTitle()}">Analyse</a>
+                                <span class="stat-meta" th:text="${item.overallScore + '/100 · estimation IA'}">0/100</span>
+                            </li>
+                        </ul>
+                    </article>
+                    <article class="os-card">
+                        <h3 class="feature-title">CV récents</h3>
+                        <div class="empty-state" th:if="${dashboard.resumes.isEmpty()}">
+                            <p class="empty-state-title">Aucun CV sauvegardé</p>
+                        </div>
+                        <ul class="result-list mt-3" th:if="${!dashboard.resumes.isEmpty()}">
+                            <li class="result-list-item" th:each="resume : ${dashboard.resumes}">
+                                <a th:href="@{/analyses/{id}(id=${resume.analysisId})}"
+                                   th:text="${resume.professionalTitle == null ? 'CV sans titre' : resume.professionalTitle}">CV</a>
+                                <span class="stat-meta">Version <span th:text="${resume.latestVersion}">1</span></span>
+                            </li>
+                        </ul>
+                    </article>
+                    <article class="os-card">
+                        <h3 class="feature-title">Lettres récentes</h3>
+                        <div class="empty-state" th:if="${dashboard.coverLetters.isEmpty()}">
+                            <p class="empty-state-title">Aucune lettre sauvegardée</p>
+                        </div>
+                        <ul class="result-list mt-3" th:if="${!dashboard.coverLetters.isEmpty()}">
+                            <li class="result-list-item" th:each="letter : ${dashboard.coverLetters}">
+                                <a th:href="@{/cover-letters/{id}(id=${letter.id})}"
+                                   th:text="${letter.opportunity.displayTitle()}">Lettre</a>
+                                <span class="stat-meta" th:text="${letter.origin}">IA</span>
+                            </li>
+                        </ul>
+                    </article>
+                </section>
+
                 <section class="os-card os-card-elevated" aria-labelledby="future-title">
                     <div class="section-heading">
                         <div>
@@ -88,9 +167,7 @@
                     </div>
                     <ul class="future-list" aria-label="Fonctionnalités prévues">
                         <li><span class="os-badge">Profil professionnel · Prochainement</span></li>
-                        <li><span class="os-badge">Versions de CV · Prochainement</span></li>
-                        <li><span class="os-badge">Offres et opportunités · Prochainement</span></li>
-                        <li><span class="os-badge">Suivi des candidatures · Prochainement</span></li>
+                        <li><span class="os-badge os-badge-success">Suivi des candidatures · Disponible</span></li>
                         <li><span class="os-badge">Progression · Prochainement</span></li>
                     </ul>
                 </section>

@@ -42,6 +42,26 @@
             Analyse de CV
         </a>
         <a class="nav-item-os"
+           th:classappend="${activePage == 'history'} ? ' active'"
+           th:href="@{/analyses}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M4 5h16M4 12h16M4 19h10"/><circle cx="19" cy="19" r="2"/>
+                </svg>
+            </span>
+            Historique
+        </a>
+        <a class="nav-item-os"
+           th:classappend="${activePage == 'applications'} ? ' active'"
+           th:href="@{/applications}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M4 7h16v13H4zM8 7V4h8v3M4 11h16M10 14h4"/>
+                </svg>
+            </span>
+            Candidatures
+        </a>
+        <a class="nav-item-os"
            th:classappend="${activePage == 'letters'} ? ' active'"
            th:href="@{/generator}">
             <span class="nav-icon" aria-hidden="true">
@@ -63,18 +83,19 @@
         </a>
     </nav>
 
+    <div class="sidebar-label">Configuration</div>
+    <nav class="app-nav">
+        <a class="nav-item-os" th:classappend="${activePage == 'settings'} ? ' active'"
+           th:href="@{/settings/google-sheets}">
+            <span class="nav-icon" aria-hidden="true">⚙</span>
+            Google Sheets
+        </a>
+    </nav>
+
     <div class="sidebar-label">À venir</div>
     <div class="app-nav" aria-label="Fonctionnalités prochainement disponibles">
         <span class="nav-item-os disabled" aria-disabled="true">
             <span class="nav-icon" aria-hidden="true">○</span> Profil
-            <span class="nav-soon">Bientôt</span>
-        </span>
-        <span class="nav-item-os disabled" aria-disabled="true">
-            <span class="nav-icon" aria-hidden="true">○</span> Mes CV
-            <span class="nav-soon">Bientôt</span>
-        </span>
-        <span class="nav-item-os disabled" aria-disabled="true">
-            <span class="nav-icon" aria-hidden="true">○</span> Opportunités
             <span class="nav-soon">Bientôt</span>
         </span>
     </div>

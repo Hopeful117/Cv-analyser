@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Erreur')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Career Intelligence', 'Une action nécessite votre attention')}"></header>
+        <main class="app-content" id="main-content">
+            <section class="os-card os-card-elevated">
+                <span class="os-badge os-badge-error" th:text="${statusCode ?: 500}">500</span>
+                <h2 class="section-title mt-3" th:text="${errorTitle ?: 'Erreur'}">Erreur</h2>
+                <p class="section-description mt-3" th:text="${errorMessage ?: 'Une erreur est survenue.'}">
+                    Une erreur est survenue.
+                </p>
+                <div class="action-row mt-4">
+                    <a class="os-button os-button-primary" th:if="${retryUrl}" th:href="${retryUrl}">Reprendre</a>
+                    <a class="os-button os-button-secondary" th:href="@{/}">Retour au dashboard</a>
+                </div>
+            </section>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeNavigation();
     initializeLoadingForms();
     initializeCopyButtons();
+    initializeConfirmations();
 });
 
 function initializeNavigation() {
@@ -60,7 +61,7 @@ function initializeCopyButtons() {
     document.querySelectorAll("[data-copy-target]").forEach(button => {
         button.addEventListener("click", async () => {
             const target = document.querySelector(button.dataset.copyTarget);
-            const status = button.parentElement?.querySelector("[data-copy-status]");
+            const status = button.closest("form, section, article")?.querySelector("[data-copy-status]");
 
             if (!target) {
                 updateCopyStatus(status, "Contenu introuvable.", true);
@@ -72,6 +73,16 @@ function initializeCopyButtons() {
                 updateCopyStatus(status, "Copié dans le presse-papiers.", false);
             } catch {
                 updateCopyStatus(status, "La copie automatique a échoué. Sélectionnez le texte manuellement.", true);
+            }
+        });
+    });
+}
+
+function initializeConfirmations() {
+    document.querySelectorAll("form[data-confirm]").forEach(form => {
+        form.addEventListener("submit", event => {
+            if (!window.confirm(form.dataset.confirm || "Confirmer cette action ?")) {
+                event.preventDefault();
             }
         });
     });

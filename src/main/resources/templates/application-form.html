@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${applicationId == null ? 'Nouvelle candidature' : 'Modifier la candidature'})}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('applications')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar(${applicationId == null ? 'Nouvelle candidature' : 'Modifier la candidature'}, 'Entreprise, opportunité, documents et suivi')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <form class="page-stack" method="post" th:object="${applicationForm}"
+                      th:action="${applicationId == null} ? @{/applications} : @{/applications/{id}(id=${applicationId})}">
+                    <section class="os-card form-section">
+                        <div class="eyebrow">1 · Entreprise</div>
+                        <div class="os-grid os-grid-2">
+                            <div><label class="os-label" for="companyName">Entreprise *</label><input class="os-input" id="companyName" th:field="*{companyName}" required maxlength="200"><p class="field-error" th:errors="*{companyName}"></p></div>
+                            <div><label class="os-label" for="city">Ville</label><input class="os-input" id="city" th:field="*{city}" maxlength="160"></div>
+                            <div><label class="os-label" for="address">Adresse</label><input class="os-input" id="address" th:field="*{address}" maxlength="500"></div>
+                            <div><label class="os-label" for="phone">Téléphone</label><input class="os-input" id="phone" th:field="*{phone}" maxlength="80"></div>
+                            <div><label class="os-label" for="email">Email</label><input class="os-input" type="email" id="email" th:field="*{email}" maxlength="254"><p class="field-error" th:errors="*{email}"></p></div>
+                            <div><label class="os-label" for="website">Site web</label><input class="os-input" type="url" id="website" th:field="*{website}" maxlength="2048"><p class="field-error" th:errors="*{website}"></p></div>
+                        </div>
+                    </section>
+                    <section class="os-card form-section">
+                        <div class="eyebrow">2 · Opportunité</div>
+                        <div class="os-grid os-grid-2">
+                            <div><label class="os-label" for="jobTitle">Poste *</label><input class="os-input" id="jobTitle" th:field="*{jobTitle}" required maxlength="200"><p class="field-error" th:errors="*{jobTitle}"></p></div>
+                            <div><label class="os-label" for="offerUrl">Lien de l’offre</label><input class="os-input" type="url" id="offerUrl" th:field="*{offerUrl}"><p class="field-error" th:errors="*{offerUrl}"></p></div>
+                            <div><label class="os-label" for="contractType">Contrat</label><select class="os-select" id="contractType" th:field="*{contractType}"><option value="">Non défini</option><option th:each="v:${contractTypes}" th:value="${v}" th:text="${v}"></option></select></div>
+                            <div><label class="os-label" for="contractTypeRaw">Contrat (valeur libre)</label><input class="os-input" id="contractTypeRaw" th:field="*{contractTypeRaw}"></div>
+                            <div><label class="os-label" for="workSchedule">Temps de travail</label><select class="os-select" id="workSchedule" th:field="*{workSchedule}"><option value="">Non défini</option><option th:each="v:${workSchedules}" th:value="${v}" th:text="${v}"></option></select></div>
+                            <div><label class="os-label" for="remoteMode">Télétravail</label><select class="os-select" id="remoteMode" th:field="*{remoteMode}"><option th:each="v:${remoteModes}" th:value="${v}" th:text="${v}"></option></select></div>
+                            <div><label class="os-label" for="source">Source</label><input class="os-input" id="source" th:field="*{source}"></div>
+                            <div><label class="os-label" for="location">Localisation</label><input class="os-input" id="location" th:field="*{location}"></div>
+                            <div><label class="os-label" for="salaryText">Salaire</label><input class="os-input" id="salaryText" th:field="*{salaryText}"></div>
+                            <div><label class="os-label" for="distanceText">Distance</label><input class="os-input" id="distanceText" th:field="*{distanceText}"></div>
+                        </div>
+                        <label class="os-label mt-3" for="description">Description</label>
+                        <textarea class="os-textarea" id="description" rows="6" th:field="*{description}"></textarea>
+                    </section>
+                    <section class="os-card form-section">
+                        <div class="eyebrow">3 · Candidature et documents</div>
+                        <div class="os-grid os-grid-3">
+                            <div><label class="os-label" for="status">Statut</label><select class="os-select" id="status" th:field="*{status}"><option th:each="v:${statuses}" th:value="${v}" th:text="${v.frenchLabel}"></option></select></div>
+                            <div><label class="os-label" for="priority">Priorité</label><select class="os-select" id="priority" th:field="*{priority}"><option th:each="v:${priorities}" th:value="${v}" th:text="${v.frenchLabel}"></option></select></div>
+                            <div><label class="os-label" for="appliedAt">Date de candidature</label><input class="os-input" type="date" id="appliedAt" th:field="*{appliedAt}"></div>
+                            <div><label class="os-label" for="resumeVersionId">Version de CV</label><select class="os-select" id="resumeVersionId" th:field="*{resumeVersionId}"><option value="">Aucune</option><option th:each="v:${options.resumeVersions}" th:value="${v.id}" th:text="${v.label}"></option></select></div>
+                            <div><label class="os-label" for="coverLetterId">Lettre</label><select class="os-select" id="coverLetterId" th:field="*{coverLetterId}"><option value="">Aucune</option><option th:each="v:${options.coverLetters}" th:value="${v.id}" th:text="${v.label}"></option></select></div>
+                            <div><label class="os-label" for="analysisId">Analyse</label><select class="os-select" id="analysisId" th:field="*{analysisId}"><option value="">Aucune</option><option th:each="v:${options.analyses}" th:value="${v.id}" th:text="${v.label}"></option></select></div>
+                        </div>
+                    </section>
+                    <section class="os-card form-section">
+                        <div class="eyebrow">4 · Suivi</div>
+                        <div class="os-grid os-grid-3">
+                            <div><label class="os-label" for="followUpPlannedAt">Relance prévue</label><input class="os-input" type="date" id="followUpPlannedAt" th:field="*{followUpPlannedAt}"></div>
+                            <div><label class="os-label" for="lastFollowUpAt">Dernière relance</label><input class="os-input" type="date" id="lastFollowUpAt" th:field="*{lastFollowUpAt}"></div>
+                            <div><label class="os-label" for="interviewStatus">Entretien</label><select class="os-select" id="interviewStatus" th:field="*{interviewStatus}"><option th:each="v:${interviewStatuses}" th:value="${v}" th:text="${v}"></option></select></div>
+                            <div><label class="os-label" for="decision">Décision</label><select class="os-select" id="decision" th:field="*{decision}"><option th:each="v:${decisions}" th:value="${v}" th:text="${v}"></option></select></div>
+                            <label class="d-flex gap-2 align-items-center"><input type="checkbox" th:field="*{portfolioSent}"> Portfolio envoyé</label>
+                        </div>
+                        <label class="os-label mt-3" for="notes">Notes partagées</label><textarea class="os-textarea" id="notes" rows="4" th:field="*{notes}"></textarea>
+                        <p class="form-help">Ces notes peuvent être publiées dans la projection Google Sheets.</p>
+                        <label class="os-label mt-3" for="privateNotes">Notes privées</label><textarea class="os-textarea" id="privateNotes" rows="4" th:field="*{privateNotes}"></textarea>
+                        <p class="form-help">Les notes privées ne quittent jamais Career Intelligence.</p>
+                    </section>
+                    <div class="action-row">
+                        <button class="os-button os-button-primary" type="submit">Enregistrer</button>
+                        <a class="os-button os-button-ghost" th:href="${applicationId == null} ? @{/applications} : @{/applications/{id}(id=${applicationId})}">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

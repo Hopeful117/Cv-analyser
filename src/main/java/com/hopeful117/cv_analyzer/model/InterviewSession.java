@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,12 +27,12 @@ public class InterviewSession {
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<InterviewQuestion> questions;
+    private List<InterviewQuestion> questions = new ArrayList<>();
 
     private int currentIndex;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL,
             orphanRemoval = true)
 
-    private List<InterviewQuestionResult> results;
+    private List<InterviewQuestionResult> results = new ArrayList<>();
 }

@@ -8,6 +8,7 @@
         <header th:replace="~{fragments/topbar :: topbar('Résultat de l’analyse', 'Diagnostic, recommandations et CV amélioré')}"></header>
         <main class="app-content" id="main-content">
             <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <section class="section-heading">
                     <div>
                         <div class="d-flex flex-wrap gap-2 mb-3">
@@ -18,6 +19,10 @@
                             </span>
                         </div>
                         <h2 class="section-title">Votre diagnostic de candidature</h2>
+                        <p class="form-help mt-2">
+                            <strong th:text="${details.opportunity.displayTitle()}">Opportunité</strong>
+                            · <span th:text="${details.opportunity.displayCompany()}">Entreprise</span>
+                        </p>
                         <p class="section-description mt-2 mb-0">
                             Les scores ci-dessous sont des estimations produites par l’IA, et non des mesures ATS certifiées.
                         </p>
@@ -123,7 +128,8 @@
                             <span class="os-badge os-badge-ai">Contenu IA modifiable</span>
                         </div>
 
-                        <form method="post" th:action="@{/resume/pdf}">
+                        <form method="post"
+                              th:action="@{/resumes/{id}/versions(id=${details.resumeDocumentId})}">
                             <label class="os-label" for="resumeContent">Contenu du CV</label>
                             <textarea id="resumeContent"
                                       name="resumeContent"
@@ -144,9 +150,9 @@
                             <div class="os-card os-card-elevated mt-4">
                                 <div class="section-heading">
                                     <div>
-                                        <h3 class="feature-title mb-1">Exporter en PDF</h3>
+                                        <h3 class="feature-title mb-1">Enregistrer cette édition</h3>
                                         <p class="form-help mb-0">
-                                            L’export actuel produit une seule page A4. Raccourcissez le texte si nécessaire.
+                                            Chaque sauvegarde crée une version et conserve la précédente.
                                         </p>
                                     </div>
                                     <span class="os-badge">Monopage</span>
@@ -176,9 +182,41 @@
                                     </select>
                                 </div>
                                 <button class="os-button os-button-primary os-button-block mt-4" type="submit">
-                                    Télécharger le PDF
+                                    Enregistrer une nouvelle version
                                 </button>
                             </div>
+                        </form>
+                        <form method="post"
+                              class="os-card os-card-elevated mt-4"
+                              th:action="@{/resume/versions/{id}/pdf(id=${details.activeVersion.id})}">
+                            <div class="section-heading">
+                                <div>
+                                    <h3 class="feature-title mb-1">Exporter la version active</h3>
+                                    <p class="form-help mb-0">PDF monopage généré depuis la version sauvegardée.</p>
+                                </div>
+                                <span class="os-badge">Version <span th:text="${details.activeVersion.number}">1</span></span>
+                            </div>
+                            <div class="os-grid os-grid-2">
+                                <div>
+                                    <label class="os-label" for="exportCandidateName">Nom</label>
+                                    <input class="os-input" id="exportCandidateName" name="candidateName"
+                                           th:value="${details.activeVersion.candidateName}">
+                                </div>
+                                <div>
+                                    <label class="os-label" for="exportProfessionalTitle">Titre</label>
+                                    <input class="os-input" id="exportProfessionalTitle" name="professionalTitle"
+                                           th:value="${details.activeVersion.professionalTitle}">
+                                </div>
+                            </div>
+                            <label class="os-label mt-3" for="exportStyle">Style</label>
+                            <select class="os-select" id="exportStyle" name="style">
+                                <option value="PROFESSIONAL">Professionnel</option>
+                                <option value="MODERN">Moderne</option>
+                                <option value="MINIMAL">Minimaliste</option>
+                            </select>
+                            <button class="os-button os-button-secondary os-button-block mt-4" type="submit">
+                                Télécharger le PDF
+                            </button>
                         </form>
                     </article>
 
@@ -217,6 +255,22 @@
                                     th:text="${correction}"></li>
                             </ul>
                         </article>
+                        <article class="os-card">
+                            <h3 class="feature-title">Historique des versions</h3>
+                            <ul class="result-list mt-3">
+                                <li class="result-list-item" th:each="version : ${details.versions}">
+                                    Version <strong th:text="${version.number}">1</strong>
+                                    · <span th:text="${version.origin.name() == 'AI_GENERATED' ? 'IA' : 'Utilisateur'}">IA</span>
+                                    · <time th:text="${#temporals.format(version.createdAt, 'dd/MM/yyyy HH:mm')}">date</time>
+                                </li>
+                            </ul>
+                        </article>
+                        <form th:action="@{/analyses/{id}/delete(id=${details.id})}" method="post"
+                              data-confirm="Supprimer définitivement cette analyse et son CV ?">
+                            <button class="os-button os-button-danger os-button-block" type="submit">
+                                Supprimer l’analyse
+                            </button>
+                        </form>
                     </aside>
                 </section>
             </div>

@@ -2,6 +2,13 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="alerts">
+    <div th:if="${successMessage}"
+         class="os-alert os-alert-success"
+         role="status"
+         aria-live="polite">
+        <strong>Opération réussie.</strong>
+        <span th:text="${successMessage}"></span>
+    </div>
     <div th:if="${errorMessage}"
          class="os-alert os-alert-error"
          role="alert"

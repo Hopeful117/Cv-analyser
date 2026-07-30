@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Google Sheets')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('settings')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Google Sheets', 'Projection partagée en lecture seule pour vos accompagnateurs')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="os-alert os-alert-info"><strong>MySQL reste la source de vérité.</strong><p>Le tableur est une projection unidirectionnelle. Une panne Google n’annule jamais une sauvegarde Career Intelligence.</p></section>
+                <div class="os-grid os-grid-3">
+                    <article class="os-card stat-card"><span class="stat-label">Intégration</span><span class="stat-value" th:text="${settings.enabled ? 'Activée' : 'Désactivée'}"></span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Tableur</span><span class="stat-value" style="font-size:1rem" th:text="${settings.maskedSpreadsheetId}"></span></article>
+                    <article class="os-card stat-card"><span class="stat-label">Projections en erreur</span><span class="stat-value" th:text="${settings.failureCount}"></span></article>
+                </div>
+                <section class="os-card">
+                    <div class="eyebrow">Configuration active</div>
+                    <p class="mt-3">Onglet : <strong th:text="${settings.sheetName}"></strong></p>
+                    <p class="form-help">Les identifiants sont affichés partiellement et aucun secret n’est stocké en base.</p>
+                    <div class="action-row">
+                        <form method="post" th:action="@{/settings/google-sheets/test}"><button class="os-button os-button-secondary">Tester la connexion</button></form>
+                        <form method="post" th:action="@{/settings/google-sheets/retry}"><button class="os-button os-button-secondary">Relancer les erreurs</button></form>
+                    </div>
+                </section>
+                <section class="os-card os-card-warning">
+                    <div class="eyebrow">Reconstruction complète</div>
+                    <p>Met à jour les lignes connues et ajoute les candidatures absentes. Les lignes inconnues et l’onglet Tableau de bord ne sont jamais supprimés.</p>
+                    <form method="post" th:action="@{/settings/google-sheets/rebuild}" onsubmit="return confirm('Reconstruire la projection Candidatures depuis MySQL ?');"><button class="os-button os-button-danger">Reconstruire la projection</button></form>
+                </section>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
+</body>
+</html>

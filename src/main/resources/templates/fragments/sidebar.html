@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="sidebar(activePage)">
+<aside id="appSidebar"
+       class="app-sidebar"
+       aria-label="Navigation Career Intelligence">
+    <a class="brand" th:href="@{/}">
+        <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M4 6.5 12 2l8 4.5v11L12 22l-8-4.5z"/>
+                <path d="m8.5 10 3.5 2 3.5-2M12 12v5"/>
+            </svg>
+        </span>
+        <span>
+            <span class="brand-name">Developer OS</span>
+            <span class="brand-module">Career Intelligence</span>
+        </span>
+    </a>
+
+    <div class="sidebar-label">Espace carrière</div>
+    <nav class="app-nav">
+        <a class="nav-item-os"
+           th:classappend="${activePage == 'home'} ? ' active'"
+           th:href="@{/}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+            </span>
+            Vue d’ensemble
+        </a>
+        <a class="nav-item-os"
+           th:classappend="${activePage == 'analyze'} ? ' active'"
+           th:href="@{/analyze}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5M9 12h6M9 16h6"/>
+                </svg>
+            </span>
+            Analyse de CV
+        </a>
+        <a class="nav-item-os"
+           th:classappend="${activePage == 'letters'} ? ' active'"
+           th:href="@{/generator}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/>
+                </svg>
+            </span>
+            Lettres
+        </a>
+        <a class="nav-item-os"
+           th:classappend="${activePage == 'interview'} ? ' active'"
+           th:href="@{/interview/start}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M5 4h14v12H8l-3 3z"/><path d="M9 9h6M9 12h4"/>
+                </svg>
+            </span>
+            Entretiens
+        </a>
+    </nav>
+
+    <div class="sidebar-label">À venir</div>
+    <div class="app-nav" aria-label="Fonctionnalités prochainement disponibles">
+        <span class="nav-item-os disabled" aria-disabled="true">
+            <span class="nav-icon" aria-hidden="true">○</span> Profil
+            <span class="nav-soon">Bientôt</span>
+        </span>
+        <span class="nav-item-os disabled" aria-disabled="true">
+            <span class="nav-icon" aria-hidden="true">○</span> Mes CV
+            <span class="nav-soon">Bientôt</span>
+        </span>
+        <span class="nav-item-os disabled" aria-disabled="true">
+            <span class="nav-icon" aria-hidden="true">○</span> Opportunités
+            <span class="nav-soon">Bientôt</span>
+        </span>
+    </div>
+
+    <div class="sidebar-footer">
+        Module Career Intelligence<br>
+        Propulsé par Spring AI
+    </div>
+</aside>
+<div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+</th:block>
+</body>
+</html>

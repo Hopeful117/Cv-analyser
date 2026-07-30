@@ -1,25 +1,79 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Interview Report</title>
-</head>
-<body>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Rapport d’entretien')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('interview')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Rapport d’entretien', 'Synthèse indicative de votre simulation')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <section class="section-heading">
+                    <div>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="os-badge os-badge-experimental">Expérimental</span>
+                            <span class="os-badge os-badge-ai">Évaluation IA</span>
+                        </div>
+                        <h2 class="section-title">Synthèse de la simulation</h2>
+                        <p class="section-description mt-2 mb-0">
+                            Ce rapport est une estimation destinée à guider votre préparation.
+                        </p>
+                    </div>
+                    <a class="os-button os-button-secondary" th:href="@{/interview/start}">Nouvel entretien</a>
+                </section>
 
-<h1>Final Report</h1>
+                <section class="os-card stat-card">
+                    <span class="stat-label">Score global estimé</span>
+                    <span class="report-score">
+                        <strong th:text="${report.overallScore}">0</strong><span>/100</span>
+                    </span>
+                    <span class="stat-meta">Indication générée par IA, non certifiée</span>
+                </section>
 
-<h2>Score: <span th:text="${report.overallScore}"></span></h2>
+                <section class="os-grid os-grid-2">
+                    <article class="os-card">
+                        <div class="d-flex justify-content-between gap-3 mb-3">
+                            <h3 class="feature-title">Points forts</h3>
+                            <span class="os-badge os-badge-success">Forces</span>
+                        </div>
+                        <div class="empty-state"
+                             th:if="${report.globalStrengths == null or report.globalStrengths.isEmpty()}">
+                            <p class="empty-state-title">Aucun point fort détaillé</p>
+                        </div>
+                        <ul class="result-list"
+                            th:if="${report.globalStrengths != null and !report.globalStrengths.isEmpty()}">
+                            <li class="result-list-item"
+                                th:each="strength : ${report.globalStrengths}"
+                                th:text="${strength}"></li>
+                        </ul>
+                    </article>
 
-<h3>Strengths</h3>
-<ul>
-    <li th:each="s : ${report.globalStrengths}"
-        th:text="${s}"></li>
-</ul>
+                    <article class="os-card">
+                        <div class="d-flex justify-content-between gap-3 mb-3">
+                            <h3 class="feature-title">Axes d’amélioration</h3>
+                            <span class="os-badge os-badge-warning">Progression</span>
+                        </div>
+                        <div class="empty-state"
+                             th:if="${report.globalImprovements == null or report.globalImprovements.isEmpty()}">
+                            <p class="empty-state-title">Aucun axe détaillé</p>
+                        </div>
+                        <ul class="result-list result-list-warning"
+                            th:if="${report.globalImprovements != null and !report.globalImprovements.isEmpty()}">
+                            <li class="result-list-item"
+                                th:each="improvement : ${report.globalImprovements}"
+                                th:text="${improvement}"></li>
+                        </ul>
+                    </article>
+                </section>
 
-<h3>Improvements</h3>
-<ul>
-    <li th:each="i : ${report.globalImprovements}"
-        th:text="${i}"></li>
-</ul>
-
+                <div class="os-alert os-alert-warning">
+                    Le parcours entretien reste expérimental. Vérifiez les recommandations et confrontez-les à un retour humain.
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
 </body>
 </html>

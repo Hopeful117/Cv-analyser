@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div id="loadingOverlay"
+     class="loader-overlay"
+     th:fragment="loader(title, message)"
+     role="status"
+     aria-live="polite"
+     aria-hidden="true">
+    <div class="loader-dialog">
+        <div class="os-spinner" aria-hidden="true"></div>
+        <h2 class="loader-title" th:text="${title}">Traitement en cours</h2>
+        <p class="loader-copy" th:text="${message}">
+            L’intelligence artificielle prépare votre résultat. Cette opération peut prendre un moment.
+        </p>
+        <p class="form-help">Vous pouvez laisser cette page ouverte pendant le traitement.</p>
+    </div>
+</div>
+</body>
+</html>

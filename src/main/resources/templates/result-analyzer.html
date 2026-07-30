@@ -1,139 +1,229 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Result</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body class="m-2 d-flex flex-column gap-5">
-<h1 class="h1">Résultat de l'analyse</h1>
-<p class="text-muted">
-    Langue détectée dans l'annonce :
-    <span class="fw-semibold" th:text="${analysis.jobOfferLanguage}"></span>
-</p>
-<div class="card">
-    <h2 class="card-header h2">Résultats</h2>
-    <div class="card-body">
-<p>
-    Score global :
-    <span th:text="${analysis.overallScore}">
-    </span>
-</p>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Résultat de l’analyse')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('analyze')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Résultat de l’analyse', 'Diagnostic, recommandations et CV amélioré')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <section class="section-heading">
+                    <div>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="os-badge os-badge-ai">Analyse IA</span>
+                            <span class="os-badge">
+                                Langue de l’offre&nbsp;:
+                                <strong th:text="${analysis.jobOfferLanguage}">fr</strong>
+                            </span>
+                        </div>
+                        <h2 class="section-title">Votre diagnostic de candidature</h2>
+                        <p class="section-description mt-2 mb-0">
+                            Les scores ci-dessous sont des estimations produites par l’IA, et non des mesures ATS certifiées.
+                        </p>
+                    </div>
+                    <a class="os-button os-button-secondary" th:href="@{/analyze}">Nouvelle analyse</a>
+                </section>
 
+                <section class="os-grid os-grid-4" aria-label="Synthèse des scores">
+                    <article class="os-card stat-card">
+                        <span class="stat-label">Score global</span>
+                        <span class="stat-value"><span th:text="${analysis.overallScore}">0</span><small>/100</small></span>
+                        <span class="stat-meta">Estimation synthétique par IA</span>
+                    </article>
+                    <article class="os-card stat-card">
+                        <span class="stat-label">Qualité du CV</span>
+                        <span class="stat-value"><span th:text="${analysis.cvQualityScore}">0</span><small>/100</small></span>
+                        <span class="stat-meta">Lisibilité et contenu estimés</span>
+                    </article>
+                    <article class="os-card stat-card">
+                        <span class="stat-label">Compatibilité ATS</span>
+                        <span class="stat-value"><span th:text="${analysis.atsScore}">0</span><small>/100</small></span>
+                        <span class="stat-meta">Indication IA, non certifiée</span>
+                    </article>
+                    <article class="os-card stat-card">
+                        <span class="stat-label">Adéquation à l’offre</span>
+                        <span class="stat-value"><span th:text="${analysis.jobMatchScore}">0</span><small>/100</small></span>
+                        <span class="stat-meta">Correspondance estimée</span>
+                    </article>
+                </section>
 
-<p>
-    Score ATS :
-    <span th:text="${analysis.atsScore}">
-    </span>
-</p>
+                <section aria-labelledby="diagnostic-title">
+                    <div class="section-heading">
+                        <div>
+                            <div class="eyebrow">Diagnostic</div>
+                            <h2 class="section-title" id="diagnostic-title">Points d’attention et recommandations</h2>
+                        </div>
+                    </div>
+                    <div class="os-grid os-grid-3">
+                        <article class="os-card">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <h3 class="feature-title">Risques ATS</h3>
+                                <span class="os-badge os-badge-warning">À vérifier</span>
+                            </div>
+                            <div class="empty-state"
+                                 th:if="${analysis.atsRisks == null or analysis.atsRisks.isEmpty()}">
+                                <div class="empty-state-icon" aria-hidden="true">✓</div>
+                                <p class="empty-state-title">Aucun risque signalé</p>
+                            </div>
+                            <ul class="result-list result-list-warning"
+                                th:if="${analysis.atsRisks != null and !analysis.atsRisks.isEmpty()}">
+                                <li class="result-list-item"
+                                    th:each="risk : ${analysis.atsRisks}"
+                                    th:text="${risk}"></li>
+                            </ul>
+                        </article>
 
-<p>
-    Score adéquation :
-    <span th:text="${analysis.jobMatchScore}">
-    </span>
-</p>
-    </div>
-</div>
-<div class="card">
-<h2 class="card-header h2">Risk ATS</h2>
-    <div class="card-body">
-<span th:if="${analysis.atsRisks ==  null or analysis.atsRisks.isEmpty()}">Aucun risque ATS</span>
-<div th:each="risk:${analysis.atsRisks}">
+                        <article class="os-card">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <h3 class="feature-title">Recommandations</h3>
+                                <span class="os-badge os-badge-ai">IA</span>
+                            </div>
+                            <div class="empty-state"
+                                 th:if="${analysis.recommendations == null or analysis.recommendations.isEmpty()}">
+                                <p class="empty-state-title">Aucune recommandation</p>
+                            </div>
+                            <ul class="result-list"
+                                th:if="${analysis.recommendations != null and !analysis.recommendations.isEmpty()}">
+                                <li class="result-list-item"
+                                    th:each="recommendation : ${analysis.recommendations}"
+                                    th:text="${recommendation}"></li>
+                            </ul>
+                        </article>
 
-    <span th:text="${risk}"></span>
-</div>
-    </div>
-</div>
-<div class="card">
-<h2 class="card-header h2">Recommandations</h2>
-    <div class="card-body">
-<span th:if="${analysis.recommendations ==  null or analysis.recommendations.isEmpty()} ">Aucune recommandation</span>
-<div th:each="recommandation:${analysis.recommendations}">
-    <span th:text="${recommandation}"></span>
-</div>
-</div>
-</div>
-<div class="card">
-<h2 class="card-header h2">Keywords manquants</h2>
-    <div class="card-body">
-<span th:if="${analysis.missingKeywords ==  null or analysis.missingKeywords.isEmpty()}">Aucun mot-clé manquant</span>
-<div th:each="missingkey:${analysis.missingKeywords}">
-    <span th:text="${missingkey}"></span>
-</div>
-</div>
-</div>
-<div class="card border-primary">
-    <h2 class="card-header h2">CV corrigé</h2>
-    <div class="card-body">
-        <p class="text-muted">
-            Cette version utilise uniquement les informations du CV original.
-            Les éléments entre crochets sont à compléter par vos soins.
-            Le PDF respecte un format d'une page A4 ; raccourcissez le texte si nécessaire.
-        </p>
-        <form method="post" th:action="@{/resume/pdf}">
-            <div class="row g-2 mb-3">
-                <div class="col-md-6">
-                    <label for="candidateName" class="form-label">Nom affiché dans l'en-tête</label>
-                    <input id="candidateName"
-                           name="candidateName"
-                           class="form-control"
-                           th:value="${generatedResume.candidateName}">
-                </div>
-                <div class="col-md-6">
-                    <label for="professionalTitle" class="form-label">Titre professionnel</label>
-                    <input id="professionalTitle"
-                           name="professionalTitle"
-                           class="form-control"
-                           th:value="${generatedResume.professionalTitle}">
-                </div>
+                        <article class="os-card">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <h3 class="feature-title">Mots-clés manquants</h3>
+                                <span class="os-badge os-badge-info">Offre</span>
+                            </div>
+                            <div class="empty-state"
+                                 th:if="${analysis.missingKeywords == null or analysis.missingKeywords.isEmpty()}">
+                                <p class="empty-state-title">Aucun mot-clé manquant</p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2"
+                                 th:if="${analysis.missingKeywords != null and !analysis.missingKeywords.isEmpty()}">
+                                <span class="os-badge"
+                                      th:each="keyword : ${analysis.missingKeywords}"
+                                      th:text="${keyword}"></span>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="analysis-layout" aria-labelledby="resume-title">
+                    <article class="os-card">
+                        <div class="section-heading">
+                            <div>
+                                <div class="eyebrow">CV amélioré</div>
+                                <h2 class="section-title" id="resume-title">Relisez et adaptez le contenu</h2>
+                                <p class="section-description mt-2 mb-0">
+                                    Le texte est généré à partir du CV original. Les placeholders restent à compléter manuellement.
+                                </p>
+                            </div>
+                            <span class="os-badge os-badge-ai">Contenu IA modifiable</span>
+                        </div>
+
+                        <form method="post" th:action="@{/resume/pdf}">
+                            <label class="os-label" for="resumeContent">Contenu du CV</label>
+                            <textarea id="resumeContent"
+                                      name="resumeContent"
+                                      class="os-textarea editor-textarea"
+                                      rows="24"
+                                      required
+                                      th:text="${generatedResume.content}"></textarea>
+
+                            <div class="action-row">
+                                <button class="os-button os-button-secondary"
+                                        type="button"
+                                        data-copy-target="#resumeContent">
+                                    Copier le contenu
+                                </button>
+                            </div>
+                            <div class="copy-status" data-copy-status aria-live="polite"></div>
+
+                            <div class="os-card os-card-elevated mt-4">
+                                <div class="section-heading">
+                                    <div>
+                                        <h3 class="feature-title mb-1">Exporter en PDF</h3>
+                                        <p class="form-help mb-0">
+                                            L’export actuel produit une seule page A4. Raccourcissez le texte si nécessaire.
+                                        </p>
+                                    </div>
+                                    <span class="os-badge">Monopage</span>
+                                </div>
+                                <div class="os-grid os-grid-2">
+                                    <div>
+                                        <label class="os-label" for="candidateName">Nom affiché dans l’en-tête</label>
+                                        <input id="candidateName"
+                                               name="candidateName"
+                                               class="os-input"
+                                               th:value="${generatedResume.candidateName}">
+                                    </div>
+                                    <div>
+                                        <label class="os-label" for="professionalTitle">Titre professionnel</label>
+                                        <input id="professionalTitle"
+                                               name="professionalTitle"
+                                               class="os-input"
+                                               th:value="${generatedResume.professionalTitle}">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label class="os-label" for="pdfStyle">Style du document</label>
+                                    <select id="pdfStyle" name="style" class="os-select">
+                                        <option value="PROFESSIONAL">Professionnel</option>
+                                        <option value="MODERN">Moderne</option>
+                                        <option value="MINIMAL">Minimaliste</option>
+                                    </select>
+                                </div>
+                                <button class="os-button os-button-primary os-button-block mt-4" type="submit">
+                                    Télécharger le PDF
+                                </button>
+                            </div>
+                        </form>
+                    </article>
+
+                    <aside class="page-stack sticky-panel">
+                        <article class="os-card">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <h3 class="feature-title">À compléter</h3>
+                                <span class="os-badge os-badge-warning"
+                                      th:text="${generatedResume.placeholders == null ? 0 : generatedResume.placeholders.size()}">0</span>
+                            </div>
+                            <div class="empty-state"
+                                 th:if="${generatedResume.placeholders == null or generatedResume.placeholders.isEmpty()}">
+                                <p class="empty-state-title">Aucun placeholder</p>
+                            </div>
+                            <ul class="result-list result-list-warning"
+                                th:if="${generatedResume.placeholders != null and !generatedResume.placeholders.isEmpty()}">
+                                <li class="result-list-item"
+                                    th:each="placeholder : ${generatedResume.placeholders}"
+                                    th:text="${placeholder}"></li>
+                            </ul>
+                        </article>
+
+                        <article class="os-card">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <h3 class="feature-title">Corrections appliquées</h3>
+                                <span class="os-badge os-badge-success">Résumé</span>
+                            </div>
+                            <div class="empty-state"
+                                 th:if="${generatedResume.appliedCorrections == null or generatedResume.appliedCorrections.isEmpty()}">
+                                <p class="empty-state-title">Aucune correction listée</p>
+                            </div>
+                            <ul class="result-list"
+                                th:if="${generatedResume.appliedCorrections != null and !generatedResume.appliedCorrections.isEmpty()}">
+                                <li class="result-list-item"
+                                    th:each="correction : ${generatedResume.appliedCorrections}"
+                                    th:text="${correction}"></li>
+                            </ul>
+                        </article>
+                    </aside>
+                </section>
             </div>
-            <div class="d-flex flex-wrap align-items-end gap-2 mb-3">
-                <button class="btn btn-outline-secondary" type="button" onclick="copyResume()">
-                    Copier le CV
-                </button>
-                <div>
-                    <label for="pdfStyle" class="form-label mb-1">Style du PDF</label>
-                    <select id="pdfStyle" name="style" class="form-select">
-                        <option value="PROFESSIONAL">Professionnel</option>
-                        <option value="MODERN">Moderne</option>
-                        <option value="MINIMAL">Minimaliste</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" type="submit">
-                    Télécharger le PDF
-                </button>
-            </div>
-            <textarea id="resumeContent"
-                      name="resumeContent"
-                      class="form-control"
-                      rows="24"
-                      required
-                      th:text="${generatedResume.content}"></textarea>
-        </form>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
 </div>
-<div class="card" th:if="${generatedResume.placeholders != null and !generatedResume.placeholders.isEmpty()}">
-    <h2 class="card-header h2">Informations à compléter</h2>
-    <div class="card-body">
-        <ul class="mb-0">
-            <li th:each="placeholder : ${generatedResume.placeholders}"
-                class="text-danger fw-semibold"
-                th:text="${placeholder}"></li>
-        </ul>
-    </div>
-</div>
-<div class="card" th:if="${generatedResume.appliedCorrections != null and !generatedResume.appliedCorrections.isEmpty()}">
-    <h2 class="card-header h2">Corrections appliquées</h2>
-    <div class="card-body">
-        <ul class="mb-0">
-            <li th:each="correction : ${generatedResume.appliedCorrections}"
-                th:text="${correction}"></li>
-        </ul>
-    </div>
-</div>
-<a class="btn btn-primary" th:href="@{/}">Home</a>
-
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
 </body>
-<script th:src="@{/js/copyResume.js}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </html>

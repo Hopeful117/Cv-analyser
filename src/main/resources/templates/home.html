@@ -1,112 +1,110 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>AI Career Tools</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-</head>
-
-<body class="bg-light">
-
-<div class="container py-5">
-
-    <!-- Header -->
-    <div class="text-center mb-5">
-        <h1 class="fw-bold">AI Career Assistant</h1>
-        <p class="text-muted">
-            Analyse ton CV et améliore tes candidatures avec l’IA
-        </p>
-    </div>
-
-    <!-- Cards -->
-    <div class="row g-4 justify-content-center">
-
-        <!-- CV Analyzer -->
-        <div class="col-md-5">
-
-            <div class="card shadow-sm h-100 border-0">
-
-                <div class="card-body text-center p-4">
-
-                    <h3 class="card-title mb-3">
-                        📄 CV Analyzer
-                    </h3>
-
-                    <p class="card-text text-muted">
-                        Analyse ton CV, détecte les risques ATS et améliore ton matching avec les offres d’emploi.
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Vue d’ensemble')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('home')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Vue d’ensemble', 'Votre espace de préparation aux candidatures')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <section class="hero-panel">
+                    <div class="eyebrow">Career Intelligence</div>
+                    <h2 class="hero-title">Transformez vos candidatures en décisions mieux informées.</h2>
+                    <p class="hero-description">
+                        Analysez, adaptez et préparez vos candidatures avec l’aide de l’intelligence artificielle,
+                        dans un espace cohérent avec le Developer OS.
                     </p>
+                    <div class="hero-actions">
+                        <a class="os-button os-button-primary" th:href="@{/analyze}">
+                            Analyser un CV
+                            <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </section>
 
-                    <a th:href="@{/analyze}"
-                       class="btn btn-primary w-100 mt-3">
-                        Accéder au CV Analyzer
-                    </a>
+                <section aria-labelledby="actions-title">
+                    <div class="section-heading">
+                        <div>
+                            <div class="eyebrow">Actions principales</div>
+                            <h2 class="section-title" id="actions-title">Préparez chaque étape de votre candidature</h2>
+                        </div>
+                    </div>
+                    <div class="os-grid os-grid-3">
+                        <article class="os-card os-card-interactive feature-card">
+                            <div class="feature-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5M9 12h6M9 16h4"/>
+                                </svg>
+                            </div>
+                            <h3 class="feature-title">Analyser un CV</h3>
+                            <p class="feature-copy">
+                                Évaluez votre CV face à une offre, identifiez les risques ATS et générez une version améliorée.
+                            </p>
+                            <a class="os-button os-button-primary" th:href="@{/analyze}">Commencer l’analyse</a>
+                        </article>
 
-                </div>
+                        <article class="os-card os-card-interactive feature-card">
+                            <div class="feature-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/>
+                                </svg>
+                            </div>
+                            <h3 class="feature-title">Préparer une lettre</h3>
+                            <p class="feature-copy">
+                                Générez une lettre adaptée ou améliorez un document existant à partir de votre CV.
+                            </p>
+                            <a class="os-button os-button-secondary" th:href="@{/generator}">Préparer une lettre</a>
+                        </article>
 
+                        <article class="os-card os-card-interactive feature-card">
+                            <div class="section-heading">
+                                <div class="feature-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path d="M5 4h14v12H8l-3 3z"/><path d="M9 9h6M9 12h4"/>
+                                    </svg>
+                                </div>
+                                <span class="os-badge os-badge-experimental">Expérimental</span>
+                            </div>
+                            <h3 class="feature-title">Simuler un entretien</h3>
+                            <p class="feature-copy">
+                                Entraînez-vous avec des questions générées à partir de votre profil et de l’offre ciblée.
+                            </p>
+                            <a class="os-button os-button-secondary" th:href="@{/interview/start}">Lancer une simulation</a>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="os-card os-card-elevated" aria-labelledby="future-title">
+                    <div class="section-heading">
+                        <div>
+                            <span class="os-badge os-badge-info">Évolution prévue</span>
+                            <h2 class="section-title mt-3" id="future-title">Un module qui se construit progressivement</h2>
+                            <p class="section-description mt-2 mb-0">
+                                Career Intelligence centralisera progressivement les éléments utiles à votre parcours professionnel.
+                                Ces espaces ne sont pas encore disponibles.
+                            </p>
+                        </div>
+                    </div>
+                    <ul class="future-list" aria-label="Fonctionnalités prévues">
+                        <li><span class="os-badge">Profil professionnel · Prochainement</span></li>
+                        <li><span class="os-badge">Versions de CV · Prochainement</span></li>
+                        <li><span class="os-badge">Offres et opportunités · Prochainement</span></li>
+                        <li><span class="os-badge">Suivi des candidatures · Prochainement</span></li>
+                        <li><span class="os-badge">Progression · Prochainement</span></li>
+                    </ul>
+                </section>
+
+                <section class="trust-strip" aria-label="Informations de confiance">
+                    <div class="trust-item"><span class="trust-marker"></span><span>Les recommandations IA doivent être vérifiées avant utilisation.</span></div>
+                    <div class="trust-item"><span class="trust-marker"></span><span>Les scores sont des estimations indicatives, pas une certification ATS.</span></div>
+                    <div class="trust-item"><span class="trust-marker"></span><span>Aucune candidature n’est envoyée automatiquement.</span></div>
+                </section>
             </div>
-
-        </div>
-
-        <!-- Cover Letter Generator -->
-        <div class="col-md-5">
-
-            <div class="card shadow-sm h-100 border-0">
-
-                <div class="card-body text-center p-4">
-
-                    <h3 class="card-title mb-3">
-                        ✍️ Cover Letter AI
-                    </h3>
-
-                    <p class="card-text text-muted">
-                        Génère ou améliore automatiquement tes lettres de motivation adaptées à chaque offre.
-                    </p>
-
-                    <a th:href="@{/generator}"
-                       class="btn btn-success w-100 mt-3">
-                        Générer une lettre
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-        <div class="col-md-5">
-
-            <div class="card shadow-sm h-100 border-0">
-
-                <div class="card-body text-center p-4">
-
-                    <h3 class="card-title mb-3">
-                        AI interview
-                    </h3>
-
-                    <p class="card-text text-muted">
-                        Prépare-toi aux entretiens d’embauche avec des simulations d’interviews basées sur l’IA.
-                    </p>
-
-                    <a th:href="@{/interview/start}"
-                       class="btn btn-danger w-100 mt-3">
-                        Accéder à l'interview AI
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
-
-    <!-- Footer -->
-    <div class="text-center mt-5 text-muted small">
-        Powered by Spring Boot + Spring AI
-    </div>
-
 </div>
-
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
 </body>
 </html>

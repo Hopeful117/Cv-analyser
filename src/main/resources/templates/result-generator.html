@@ -1,71 +1,51 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Cover Letter Result</title>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Lettre générée')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('letters')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Lettre générée', 'Relisez et adaptez la proposition avant de l’utiliser')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <section class="section-heading">
+                    <div>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="os-badge os-badge-ai">Contenu généré par IA</span>
+                            <span class="os-badge os-badge-warning">À vérifier</span>
+                        </div>
+                        <h2 class="section-title">Votre proposition de lettre</h2>
+                        <p class="section-description mt-2 mb-0">
+                            Le texte reste entièrement modifiable. Vérifiez les faits, le ton et les coordonnées avant envoi.
+                        </p>
+                    </div>
+                    <a th:href="@{/generator}" class="os-button os-button-secondary">Préparer une nouvelle lettre</a>
+                </section>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          crossorigin="anonymous">
-</head>
+                <section class="os-card">
+                    <label class="os-label" for="letterContent">Contenu de la lettre</label>
+                    <textarea id="letterContent"
+                              class="os-textarea editor-textarea"
+                              rows="18"
+                              th:text="${coverLetter}"></textarea>
+                    <div class="action-row">
+                        <button class="os-button os-button-primary"
+                                type="button"
+                                data-copy-target="#letterContent">
+                            Copier la lettre
+                        </button>
+                    </div>
+                    <div class="copy-status" data-copy-status aria-live="polite"></div>
+                </section>
 
-<body class="bg-light">
-
-<div class="container py-4">
-
-    <!-- HEADER -->
-    <div class="mb-4">
-        <h1 class="fw-bold">Lettre de motivation générée</h1>
-        <p class="text-muted">
-            Tu peux la modifier, la copier ou la régénérer.
-        </p>
+                <div class="os-alert os-alert-info">
+                    Aucune lettre n’est sauvegardée ou envoyée automatiquement par l’application.
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
-
-
-    <div class="d-flex gap-2 mb-3">
-
-        <button class="btn btn-outline-secondary"
-                onclick="copyLetter()">
-            📋 Copier
-        </button>
-
-
-
-        <a th:href="@{/generator}"
-           class="btn btn-primary">
-            ✍️ Nouvelle lettre
-        </a>
-
-    </div>
-
-
-    <div class="card shadow-sm border-0">
-
-        <div class="card-header bg-white">
-            <strong>Éditeur de lettre</strong>
-        </div>
-
-        <div class="card-body">
-
-            <textarea id="letterContent"
-                      class="form-control"
-                      rows="18"
-                      th:text="${coverLetter}">
-            </textarea>
-
-        </div>
-
-    </div>
-
-
-
 </div>
-
-
-<script src="/js/copyLetter.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
-
+<th:block th:replace="~{fragments/footer :: scripts}"></th:block>
 </body>
 </html>

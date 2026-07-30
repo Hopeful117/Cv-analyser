@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="alerts">
+    <div th:if="${errorMessage}"
+         class="os-alert os-alert-error"
+         role="alert"
+         aria-live="assertive">
+        <strong>Une erreur est survenue.</strong>
+        <span th:text="${errorMessage}"></span>
+    </div>
+</div>
+</body>
+</html>

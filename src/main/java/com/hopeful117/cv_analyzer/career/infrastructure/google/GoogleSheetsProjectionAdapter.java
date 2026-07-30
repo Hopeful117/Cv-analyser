@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 @ConditionalOnProperty(prefix = "career.google-sheets", name = "enabled", havingValue = "true")
 public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort {
     private static final Pattern LAST_ROW = Pattern.compile(".*![A-Z]+(\\d+):[A-Z]+(\\d+)");
-    private final Sheets sheets;
+    private final GoogleSheetsClient client;
     private final CareerGoogleSheetsProperties properties;
     private final GoogleSheetHeaderResolver headerResolver = new GoogleSheetHeaderResolver();
     private final GoogleSheetRowMapper rowMapper = new GoogleSheetRowMapper();
@@ -51,7 +51,7 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
     @Override
     public List<String> readHeaders() {
         try {
-            List<List<Object>> values = sheets.spreadsheets().values()
+            List<List<Object>> values = client.get().spreadsheets().values()
                     .get(properties.spreadsheetId(), range(properties.headerRow() + ":" + properties.headerRow()))
                     .execute().getValues();
             if (values == null || values.isEmpty()) {
@@ -137,7 +137,7 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
                                 GoogleSheetHeaderResolver.ResolvedHeaders headers) {
         List<Object> row = buildRow(projection, headers, -1);
         try {
-            AppendValuesResponse response = sheets.spreadsheets().values()
+            AppendValuesResponse response = client.get().spreadsheets().values()
                     .append(properties.spreadsheetId(), range("A:ZZ"), new ValueRange().setValues(List.of(row)))
                     .setValueInputOption("USER_ENTERED").setInsertDataOption("INSERT_ROWS")
                     .setIncludeValuesInResponse(false).execute();
@@ -153,7 +153,7 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
                                 GoogleSheetHeaderResolver.ResolvedHeaders headers, int rowNumber) {
         List<Object> row = buildRow(projection, headers, rowNumber);
         try {
-            sheets.spreadsheets().values()
+            client.get().spreadsheets().values()
                     .update(properties.spreadsheetId(), range("A" + rowNumber + ":" +
                             columnName(headers.displayed().size()) + rowNumber),
                             new ValueRange().setValues(List.of(row)))
@@ -182,7 +182,7 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
                 headers.find("Date candidature").isEmpty()) return;
         int daysColumn = headers.find("Jours").getAsInt();
         String cell = columnName(daysColumn + 1) + rowNumber;
-        sheets.spreadsheets().values().update(properties.spreadsheetId(), range(cell),
+        client.get().spreadsheets().values().update(properties.spreadsheetId(), range(cell),
                 new ValueRange().setValues(List.of(List.of(daysFormula(headers, rowNumber)))))
                 .setValueInputOption("USER_ENTERED").execute();
     }
@@ -195,7 +195,7 @@ public class GoogleSheetsProjectionAdapter implements GoogleSheetsProjectionPort
 
     private SheetData readSheet() {
         try {
-            List<List<Object>> rows = sheets.spreadsheets().values()
+            List<List<Object>> rows = client.get().spreadsheets().values()
                     .get(properties.spreadsheetId(), range(properties.headerRow() + ":100000"))
                     .execute().getValues();
             if (rows == null || rows.isEmpty()) throw new GoogleSheetsFunctionalException(

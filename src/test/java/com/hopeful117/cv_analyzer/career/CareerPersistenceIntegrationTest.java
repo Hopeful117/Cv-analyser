@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -22,6 +23,14 @@ class CareerPersistenceIntegrationTest {
     @Autowired ResumeAnalysisRecordRepository analysisRepository;
     @Autowired ResumeDocumentRepository documentRepository;
     @PersistenceContext EntityManager entityManager;
+    @Autowired JdbcTemplate jdbcTemplate;
+
+    @Test
+    void flywayEnsuresAllInterviewTablesExist() {
+        assertThat(tableExists("interview_session")).isTrue();
+        assertThat(tableExists("interview_question")).isTrue();
+        assertThat(tableExists("interview_question_result")).isTrue();
+    }
 
     @Test
     void persistsOpportunityAnalysisCollectionsAndResumeVersions() {
@@ -70,5 +79,14 @@ class CareerPersistenceIntegrationTest {
         version.setContent(content);
         version.setPdfStyle(ResumePdfStyle.PROFESSIONAL);
         return version;
+    }
+
+    private boolean tableExists(String tableName) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM information_schema.tables
+                WHERE LOWER(table_schema) = LOWER(SCHEMA())
+                  AND LOWER(table_name) = LOWER(?)
+                """, Integer.class, tableName);
+        return count != null && count == 1;
     }
 }

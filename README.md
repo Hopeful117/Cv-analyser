@@ -56,6 +56,8 @@ La connexion par défaut est `jdbc:mysql://localhost:3306/cv_analyzer`. Flyway a
 migrations de `src/main/resources/db/migration`, puis Hibernate valide le schéma (`ddl-auto=validate`).
 Une base héritée contenant uniquement les tables d’entretien est adoptée par Flyway à la version `0`, puis
 les migrations Career Intelligence sont appliquées. Sauvegardez toujours la base avant la première adoption.
+La migration V3 rétablit de façon idempotente les tables d’entretien manquantes sur les installations
+partiellement baselinées ; elle ne supprime ni ne recrée une table déjà présente.
 
 Si une ancienne base a été créée avec `create-drop`, sauvegardez les données utiles puis repartez d’une base
 vide : l’ancien schéma n’était pas versionné et ne contient pas de données Career Workspace compatibles.
@@ -74,6 +76,12 @@ GOOGLE_APPLICATION_CREDENTIALS=/chemin/hors-repository/compte-service.json
 La bibliothèque Google utilise Application Default Credentials et le seul scope
 `https://www.googleapis.com/auth/spreadsheets`. Le JSON n’est ni lu manuellement par l’application, ni
 stocké en base, ni journalisé. L’application démarre sans credentials lorsque l’intégration est désactivée.
+Même si l’intégration est activée par erreur sans ADC disponibles, leur résolution est différée jusqu’au
+premier test ou à la première synchronisation : le démarrage reste possible et l’échec est exposé comme
+une erreur fonctionnelle réessayable.
+En développement local, `dotenv-java` expose les valeurs du `.env` comme propriétés Java. Le client tente
+d’abord les ADC standards, puis utilise explicitement la propriété `GOOGLE_APPLICATION_CREDENTIALS` comme
+repli local. Le chemin reste configurable et le contenu du fichier n’est jamais journalisé.
 
 ## Démarrage
 

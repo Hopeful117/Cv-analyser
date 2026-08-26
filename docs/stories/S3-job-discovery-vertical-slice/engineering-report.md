@@ -11,14 +11,6 @@ Le premier slice vertical réel de découverte d'emplois est opérationnel : une
 - **ContractType** : vocabulaire commun assumé (`career.domain.ContractType`) plutôt que duplication, étendu de `fromCode()` pour l'adaptateur FT ;
 - **WorkMode/SalaryPeriod** : réutilisés depuis `search.domain` — pas de duplication.
 
-## Provider Adapter Pattern
-
-Le port `JobOfferProvider` définit un contrat minimal (search) que tout fournisseur doit implémenter. L'adaptateur FT comprend :
-- `FranceTravailTokenClient` : OAuth2 client_credentials avec cache TTL et retry 401 ;
-- `FranceTravailApiClient` : recherche paginée (max 150/call), Content-Range parsing ;
-- `FranceTravailOfferMapper` : mapping complet FT→domaine, regex salaire validée sur le vrai format ;
-- `DisabledFranceTravailJobOfferProvider` : fallback gracieux si credentials absents.
-
 ## Eligibility Semantics
 
 - **CONTRACT_NOT_ACCEPTED** : type contrat hors ensemble accepté (non vide) ;

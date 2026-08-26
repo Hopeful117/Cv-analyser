@@ -12,7 +12,7 @@ import java.time.format.ResolverStyle;
  * Parsing défensif des dates renvoyées par l'extraction IA : une date inexploitable est ignorée
  * (retour null) plutôt que rejetée, la proposition restant éditable par l'utilisateur.
  */
-final class ProposalDateParser {
+public final class ProposalDateParser {
 
     private static final DateTimeFormatter ISO_STRICT =
             DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
@@ -20,7 +20,7 @@ final class ProposalDateParser {
     private ProposalDateParser() {
     }
 
-    static LocalDate parse(String raw) {
+    public static LocalDate parse(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
@@ -47,7 +47,7 @@ final class ProposalDateParser {
         }
     }
 
-    static void validateRange(LocalDate startDate, LocalDate endDate, String itemLabel) {
+    public static void validateRange(LocalDate startDate, LocalDate endDate, String itemLabel) {
         if (endDate != null && startDate == null) {
             throw new InvalidProfileException(itemLabel
                     + " : une date de fin est renseignée sans date de début.");

@@ -1,5 +1,6 @@
 package com.hopeful117.cv_analyzer.profile.web;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,10 +30,10 @@ public class ProfileProposalForm {
     @Size(max = 300)
     private String referenceLocation;
 
-    private List<SkillEntry> skills = new ArrayList<>();
-    private List<ExperienceEntry> experiences = new ArrayList<>();
-    private List<EducationEntry> educations = new ArrayList<>();
-    private List<LanguageEntry> languages = new ArrayList<>();
+    private List<@Valid SkillEntry> skills = new ArrayList<>();
+    private List<@Valid ExperienceEntry> experiences = new ArrayList<>();
+    private List<@Valid EducationEntry> educations = new ArrayList<>();
+    private List<@Valid LanguageEntry> languages = new ArrayList<>();
 
     /** Traçabilité de la proposition, renvoyée par l'écran de revue. */
     private String aiProvider;

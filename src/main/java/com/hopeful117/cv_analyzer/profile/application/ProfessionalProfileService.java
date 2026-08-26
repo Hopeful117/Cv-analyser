@@ -54,21 +54,46 @@ public class ProfessionalProfileService {
     /**
      * Création ou mise à jour manuelle : l'état soumis remplace l'état existant et l'utilisateur a
      * relu chaque valeur ; les compétences sont donc requalifiées en saisie manuelle et la
-     * traçabilité d'assistance CV précédente devient obsolète.
+     * traçabilité d'assistance CV précédente devient obsolète. Tout est validé AVANT toute
+     * modification de l'agrégat : un échec laisse le profil existant strictement intact.
      */
     @Transactional
     public Long saveFromForm(ProfileForm form) {
-        ProfessionalProfileEntity profile = repository.findLocalProfile().orElseGet(ProfessionalProfileEntity::new);
-        profile.setFullName(clean(form.getFullName()));
-        profile.setProfessionalTitle(clean(form.getProfessionalTitle()));
-        profile.setReferenceLocation(clean(form.getReferenceLocation()));
+        String fullName = clean(form.getFullName());
+        String professionalTitle = clean(form.getProfessionalTitle());
+        String referenceLocation = clean(form.getReferenceLocation());
 
-        replaceSkills(profile, parseSkillLines(form.getSkillsText()));
-        replaceLanguages(profile, parseLanguageLines(form.getLanguagesText()));
-        replaceEducations(profile,
-                parseEducationLines(form.getEducationText(), EducationKind.EDUCATION),
-                parseEducationLines(form.getCertificationText(), EducationKind.CERTIFICATION));
-        replaceExperiences(profile, validExperiences(form.getExperiences(), "expérience"));
+        List<ProfileSkillEntity> skills = buildManualSkills(form.getSkillsText());
+        List<ProfileLanguageEntity> languages = buildManualLanguages(form.getLanguagesText());
+        List<ProfileEducationEntity> educations = new java.util.ArrayList<>();
+        educations.addAll(buildEducations(form.getEducationText(), EducationKind.EDUCATION));
+        educations.addAll(buildEducations(form.getCertificationText(), EducationKind.CERTIFICATION));
+        List<ProfileExperienceEntity> experiences =
+                validExperiences(form.getExperiences(), "expérience");
+
+        boolean nothingSubmitted = fullName == null && professionalTitle == null
+                && referenceLocation == null
+                && skills.isEmpty() && languages.isEmpty()
+                && educations.isEmpty() && experiences.isEmpty();
+        if (nothingSubmitted) {
+            throw new InvalidProfileException(
+                    "Renseignez au moins une donnée professionnelle pour enregistrer votre profil.");
+        }
+
+        ProfessionalProfileEntity profile = repository.findLocalProfile()
+                .orElseGet(ProfessionalProfileEntity::new);
+        profile.setFullName(fullName);
+        profile.setProfessionalTitle(professionalTitle);
+        profile.setReferenceLocation(referenceLocation);
+
+        profile.getSkills().clear();
+        skills.forEach(profile::addSkill);
+        profile.getLanguages().clear();
+        languages.forEach(profile::addLanguage);
+        profile.getEducations().clear();
+        educations.forEach(profile::addEducation);
+        profile.getExperiences().clear();
+        experiences.forEach(profile::addExperience);
 
         profile.setAiProvider(null);
         profile.setAiModel(null);
@@ -200,29 +225,38 @@ public class ProfessionalProfileService {
 
     /* ---- mapping et helpers privés ---- */
 
-    private void replaceSkills(ProfessionalProfileEntity profile, List<String[]> labels) {
-        profile.getSkills().clear();
-        Set<String> seen = new HashSet<>();
-        for (String[] pair : labels) {
-            String normalized = ProfileNormalizer.normalize(pair[1]);
-            if (!seen.add(normalized)) {
-                throw new InvalidProfileException("La compétence « "
-                        + pair[0] + " » apparaît plusieurs fois.");
-            }
-            profile.addSkill(skill(pair[0], normalized, SkillOrigin.MANUAL));
+    private List<ProfileSkillEntity> buildManualSkills(String text) {
+        if (text == null || text.isBlank()) {
+            return List.of();
         }
+        List<ProfileSkillEntity> result = new java.util.ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (String line : text.lines().map(String::trim).filter(l -> !l.isEmpty()).toList()) {
+            requireMaxLength(line, MAX_SKILL_LENGTH, "La compétence");
+            String normalized = ProfileNormalizer.normalize(line);
+            if (!seen.add(normalized)) {
+                throw new InvalidProfileException(
+                        "La compétence « " + line + " » apparaît plusieurs fois.");
+            }
+            ProfileSkillEntity skill = new ProfileSkillEntity();
+            skill.setLabel(line);
+            skill.setNormalizedName(normalized);
+            skill.setOrigin(SkillOrigin.MANUAL);
+            result.add(skill);
+        }
+        return result;
     }
 
-    private void replaceLanguages(ProfessionalProfileEntity profile, List<ProfileLanguageEntity> parsed) {
-        profile.getLanguages().clear();
+    private List<ProfileLanguageEntity> buildManualLanguages(String text) {
+        List<ProfileLanguageEntity> parsed = parseLanguageLines(text);
         Set<String> seen = new HashSet<>();
         for (ProfileLanguageEntity language : parsed) {
             if (!seen.add(language.getNormalizedLanguage())) {
                 throw new InvalidProfileException("La langue « "
                         + language.getLanguage() + " » apparaît plusieurs fois.");
             }
-            profile.addLanguage(language);
         }
+        return parsed;
     }
 
     private void replaceEducations(ProfessionalProfileEntity profile,
@@ -231,12 +265,6 @@ public class ProfessionalProfileService {
         profile.getEducations().clear();
         educations.forEach(profile::addEducation);
         certifications.forEach(profile::addEducation);
-    }
-
-    private void replaceExperiences(ProfessionalProfileEntity profile,
-                                    List<ProfileExperienceEntity> experiences) {
-        profile.getExperiences().clear();
-        experiences.forEach(profile::addExperience);
     }
 
     private ProfileSkillEntity skill(String label, String normalized, SkillOrigin origin) {
@@ -253,18 +281,6 @@ public class ProfessionalProfileService {
         entity.setNormalizedLanguage(normalized);
         entity.setLevel(level);
         return entity;
-    }
-
-    private List<String[]> parseSkillLines(String text) {
-        if (text == null || text.isBlank()) {
-            return List.of();
-        }
-        List<String[]> result = new java.util.ArrayList<>();
-        text.lines().map(String::trim).filter(line -> !line.isEmpty()).forEach(line -> {
-            requireMaxLength(line, MAX_SKILL_LENGTH, "La compétence");
-            result.add(new String[]{line, line});
-        });
-        return result;
     }
 
     private List<ProfileLanguageEntity> parseLanguageLines(String text) {
@@ -289,7 +305,7 @@ public class ProfessionalProfileService {
         return result;
     }
 
-    private List<ProfileEducationEntity> parseEducationLines(String text, EducationKind kind) {
+    private List<ProfileEducationEntity> buildEducations(String text, EducationKind kind) {
         if (text == null || text.isBlank()) {
             return List.of();
         }

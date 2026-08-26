@@ -68,7 +68,10 @@ formulaire création/édition, upload, revue, succès flash, erreurs produit via
 
 - `./mvnw test` : vert (94/94) ; Flyway validé aussi sur MySQL réel au démarrage manuel
   (« Migrating schema to version 4 » puis démarrage OK) ;
-- `git diff --check` : propre ; arbre de travail propre après commits.
+- `git diff --check` : propre ; arbre de travail propre après commits ;
+- nettoyage UX post-validation : retrait du placeholder de navigation « Profil · Bientôt »
+  (sidebar + règle CSS exclusive `.nav-soon`) rendu obsolète par le lien fonctionnel « Profil » ;
+  suite complète relancée après modification.
 
 ## Limites restantes
 

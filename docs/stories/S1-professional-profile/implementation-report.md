@@ -42,6 +42,16 @@ Scénario exécuté au curl sur l'UI réelle :
 
 Le bug n°1 ci-dessous a été découvert et corrigé pendant cette validation.
 
+## Retour de validation manuelle complémentaire — nettoyage UX navigation
+
+La navigation contenait encore un placeholder obsolète « Profil · Bientôt » dans une section
+« À venir » de la sidebar, en contradiction avec le lien fonctionnel « Profil ». Nettoyage :
+
+- suppression du bloc « À venir » de `fragments/sidebar.html` (exclusif au placeholder) ;
+- suppression de la règle CSS `.nav-soon` de `developer-os.css` (aucune autre utilisation) ;
+- lien fonctionnel « Profil » inchangé ; aucune dépendance test ou backend identifiée
+  (recherche sur `nav-soon`, `À venir`, `Bientôt`) ; suite complète relancée : 94/94.
+
 ## Bugs trouvés et corrigés
 
 1. **Remplacement de collections non fiable** : clear+flush+réinsertion et delete bulk dérivé

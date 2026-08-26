@@ -16,7 +16,7 @@ MySQL, monolithe modulaire.
 - Le texte extrait est utilisé puis abandonné : aucune structure persistée.
 
 Conséquence S1 : l'initialisation du profil doit repartir d'un upload de CV frais ; on ne peut pas
-supposer qu'un PDF antérieur existe encore. Réutiliser `UploadValidationService` + 
+supposer qu'un PDF antérieur existe encore. Réutiliser `UploadValidationService` +
 `PdfParserService` plutôt que créer un second pipeline.
 
 ## 2. Contrats IA

@@ -70,6 +70,9 @@ public class GlobalExceptionHandler {
         if (path.startsWith("/profile")) {
             return "/profile";
         }
+        if (path.startsWith("/preferences")) {
+            return "/preferences";
+        }
         if (path.startsWith("/applications")) {
             return "/applications";
         }

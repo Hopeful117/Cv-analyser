@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${profileId == null ? 'Nouveau profil professionnel' : 'Modifier le profil professionnel'})}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar(${profileId == null ? 'Nouveau profil professionnel' : 'Modifier le profil professionnel'}, 'Ces données deviennent votre profil fiable après enregistrement')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <form class="page-stack" method="post" th:object="${profileForm}"
+                      th:action="${profileId == null} ? @{/profile} : @{/profile/update}">
+                    <section class="os-card form-section">
+                        <div class="eyebrow">1 · Identité professionnelle</div>
+                        <div class="os-grid os-grid-2">
+                            <div><label class="os-label" for="fullName">Nom complet</label><input class="os-input"
+                                                                                                  id="fullName"
+                                                                                                  th:field="*{fullName}"
+                                                                                                  maxlength="200"><p
+                                    class="field-error" th:errors="*{fullName}"></p></div>
+                            <div><label class="os-label" for="professionalTitle">Titre professionnel</label><input
+                                    class="os-input" id="professionalTitle" th:field="*{professionalTitle}"
+                                    maxlength="200" placeholder="Ex. Développeur Java"><p class="field-error"
+                                                                                          th:errors="*{professionalTitle}"></p>
+                            </div>
+                            <div><label class="os-label" for="referenceLocation">Lieu de référence</label><input
+                                    class="os-input" id="referenceLocation" th:field="*{referenceLocation}"
+                                    maxlength="300" placeholder="Ex. Lyon, France"><p class="form-help">Où vous
+                                exercez aujourd’hui — vos souhaits de mobilité seront gérés séparément.</p><p
+                                    class="field-error" th:errors="*{referenceLocation}"></p></div>
+                        </div>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">2 · Compétences</div>
+                        <label class="os-label" for="skillsText">Une compétence par ligne</label>
+                        <textarea class="os-textarea" id="skillsText" rows="6" th:field="*{skillsText}"
+                                  placeholder="Java&#10;Spring Boot&#10;PostgreSQL"></textarea>
+                        <p class="field-error" th:errors="*{skillsText}"></p>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">3 · Expériences professionnelles</div>
+                        <div th:each="exp, stat : *{experiences}" class="mt-3">
+                            <div class="os-grid os-grid-2">
+                                <div><label class="os-label" th:for="${'experiences' + stat.index + '.title'}">Intitulé du
+                                    poste</label><input class="os-input" th:id="${'experiences' + stat.index + '.title'}"
+                                                        th:field="*{experiences[__${stat.index}__].title}"
+                                                        maxlength="200"></div>
+                                <div><label class="os-label"
+                                            th:for="${'experiences' + stat.index + '.company'}">Entreprise</label><input
+                                        class="os-input" th:id="${'experiences' + stat.index + '.company'}"
+                                        th:field="*{experiences[__${stat.index}__].company}" maxlength="200"></div>
+                                <div><label class="os-label" th:for="${'experiences' + stat.index + '.startDate'}">Début</label><input
+                                        class="os-input" type="date"
+                                        th:id="${'experiences' + stat.index + '.startDate'}"
+                                        th:field="*{experiences[__${stat.index}__].startDate}"></div>
+                                <div><label class="os-label" th:for="${'experiences' + stat.index + '.endDate'}">Fin
+                                    (vide si en poste)</label><input class="os-input" type="date"
+                                                                     th:id="${'experiences' + stat.index + '.endDate'}"
+                                                                     th:field="*{experiences[__${stat.index}__].endDate}">
+                                </div>
+                            </div>
+                            <label class="os-label mt-3" th:for="${'experiences' + stat.index + '.description'}">Résumé</label>
+                            <textarea class="os-textarea" rows="2" th:id="${'experiences' + stat.index + '.description'}"
+                                      th:field="*{experiences[__${stat.index}__].description}"
+                                      maxlength="2000"></textarea>
+                        </div>
+                        <p class="form-help mt-2">Les lignes entièrement vides sont ignorées.</p>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">4 · Formation et certifications</div>
+                        <label class="os-label" for="educationText">Formation — une par ligne, format « Intitulé |
+                            Établissement | Année »</label>
+                        <textarea class="os-textarea" id="educationText" rows="3" th:field="*{educationText}"
+                                  placeholder="Master Informatique | Université de Lyon | 2019"></textarea>
+                        <label class="os-label mt-3" for="certificationText">Certifications — même format</label>
+                        <textarea class="os-textarea" id="certificationText" rows="3" th:field="*{certificationText}"
+                                  placeholder="AWS Certified Developer | Amazon | 2023"></textarea>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">5 · Langues parlées</div>
+                        <label class="os-label" for="languagesText">Une langue par ligne, format « Langue : niveau »</label>
+                        <textarea class="os-textarea" id="languagesText" rows="3" th:field="*{languagesText}"
+                                  placeholder="Français : natif&#10;Anglais : courant"></textarea>
+                        <p class="form-help">Les technologies et langages de programmation se placent dans les
+                            compétences, pas ici.</p>
+                    </section>
+
+                    <div class="action-row">
+                        <button class="os-button os-button-primary" type="submit"
+                                th:text="${profileId == null ? 'Créer mon profil' : 'Enregistrer les modifications'}"></button>
+                        <a class="os-button os-button-ghost" th:href="@{/profile}">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

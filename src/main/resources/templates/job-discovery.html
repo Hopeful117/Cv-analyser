@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Offres trouvées')}">
+    <title>Ma recherche</title>
+</head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('discovery')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Offres trouvées', 'Recherche d’offres en temps réel')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+                <div th:if="${errorMessage}" class="os-alert os-alert-error">
+                    <span th:text="${errorMessage}"></span>
+                    <a th:if="${errorMessage?.contains('profil')}" th:href="@{/profile}" class="os-button os-button-ghost">Créer mon profil</a>
+                    <a th:if="${errorMessage?.contains('préférences')}" th:href="@{/preferences}" class="os-button os-button-ghost">Configurer mes préférences</a>
+                </div>
+
+                <div th:if="${searchForm}" class="os-card">
+                    <div class="section-heading">
+                        <h2 class="section-title">Rechercher des offres</h2>
+                        <p class="section-description">Sélectionnez un rôle cible et lancez la recherche</p>
+                    </div>
+
+                    <form th:action="@{/job-discovery/search}" method="post" class="os-form">
+                        <div class="os-field">
+                            <label class="os-label" for="targetRole">Rôle cible</label>
+                            <select class="os-select" id="targetRole" name="targetRole" required>
+                                <option value="">-- Sélectionnez un rôle --</option>
+                                <option th:each="role : ${searchForm.roles}"
+                                        th:value="${role.value}"
+                                        th:text="${role.label}"></option>
+                            </select>
+                        </div>
+
+                        <div class="os-field">
+                            <button type="submit" class="os-button os-button-primary">
+                                Rechercher maintenant
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="os-alert os-alert-info" style="margin-top: 1rem;">
+                        <strong>Note :</strong> La recherche récupère les 50 offres les plus récentes pour le rôle sélectionné.
+                        Résultat non exhaustif.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Offres trouvées')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('discovery')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Offres trouvées', 'Résultats de recherche')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+                <div class="os-card">
+                    <div class="section-heading">
+                        <h2 class="section-title">Résultats pour « <span th:text="${results.targetRole}"></span> »</h2>
+                        <p class="section-description">
+                            <span th:text="${results.returnedCount}"></span> offres récupérées
+                            <span th:if="${results.totalAvailable > results.returnedCount}">
+                                sur <span th:text="${results.totalAvailable}"></span> disponibles
+                            </span>
+                            — Résultat non exhaustif
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <a th:href="@{/job-discovery}" class="os-button os-button-secondary">Nouvelle recherche</a>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(results.offers)}" class="os-alert os-alert-info">
+                        Aucune offre trouvée pour ce rôle.
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(results.offers)}" class="job-offers-list">
+                        <div th:each="offer : ${results.offers}" class="os-card job-offer-card" style="margin-bottom: 1rem;">
+                            <div class="job-offer-header">
+                                <h3 class="job-offer-title">
+                                    <a th:if="${offer.originUrl}" th:href="${offer.originUrl}" th:text="${offer.title}" target="_blank"></a>
+                                    <span th:unless="${offer.originUrl}" th:text="${offer.title}"></span>
+                                </h3>
+                                <span class="os-badge" th:classappend="${offer.statusCssClass}" th:text="${offer.statusLabel}"></span>
+                            </div>
+
+                            <div class="job-offer-meta">
+                                <span th:if="${offer.company}" th:text="${offer.company}"></span>
+                                <span th:if="${offer.location}" th:text="' • ' + ${offer.location}"></span>
+                                <span th:if="${offer.contract}" th:text="' • ' + ${offer.contract}"></span>
+                                <span th:if="${offer.salary}" th:text="' • ' + ${offer.salary}"></span>
+                            </div>
+
+                            <div th:if="${offer.workDuration}" class="job-offer-detail">
+                                <strong>Durée :</strong> <span th:text="${offer.workDuration}"></span>
+                            </div>
+
+                            <div th:if="${!#lists.isEmpty(offer.reasons)}" class="job-offer-reasons">
+                                <div th:each="reason : ${offer.reasons}" class="job-offer-reason">
+                                    <span th:text="${reason}"></span>
+                                </div>
+                            </div>
+
+                            <div th:if="${offer.descriptionSnippet}" class="job-offer-description">
+                                <p th:text="${offer.descriptionSnippet}"></p>
+                            </div>
+
+                            <div class="job-offer-footer">
+                                <span th:if="${offer.createdAt}" class="job-offer-date">
+                                    Publiée le <span th:text="${offer.createdAt}"></span>
+                                </span>
+                                <span class="job-offer-source">
+                                    Source : France Travail
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

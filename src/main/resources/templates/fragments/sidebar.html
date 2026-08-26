@@ -52,6 +52,16 @@
             Ma recherche
         </a>
         <a class="nav-item-os"
+           th:classappend="${activePage == 'discovery'} ? ' active'"
+           th:href="@{/job-discovery}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8 11h6"/>
+                </svg>
+            </span>
+            Offres trouvées
+        </a>
+        <a class="nav-item-os"
            th:classappend="${activePage == 'analyze'} ? ' active'"
            th:href="@{/analyze}">
             <span class="nav-icon" aria-hidden="true">

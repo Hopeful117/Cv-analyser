@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${preferencesId == null ? 'Définir ma recherche' : 'Modifier ma recherche'})}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('search')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar(${preferencesId == null ? 'Définir ma recherche' : 'Modifier ma recherche'}, 'Vos critères restent les vôtres : rien n’est déduit automatiquement')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <form class="page-stack" method="post" th:object="${preferencesForm}"
+                      th:action="${preferences.id == null} ? @{/preferences} : @{/preferences/update}">
+                    <section class="os-card form-section">
+                        <div class="eyebrow">1 · Postes et technologies visés</div>
+                        <label class="os-label" for="targetRolesText">Intitulés de postes recherchés — un par
+                            ligne</label>
+                        <textarea class="os-textarea" id="targetRolesText" rows="3" th:field="*{targetRolesText}"
+                                  placeholder="Développeur Java&#10;Backend Engineer"></textarea>
+                        <p class="field-error" th:errors="*{targetRolesText}"></p>
+
+                        <label class="os-label mt-3" for="preferredTechnologiesText">Technologies recherchées —
+                            une par ligne</label>
+                        <textarea class="os-textarea" id="preferredTechnologiesText" rows="3"
+                                  th:field="*{preferredTechnologiesText}"
+                                  placeholder="Spring Boot&#10;PostgreSQL"></textarea>
+                        <p class="form-help">Critère de pertinence : une offre qui en mentionne sera mieux
+                            classée, jamais rejetée.</p>
+                        <p class="field-error" th:errors="*{preferredTechnologiesText}"></p>
+
+                        <label class="os-label mt-3" for="excludedTechnologiesText">Technologies exclues — une par
+                            ligne</label>
+                        <textarea class="os-textarea" id="excludedTechnologiesText" rows="2"
+                                  th:field="*{excludedTechnologiesText}" placeholder="COBOL"></textarea>
+                        <p class="form-help">Critère éliminatoire : une offre qui en mentionne sera écartée.</p>
+                        <p class="field-error" th:errors="*{excludedTechnologiesText}"></p>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">2 · Lieux</div>
+                        <label class="os-label" for="locationsText">Zones recherchées — une par ligne (ville,
+                            région ou pays)</label>
+                        <textarea class="os-textarea" id="locationsText" rows="3" th:field="*{locationsText}"
+                                  placeholder="Bourges&#10;Lyon"></textarea>
+                        <p class="field-error" th:errors="*{locationsText}"></p>
+                        <label class="mt-2"><input type="checkbox" th:field="*{openToRelocation}"> Ouvert à la
+                            mobilité — hors de ces zones, les offres restent visibles mais moins prioritaires au
+                            lieu d’être écartées</label>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">3 · Modes et contrats acceptés</div>
+                        <div class="d-flex gap-4 flex-wrap mt-2">
+                            <div>
+                                <span class="os-label">Modes de travail</span>
+                                <div th:each="mode : ${T(com.hopeful117.cv_analyzer.search.domain.WorkMode).values()}">
+                                    <label><input type="checkbox" th:field="*{workModes}"
+                                                  th:value="${mode}"> <span
+                                            th:text="${mode.frenchLabel}"></span></label>
+                                </div>
+                                <p class="form-help">Rien de coché : ouvert à tous. Une offre dont le mode est
+                                    décoché sera écartée.</p>
+                            </div>
+                            <div>
+                                <span class="os-label">Contrats</span>
+                                <div th:each="contract : ${contractTypes}">
+                                    <label><input type="checkbox" th:field="*{contractTypes}"
+                                                  th:value="${contract}"> <span
+                                            th:text="${contract.name()}"></span></label>
+                                </div>
+                                <p class="form-help">Rien de coché : aucune restriction.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">4 · Salaire minimum (facultatif, brut)</div>
+                        <div class="os-grid os-grid-3">
+                            <div><label class="os-label" for="salaryMinAmount">Montant minimum</label><input
+                                    class="os-input" type="number" min="1" max="9999999" id="salaryMinAmount"
+                                    th:field="*{salaryMinAmount}" placeholder="45000"></div>
+                            <div><label class="os-label" for="salaryCurrency">Devise</label><input class="os-input"
+                                                                                                   id="salaryCurrency"
+                                                                                                   th:field="*{salaryCurrency}"
+                                                                                                   maxlength="3"
+                                                                                                   placeholder="EUR"></div>
+                            <div><label class="os-label" for="salaryPeriod">Période</label><select class="os-select"
+                                                                                                   id="salaryPeriod"
+                                                                                                   th:field="*{salaryPeriod}">
+                                <option value="">—</option>
+                                <option th:each="period : ${T(com.hopeful117.cv_analyzer.search.domain.SalaryPeriod).values()}"
+                                        th:value="${period}"
+                                        th:text="${period.frenchLabel}"></option>
+                            </select></div>
+                        </div>
+                        <p class="form-help">Pris en compte uniquement quand une annonce affiche son salaire ;
+                            sinon l’offre reste visible.</p>
+                        <p class="field-error" th:errors="*{salaryMinAmount}"></p>
+                        <p class="field-error" th:errors="*{salaryPeriod}"></p>
+                    </section>
+
+                    <div class="action-row">
+                        <button class="os-button os-button-primary" type="submit"
+                                th:text="${preferencesId == null ? 'Enregistrer ma recherche' : 'Mettre à jour ma recherche'}"></button>
+                        <a class="os-button os-button-ghost" th:href="@{/preferences}">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

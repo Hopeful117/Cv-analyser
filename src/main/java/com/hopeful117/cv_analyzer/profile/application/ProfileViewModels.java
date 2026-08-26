@@ -43,4 +43,69 @@ public final class ProfileViewModels {
     public record ProposalReview(com.hopeful117.cv_analyzer.profile.web.ProfileProposalForm form,
                                  String aiProvider, String aiModel) {
     }
+
+    /** Reconstruit le formulaire d'édition manuelle depuis l'état fiable (mapping présentation). */
+    public static com.hopeful117.cv_analyzer.profile.web.ProfileForm toManualForm(ProfileView view) {
+        com.hopeful117.cv_analyzer.profile.web.ProfileForm form =
+                new com.hopeful117.cv_analyzer.profile.web.ProfileForm();
+        form.setFullName(view.fullName());
+        form.setProfessionalTitle(view.professionalTitle());
+        form.setReferenceLocation(view.referenceLocation());
+        StringBuilder skills = new StringBuilder();
+        view.skills().forEach(skill -> skills.append(skill.label()).append('\n'));
+        form.setSkillsText(skills.toString());
+        StringBuilder languages = new StringBuilder();
+        view.languages().forEach(language -> {
+            languages.append(language.language());
+            if (language.level() != null && !language.level().isBlank()) {
+                languages.append(" : ").append(language.level());
+            }
+            languages.append('\n');
+        });
+        form.setLanguagesText(languages.toString());
+        StringBuilder education = new StringBuilder();
+        StringBuilder certifications = new StringBuilder();
+        view.educations().forEach(item -> {
+            StringBuilder line = new StringBuilder(item.label());
+            if (item.institution() != null) {
+                line.append(" | ").append(item.institution());
+            }
+            if (item.obtainedOn() != null) {
+                line.append(" | ").append(item.obtainedOn().getYear());
+            }
+            line.append('\n');
+            if ("Certification".equals(item.kindLabel())) {
+                certifications.append(line);
+            } else {
+                education.append(line);
+            }
+        });
+        form.setEducationText(education.toString());
+        form.setCertificationText(certifications.toString());
+        view.experiences().forEach(experience -> {
+            com.hopeful117.cv_analyzer.profile.web.ProfileForm.ExperienceLine line =
+                    new com.hopeful117.cv_analyzer.profile.web.ProfileForm.ExperienceLine();
+            line.setTitle(experience.title());
+            line.setCompany(experience.company());
+            line.setStartDate(experience.startDate());
+            line.setEndDate(experience.endDate());
+            line.setDescription(experience.description());
+            form.getExperiences().add(line);
+        });
+        padExperienceRows(form);
+        return form;
+    }
+
+    public static com.hopeful117.cv_analyzer.profile.web.ProfileForm emptyManualForm() {
+        com.hopeful117.cv_analyzer.profile.web.ProfileForm form =
+                new com.hopeful117.cv_analyzer.profile.web.ProfileForm();
+        padExperienceRows(form);
+        return form;
+    }
+
+    private static void padExperienceRows(com.hopeful117.cv_analyzer.profile.web.ProfileForm form) {
+        while (form.getExperiences().size() < 2) {
+            form.getExperiences().add(new com.hopeful117.cv_analyzer.profile.web.ProfileForm.ExperienceLine());
+        }
+    }
 }

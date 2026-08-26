@@ -1,6 +1,7 @@
 package com.hopeful117.cv_analyzer.WebInterfaceController;
 
 import com.hopeful117.cv_analyzer.profile.application.ProfessionalProfileService;
+import com.hopeful117.cv_analyzer.profile.application.ProfileViewModels;
 import com.hopeful117.cv_analyzer.profile.application.ProfileViewModels.ProfileView;
 import com.hopeful117.cv_analyzer.profile.application.ProfileViewModels.ProposalReview;
 import com.hopeful117.cv_analyzer.profile.web.ProfileForm;
@@ -117,63 +118,10 @@ public class ProfileController {
     }
 
     private ProfileForm toForm(ProfileView view) {
-        ProfileForm form = new ProfileForm();
-        form.setFullName(view.fullName());
-        form.setProfessionalTitle(view.professionalTitle());
-        form.setReferenceLocation(view.referenceLocation());
-        StringBuilder skills = new StringBuilder();
-        view.skills().forEach(skill -> skills.append(skill.label()).append('\n'));
-        form.setSkillsText(skills.toString());
-        StringBuilder languages = new StringBuilder();
-        view.languages().forEach(language -> {
-            languages.append(language.language());
-            if (language.level() != null && !language.level().isBlank()) {
-                languages.append(" : ").append(language.level());
-            }
-            languages.append('\n');
-        });
-        form.setLanguagesText(languages.toString());
-        StringBuilder education = new StringBuilder();
-        StringBuilder certifications = new StringBuilder();
-        view.educations().forEach(item -> {
-            StringBuilder line = new StringBuilder(item.label());
-            if (item.institution() != null) {
-                line.append(" | ").append(item.institution());
-            }
-            if (item.obtainedOn() != null) {
-                line.append(" | ").append(item.obtainedOn().getYear());
-            }
-            line.append('\n');
-            if ("Certification".equals(item.kindLabel())) {
-                certifications.append(line);
-            } else {
-                education.append(line);
-            }
-        });
-        form.setEducationText(education.toString());
-        form.setCertificationText(certifications.toString());
-        view.experiences().forEach(experience -> {
-            ProfileForm.ExperienceLine line = new ProfileForm.ExperienceLine();
-            line.setTitle(experience.title());
-            line.setCompany(experience.company());
-            line.setStartDate(experience.startDate());
-            line.setEndDate(experience.endDate());
-            line.setDescription(experience.description());
-            form.getExperiences().add(line);
-        });
-        padExperienceRows(form);
-        return form;
+        return ProfileViewModels.toManualForm(view);
     }
 
     private ProfileForm emptyManualForm() {
-        ProfileForm form = new ProfileForm();
-        padExperienceRows(form);
-        return form;
-    }
-
-    private void padExperienceRows(ProfileForm form) {
-        while (form.getExperiences().size() < 2) {
-            form.getExperiences().add(new ProfileForm.ExperienceLine());
-        }
+        return ProfileViewModels.emptyManualForm();
     }
 }

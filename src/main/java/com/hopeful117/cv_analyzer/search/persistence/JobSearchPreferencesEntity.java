@@ -2,6 +2,7 @@ package com.hopeful117.cv_analyzer.search.persistence;
 
 import com.hopeful117.cv_analyzer.career.domain.ContractType;
 import com.hopeful117.cv_analyzer.search.domain.SalaryPeriod;
+import com.hopeful117.cv_analyzer.search.domain.TechnologyPreference;
 import com.hopeful117.cv_analyzer.search.domain.WorkMode;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -74,7 +75,7 @@ public class JobSearchPreferencesEntity {
 
     @OrderBy("itemOrder ASC")
     @OneToMany(mappedBy = "preferences", cascade = jakarta.persistence.CascadeType.ALL,
-            orphanRemoval = true)
+            orphanRemoval = true, fetch = FetchType.EAGER)
     private List<PreferenceRoleEntity> targetRoles = new ArrayList<>();
 
     @OrderBy("itemOrder ASC")

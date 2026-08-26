@@ -11,6 +11,7 @@ import com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesReposit
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class DiscoverJobOffers {
     private final ProfessionalProfileRepository profileRepository;
     private final JobSearchPreferencesRepository preferencesRepository;
 
+    @Transactional(readOnly = true)
     public DiscoveryResult discover(String targetRole) {
         if (!provider.isAvailable()) {
             return DiscoveryResult.providerUnavailable();

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Offres trouvées')}"></head>
+<head th:replace="~{fragments/head :: head('Offres trouvées')}">
+    <title>Ma recherche</title>
+</head>
 <body class="developer-os">
 <div class="app-shell">
     <aside th:replace="~{fragments/sidebar :: sidebar('discovery')}"></aside>
     <div class="app-main">
-        <header th:replace="~{fragments/topbar :: topbar('Offres trouvées', 'Recherche d'offres en temps réel')}"></header>
+        <header th:replace="~{fragments/topbar :: topbar('Offres trouvées', 'Recherche d’offres en temps réel')}"></header>
         <main class="app-content" id="main-content">
             <div class="page-stack">
                 <div th:replace="~{fragments/alerts :: alerts}"></div>

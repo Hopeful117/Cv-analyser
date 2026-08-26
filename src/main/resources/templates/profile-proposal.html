@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Proposition de profil — validation requise')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Proposition extraite du CV', 'Cochez ce que vous validez : rien ne devient fiable avant enregistrement')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div class="os-alert os-alert-error" role="alert" aria-live="assertive">
+                    <strong>Proposition non validée.</strong>
+                    <span>Ces données viennent d’une extraction IA sur votre CV. Cochez, corrigez ou
+                        écartez chaque valeur : seules les cases cochées seront enregistrées dans votre profil.</span>
+                </div>
+
+                <form class="page-stack" method="post" th:object="${proposalForm}" th:action="@{/profile/apply}">
+                    <input type="hidden" th:field="*{aiProvider}">
+                    <input type="hidden" th:field="*{aiModel}">
+
+                    <section class="os-card form-section">
+                        <div class="eyebrow">Identité professionnelle</div>
+                        <div class="os-grid os-grid-2 mt-3">
+                            <div>
+                                <label class="os-label"><input type="checkbox" th:field="*{applyFullName}"> Appliquer le
+                                    nom proposé</label>
+                                <input class="os-input" th:field="*{fullName}" maxlength="200">
+                            </div>
+                            <div>
+                                <label class="os-label"><input type="checkbox" th:field="*{applyProfessionalTitle}">
+                                    Appliquer le titre proposé</label>
+                                <input class="os-input" th:field="*{professionalTitle}" maxlength="200">
+                            </div>
+                            <div>
+                                <label class="os-label"><input type="checkbox" th:field="*{applyReferenceLocation}">
+                                    Appliquer le lieu proposé</label>
+                                <input class="os-input" th:field="*{referenceLocation}" maxlength="300">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="os-card form-section" th:if="${!#lists.isEmpty(proposalForm.skills)}">
+                        <div class="eyebrow">Compétences proposées</div>
+                        <div class="d-flex flex-column gap-2 mt-3">
+                            <div th:each="sk, stat : ${proposalForm.skills}" class="d-flex gap-3 align-items-center">
+                                <input type="checkbox" th:id="${'skills' + stat.index + '.apply'}"
+                                       th:field="*{skills[__${stat.index}__].apply}">
+                                <input class="os-input" th:id="${'skills' + stat.index + '.label'}"
+                                       th:field="*{skills[__${stat.index}__].label}" maxlength="120">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="os-card form-section" th:if="${!#lists.isEmpty(proposalForm.experiences)}">
+                        <div class="eyebrow">Expériences proposées</div>
+                        <div th:each="exp, stat : ${proposalForm.experiences}" class="mt-3">
+                            <label class="os-label"><input type="checkbox"
+                                                           th:field="*{experiences[__${stat.index}__].apply}"> Appliquer
+                                cette expérience</label>
+                            <div class="os-grid os-grid-2 mt-2">
+                                <div><input class="os-input" placeholder="Intitulé du poste"
+                                            th:field="*{experiences[__${stat.index}__].title}" maxlength="200"></div>
+                                <div><input class="os-input" placeholder="Entreprise"
+                                            th:field="*{experiences[__${stat.index}__].company}" maxlength="200"></div>
+                                <div><label class="form-help">Début</label><input class="os-input" type="date"
+                                                                                  th:field="*{experiences[__${stat.index}__].startDate}"></div>
+                                <div><label class="form-help">Fin (vide si en poste)</label><input class="os-input"
+                                                                                                   type="date"
+                                                                                                   th:field="*{experiences[__${stat.index}__].endDate}"></div>
+                            </div>
+                            <textarea class="os-textarea mt-2" rows="2" placeholder="Résumé"
+                                      th:field="*{experiences[__${stat.index}__].description}"
+                                      maxlength="2000"></textarea>
+                        </div>
+                    </section>
+
+                    <section class="os-card form-section" th:if="${!#lists.isEmpty(proposalForm.educations)}">
+                        <div class="eyebrow">Formations et certifications proposées</div>
+                        <div th:each="edu, stat : ${proposalForm.educations}" class="mt-3">
+                            <label class="os-label"><input type="checkbox"
+                                                           th:field="*{educations[__${stat.index}__].apply}"> Appliquer</label>
+                            <div class="os-grid os-grid-2 mt-2">
+                                <div><select class="os-select"
+                                             th:field="*{educations[__${stat.index}__].kind}">
+                                    <option value="EDUCATION">Formation</option>
+                                    <option value="CERTIFICATION">Certification</option>
+                                </select></div>
+                                <div><input class="os-input" placeholder="Intitulé"
+                                            th:field="*{educations[__${stat.index}__].label}" maxlength="255"></div>
+                                <div><input class="os-input" placeholder="Établissement / organisme"
+                                            th:field="*{educations[__${stat.index}__].institution}" maxlength="200"></div>
+                                <div><input class="os-input" type="date"
+                                            th:field="*{educations[__${stat.index}__].obtainedOn}"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="os-card form-section" th:if="${!#lists.isEmpty(proposalForm.languages)}">
+                        <div class="eyebrow">Langues proposées</div>
+                        <div class="d-flex gap-3 align-items-center mt-3" th:each="lang, stat : ${proposalForm.languages}">
+                            <input type="checkbox" th:field="*{languages[__${stat.index}__].apply}">
+                            <input class="os-input" placeholder="Langue"
+                                   th:field="*{languages[__${stat.index}__].language}" maxlength="60">
+                            <input class="os-input" placeholder="Niveau (facultatif)"
+                                   th:field="*{languages[__${stat.index}__].level}" maxlength="40">
+                        </div>
+                    </section>
+
+                    <section class="os-card">
+                        <p class="form-help">Les éléments cochés sont ajoutés à votre profil existant sans le
+                            remplacer ; une compétence ou une langue déjà enregistrée n’est pas dupliquée. Les
+                            données non cochées sont simplement écartées.</p>
+                    </section>
+
+                    <div class="action-row">
+                        <button class="os-button os-button-primary" type="submit">Valider la sélection</button>
+                        <a class="os-button os-button-ghost" th:href="@{/profile}">Tout écarter</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

@@ -211,14 +211,6 @@ select {
     place-items: center;
 }
 
-.nav-soon {
-    margin-left: auto;
-    color: var(--color-text-muted);
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
 .sidebar-footer {
     margin-top: auto;
     padding: var(--space-lg) 0.75rem 0;

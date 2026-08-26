@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Initialiser le profil depuis un CV')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Initialiser le profil depuis un CV', 'Une proposition sera affichée avant toute validation')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <section class="hero-panel">
+                    <div class="eyebrow">Assistance par IA</div>
+                    <h2 class="hero-title">Importez un CV pour préparer une proposition.</h2>
+                    <p class="hero-description">
+                        L’IA extrait une proposition structurée à partir de votre CV. Rien n’est enregistré :
+                        vous verrez chaque donnée proposée, pourrez la corriger, l’écarter ou la valider.
+                        Vous gardez aussi la possibilité de tout saisir manuellement.
+                    </p>
+                </section>
+
+                <form class="form-section" method="post" th:action="@{/profile/initialize}"
+                      enctype="multipart/form-data"
+                      data-loading-form data-loader-target="loadingOverlay">
+                    <section class="os-card">
+                        <div class="eyebrow">CV au format PDF (5 Mo maximum)</div>
+                        <input class="os-input mt-3" type="file" name="cvFile" accept="application/pdf" required>
+                        <p class="form-help mt-2">Le fichier n’est pas conservé : seul son texte est utilisé pour
+                            préparer la proposition.</p>
+                    </section>
+                    <div class="action-row">
+                        <button class="os-button os-button-primary" type="submit">Extraire une proposition</button>
+                        <a class="os-button os-button-ghost" th:href="@{/profile/new}">Saisir manuellement</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <div th:replace="~{fragments/loader :: loader('loadingOverlay', 'Extraction de la proposition…')}"></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Profil professionnel')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Profil professionnel', 'Vos données professionnelles fiables, réutilisées par vos analyses')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+                <section class="section-heading" th:if="${profile != null}">
+                    <div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="os-badge">Profil validé</span>
+                            <span class="os-badge os-badge-ai" th:if="${profile.cvAssisted}">Initialisé avec l’aide du CV</span>
+                        </div>
+                        <h2 class="section-title mt-3" th:text="${profile.fullName != null ? profile.fullName : 'Profil professionnel'}">Nom</h2>
+                        <p class="section-description"
+                           th:text="${profile.professionalTitle != null ? profile.professionalTitle : 'Titre professionnel non renseigné'}">
+                            Titre</p>
+                    </div>
+                    <div class="action-row">
+                        <a class="os-button os-button-secondary" th:href="@{/profile/edit}">Modifier</a>
+                        <a class="os-button os-button-ghost" th:href="@{/profile/initialize}">Compléter depuis un CV</a>
+                    </div>
+                </section>
+
+                <div class="os-grid os-grid-2" th:if="${profile != null}">
+                    <section class="os-card">
+                        <div class="eyebrow">Identité professionnelle</div>
+                        <dl class="result-list mt-3">
+                            <div class="result-list-item"><dt>Nom</dt><dd
+                                    th:text="${profile.fullName != null ? profile.fullName : 'Non renseigné'}"></dd></div>
+                            <div class="result-list-item"><dt>Titre professionnel</dt><dd
+                                    th:text="${profile.professionalTitle != null ? profile.professionalTitle : 'Non renseigné'}"></dd></div>
+                            <div class="result-list-item"><dt>Lieu de référence</dt><dd
+                                    th:text="${profile.referenceLocation != null ? profile.referenceLocation : 'Non renseigné'}"></dd></div>
+                        </dl>
+                    </section>
+                    <section class="os-card">
+                        <div class="eyebrow">Langues parlées</div>
+                        <ul class="result-list mt-3">
+                            <li class="empty-state" th:if="${#lists.isEmpty(profile.languages)}"><p>Aucune langue enregistrée.</p></li>
+                            <li class="result-list-item" th:each="lang : ${profile.languages}">
+                                <strong th:text="${lang.language}">Langue</strong>
+                                <span class="form-help" th:if="${lang.level != null}" th:text="' · ' + ${lang.level}"></span>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                <section class="os-card" th:if="${profile != null}">
+                    <div class="eyebrow">Compétences</div>
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                        <span class="empty-state" th:if="${#lists.isEmpty(profile.skills)}"><p>Aucune compétence enregistrée.</p></span>
+                        <span class="os-badge" th:each="skill : ${profile.skills}"
+                              th:title="${skill.originLabel}"
+                              th:text="${skill.label}">Java</span>
+                    </div>
+                </section>
+
+                <section class="os-card" th:if="${profile != null and !#lists.isEmpty(profile.experiences)}">
+                    <div class="eyebrow">Expériences professionnelles</div>
+                    <ul class="result-list mt-3">
+                        <li class="result-list-item" th:each="exp : ${profile.experiences}">
+                            <strong th:text="${exp.title}">Poste</strong>
+                            <span th:if="${exp.company != null}" th:text="' · ' + ${exp.company}"></span>
+                            <div class="form-help">
+                                <span th:if="${exp.startDate != null}"
+                                      th:text="${#temporals.format(exp.startDate,'MM/yyyy')}"></span>
+                                <span th:if="${exp.startDate != null and exp.endDate == null}"> · en poste</span>
+                                <span th:if="${exp.endDate != null}"
+                                      th:text="' → ' + ${#temporals.format(exp.endDate,'MM/yyyy')}"></span>
+                            </div>
+                            <p th:if="${exp.description != null}" th:text="${exp.description}"></p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="os-card" th:if="${profile != null and !#lists.isEmpty(profile.educations)}">
+                    <div class="eyebrow">Formations et certifications</div>
+                    <ul class="result-list mt-3">
+                        <li class="result-list-item" th:each="edu : ${profile.educations}">
+                            <span class="os-badge" th:text="${edu.kindLabel}">Type</span>
+                            <strong th:text="${' ' + edu.label}">Intitulé</strong>
+                            <span class="form-help" th:if="${edu.institution != null}" th:text="${edu.institution}"></span>
+                            <span class="form-help" th:if="${edu.obtainedOn != null}"
+                                  th:text="${#temporals.format(edu.obtainedOn,'yyyy')}"></span>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- État vide : aucun profil -->
+                <section class="hero-panel" th:if="${profile == null or profile.empty()}">
+                    <div class="eyebrow">Première étape</div>
+                    <h2 class="hero-title">Créez votre profil professionnel.</h2>
+                    <p class="hero-description">
+                        Ce profil conserve vos données professionnelles fiables. Vous pouvez le remplir
+                        manuellement ou l’initialiser depuis un CV : dans ce cas, chaque donnée extraite
+                        vous est proposée et ne devient fiable qu’après votre validation.
+                    </p>
+                    <div class="action-row mt-3">
+                        <a class="os-button os-button-primary" th:href="@{/profile/new}">Créer manuellement</a>
+                        <a class="os-button os-button-secondary" th:href="@{/profile/initialize}">Initialiser depuis un CV</a>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

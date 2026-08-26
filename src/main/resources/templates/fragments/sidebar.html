@@ -32,6 +32,16 @@
             Vue d’ensemble
         </a>
         <a class="nav-item-os"
+           th:classappend="${activePage == 'profile'} ? ' active'"
+           th:href="@{/profile}">
+            <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/>
+                </svg>
+            </span>
+            Profil
+        </a>
+        <a class="nav-item-os"
            th:classappend="${activePage == 'analyze'} ? ' active'"
            th:href="@{/analyze}">
             <span class="nav-icon" aria-hidden="true">
@@ -96,14 +106,6 @@
             Consultation
         </a>
     </nav>
-
-    <div class="sidebar-label">À venir</div>
-    <div class="app-nav" aria-label="Fonctionnalités prochainement disponibles">
-        <span class="nav-item-os disabled" aria-disabled="true">
-            <span class="nav-icon" aria-hidden="true">○</span> Profil
-            <span class="nav-soon">Bientôt</span>
-        </span>
-    </div>
 
     <div class="sidebar-footer">
         Module Career Intelligence<br>

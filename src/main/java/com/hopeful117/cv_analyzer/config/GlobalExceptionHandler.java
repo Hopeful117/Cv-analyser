@@ -67,6 +67,9 @@ public class GlobalExceptionHandler {
         if (path.startsWith("/interview")) {
             return "/interview/start";
         }
+        if (path.startsWith("/profile")) {
+            return "/profile";
+        }
         if (path.startsWith("/applications")) {
             return "/applications";
         }

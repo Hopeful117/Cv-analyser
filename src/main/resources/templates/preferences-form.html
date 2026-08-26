@@ -10,7 +10,7 @@
             <div class="page-stack">
                 <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <form class="page-stack" method="post" th:object="${preferencesForm}"
-                      th:action="${preferences.id == null} ? @{/preferences} : @{/preferences/update}">
+                      th:action="${preferencesId == null} ? @{/preferences} : @{/preferences/update}">
                     <section class="os-card form-section">
                         <div class="eyebrow">1 · Postes et technologies visés</div>
                         <label class="os-label" for="targetRolesText">Intitulés de postes recherchés — un par

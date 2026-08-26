@@ -23,14 +23,40 @@ public final class SearchPreferencesViewModels {
                                   String salaryCurrency, SalaryPeriod salaryPeriod,
                                   Instant updatedAt) {
 
+        /** Présentation : « Télétravail, Hybride » ou « Aucune restriction ». */
+        public String workModeDisplay() {
+            if (acceptedWorkModes.isEmpty()) {
+                return "Aucune restriction";
+            }
+            return acceptedWorkModes.stream()
+                    .map(WorkMode::getFrenchLabel)
+                    .sorted()
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("Aucune restriction");
+        }
+
+        /** Présentation : « CDI, CDD » ou « Aucune restriction ». */
+        public String contractTypeDisplay() {
+            if (contractTypes.isEmpty()) {
+                return "Aucune restriction";
+            }
+            return contractTypes.stream()
+                    .map(Enum::name)
+                    .sorted()
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("Aucune restriction");
+        }
+
         /** Présentation : « 45 000 EUR / an ». Null si aucun minimum exprimé. */
         public String salaryDisplay() {
             if (salaryMinAmount == null) {
                 return null;
             }
             String periodLabel = salaryPeriod == SalaryPeriod.MONTHLY ? "mois" : "an";
-            return java.text.NumberFormat.getIntegerInstance(java.util.Locale.FRANCE)
-                    .format(salaryMinAmount) + " " + currency() + " / " + periodLabel;
+            String formatted = java.text.NumberFormat.getIntegerInstance(java.util.Locale.FRANCE)
+                    .format(salaryMinAmount);
+            return formatted.replace('\u202F', ' ').replace('\u00A0', ' ')
+                    + " " + currency() + " / " + periodLabel;
         }
 
         public String salaryCurrencyDisplay() {

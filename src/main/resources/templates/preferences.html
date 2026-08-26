@@ -45,9 +45,9 @@
                         <div class="eyebrow">Conditions</div>
                         <dl class="result-list mt-3">
                             <div class="result-list-item"><dt>Modes de travail</dt><dd
-                                    th:text="${#sets.isEmpty(preferences.acceptedWorkModes) ? 'Aucune restriction' : #strings.listJoin(preferences.workModeLabels, ', ')}"></dd></div>
+                                    th:text="${preferences.workModeDisplay()}"></dd></div>
                             <div class="result-list-item"><dt>Contrats</dt><dd
-                                    th:text="${#sets.isEmpty(preferences.contractTypes) ? 'Aucune restriction' : #strings.listJoin(preferences.contractTypeLabels, ', ')}"></dd></div>
+                                    th:text="${preferences.contractTypeDisplay()}"></dd></div>
                             <div class="result-list-item"><dt>Salaire minimum</dt><dd
                                     th:text="${preferences.salaryDisplay() != null ? preferences.salaryDisplay() + ' (brut)' : 'Non exprimé'}"></dd></div>
                         </dl>

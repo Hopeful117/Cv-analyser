@@ -130,11 +130,14 @@ public class JobSearchPreferencesService {
             return List.of();
         }
 
-        Set<String> preferredNames = new HashSet<>();
+        // libellé utilisateur par nom normalisé : les conflits sont signalés avec le libellé saisi
+        java.util.Map<String, String> preferredLabels = new java.util.LinkedHashMap<>();
+        Set<String> preferredSeen = new HashSet<>();
         List<PreferenceTechnologyEntity> result = new ArrayList<>();
         for (String line : preferredLines) {
             requireMaxLength(line, MAX_TECHNOLOGY_LENGTH, "La technologie recherchée");
-            String normalized = normalizedUnique(line, preferredNames, "la technologie recherchée");
+            String normalized = normalizedUnique(line, preferredSeen, "la technologie recherchée");
+            preferredLabels.put(normalized, line);
             result.add(technology(TechnologyPreference.PREFERRED, result.size(), line, normalized));
         }
 
@@ -145,12 +148,16 @@ public class JobSearchPreferencesService {
             result.add(technology(TechnologyPreference.EXCLUDED, result.size(), line, normalized));
         }
 
-        Set<String> conflicts = new HashSet<>(preferredNames);
-        conflicts.retainAll(excludedNames);
+        List<String> conflicts = new ArrayList<>();
+        for (java.util.Map.Entry<String, String> entry : preferredLabels.entrySet()) {
+            if (excludedNames.contains(entry.getKey())) {
+                conflicts.add(entry.getValue());
+            }
+        }
         if (!conflicts.isEmpty()) {
             throw new InvalidSearchPreferencesException(
                     "Des technologies sont à la fois recherchées et exclues : "
-                            + joinCaseInsensitive(conflicts)
+                            + String.join(", ", conflicts)
                             + ". Retirez-les d’une des deux listes.");
         }
         return result;
@@ -232,11 +239,6 @@ public class JobSearchPreferencesService {
         return normalized;
     }
 
-    private String joinCaseInsensitive(Set<String> values) {
-        List<String> list = new ArrayList<>(values);
-        list.sort(String.CASE_INSENSITIVE_ORDER);
-        return String.join(", ", list);
-    }
 
     private static void requireContent(String value, String message) {
         if (value == null || value.isBlank()) {

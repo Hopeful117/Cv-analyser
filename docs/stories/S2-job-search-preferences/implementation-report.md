@@ -47,3 +47,12 @@ a été faite au niveau HTTP sur l'application réelle, pas visuellement.
    (`workModeDisplay()`, `contractTypeDisplay()`) ;
 2. l'action du formulaire testait `preferences.id` absent du modèle d'édition → bascule sur
    `preferencesId` fourni par le contrôleur.
+
+## Retour d'inspection visuelle complémentaire — vue d'ensemble
+
+La carte « Évolution prévue » du dashboard présentait encore « Profil professionnel ·
+Prochainement » alors que la fonctionnalité est disponible (contradiction de même nature que le
+placeholder sidebar corrigé en S1). Correction : badge succès « Profil professionnel · Disponible »,
+traitement identique à « Suivi des candidatures · Disponible ». Les items de cette liste n'étant pas
+navigables, aucun lien n'a été ajouté. « Progression · Prochainement » reste légitime (fonctionnalité
+inexistante). Garde-fou ajouté : `HomeOverviewTemplateTest`.

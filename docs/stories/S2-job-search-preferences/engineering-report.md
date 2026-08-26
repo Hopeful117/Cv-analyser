@@ -93,15 +93,17 @@ profil = base de qualification. Pas de classe contexte avant que le slice réel 
 
 ## Tests
 
-20 nouveaux tests (persistance 5, service 9, web/MVC 6 dont garde navigation) ; suite complète
-**114 tests, 0 échec** (94 avant).
+20 nouveaux tests (persistance 5, service 9, web/MVC 6 dont garde navigation) + 2 gardes sur la
+vue d'ensemble (`HomeOverviewTemplateTest`) ; suite complète **116 tests, 0 échec** (94 avant).
 
 ## Manual Validation
 
 Workflow complet validé en conditions réelles (curl sur app lancée, MySQL + migration V5
 appliquée) : état vide → création → vue peuplée → édition préremplie → mise à jour → rejet de
-conflit 400 sans altération → navigation propre. Rendu navigateur/mobile non validé (Chromium
-indisponible) — limité à la vérification HTTP réelle.
+conflit 400 sans altération → navigation propre. Inspection visuelle complémentaire : la carte
+« Évolution prévue » du dashboard montrait encore le profil en « Prochainement » — corrigé en
+« Disponible » avec garde-fou (voir implementation-report.md). Rendu navigateur/mobile non validé
+(Chromium indisponible) — limité à la vérification HTTP réelle et à l'inspection des templates.
 
 ## Quality Pipeline
 

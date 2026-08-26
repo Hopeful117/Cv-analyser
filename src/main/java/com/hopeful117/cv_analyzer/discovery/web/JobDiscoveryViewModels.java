@@ -6,6 +6,9 @@ import com.hopeful117.cv_analyzer.discovery.domain.EligibilityStatus;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
 import com.hopeful117.cv_analyzer.search.persistence.PreferenceRoleEntity;
 
+import java.net.URI;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -49,9 +52,10 @@ public final class JobDiscoveryViewModels {
                 statusCssClass(eligibility.status()),
                 eligibility.reasons().stream().map(r -> r.message()).toList(),
                 offer.originUrl(),
+                sanitizeUrl(offer.originUrl()),
                 offer.providerOfferId(),
-                offer.providerCreatedAt() != null ? DATE_FORMAT.format(offer.providerCreatedAt()) : null,
-                offer.description() != null ? truncate(offer.description(), 500) : null
+                offer.providerCreatedAt() != null ? DATE_FORMAT.format(offer.providerCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate()) : null,
+                offer.description() != null ? stripHtml(truncate(offer.description(), 500)) : null
         );
     }
 
@@ -67,6 +71,34 @@ public final class JobDiscoveryViewModels {
         if (text == null) return null;
         if (text.length() <= maxLength) return text;
         return text.substring(0, maxLength) + "...";
+    }
+
+    private static String stripHtml(String html) {
+        if (html == null) return null;
+        return html
+                .replaceAll("<[^>]+>", " ")
+                .replaceAll("&nbsp;", " ")
+                .replaceAll("&amp;", "&")
+                .replaceAll("&lt;", "<")
+                .replaceAll("&gt;", ">")
+                .replaceAll("&quot;", "\"")
+                .replaceAll("&#39;", "'")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private static String sanitizeUrl(String url) {
+        if (url == null) return null;
+        try {
+            URI uri = URI.create(url);
+            String scheme = uri.getScheme();
+            if (scheme != null && (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https"))) {
+                return url;
+            }
+            return null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public record SearchForm(
@@ -101,6 +133,7 @@ public final class JobDiscoveryViewModels {
             String statusCssClass,
             List<String> reasons,
             String originUrl,
+            String safeUrl,
             String providerOfferId,
             String createdAt,
             String descriptionSnippet

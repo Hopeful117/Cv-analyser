@@ -20,7 +20,9 @@ Revue auteur sur l'intégralité du diff `origin/main..HEAD` (branche `story/job
 |---|---|---|
 | Token OAuth2 non persisté entre redémarrages | Accepté | S3 = spike ; la persistance de token (vault/env) est un sujet de production |
 | Aucune gestion du rate limit France Travail | Accepté | max 150 résultats/call documenté ; pas de scheduler ni bulk dans S3 |
-| `JobOffer.rawDescription()` en HTML brut | Accepté | le template utilise `| raw` ; un nettoyage HTML sera nécessaire pour l'affichage produit |
+| `JobOffer.rawDescription()` en HTML brut | Corrigé | `stripHTML()` dans `JobDiscoveryViewModels` retire les tags HTML avant l'affichage échappé via `th:text` ; aucun `th:utext` n'est utilisé |
+
+| Semantique technologie préférée | OK | `PREFERRED_TECHNOLOGY_MISSING` → aucun effet sur l'éligibilité ; `PREFERRED_TECHNOLOGY_FOUND` → preuve positive uniquement |
 | `JobOffer.rawContractLabel()` = string FR | Accepté | déjà le cas pour toutes les strings FR du domaine |
 | SalaryPeriod créé en double (`search.domain` / pas de `discovery.domain`) | Réutilisé | `SalaryPeriod` et `WorkMode` depuis `search.domain` — pas de duplication |
 | Pas de test d'intégration avec vrai FT | Accepté | S3 = spike ; les tests unitaires couvrent le mapping et l'évaluation ; l'intégration réelle est manuelle |

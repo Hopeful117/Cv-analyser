@@ -176,6 +176,172 @@ class EligibilityEvaluatorTest {
     }
 
     @Test
+    void preferredTechnologyMissingHasNoEffect() {
+        JobOffer offer = createOfferWithCompetencies(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                List.of(new JobOfferCompetency("1", "Spring Boot", "S"))
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithTechnologies(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                List.of(createTechnology("java", TechnologyPreference.PREFERRED))
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.ELIGIBLE);
+        assertThat(result.reasons()).noneMatch(r -> r.type() == EligibilityReasonType.PREFERRED_TECHNOLOGY_FOUND);
+    }
+
+    @Test
+    void preferredMissingWithOtherwiseEligibleOfferIsEligible() {
+        JobOffer offer = createOfferWithCompetencies(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                List.of(new JobOfferCompetency("1", "SQL", "S"))
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithTechnologies(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                List.of(createTechnology("java", TechnologyPreference.PREFERRED))
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.ELIGIBLE);
+    }
+
+    @Test
+    void excludedTechnologyDoesNotMatchSubstring() {
+        JobOffer offer = createOfferWithCompetencies(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                List.of(new JobOfferCompetency("1", "JavaScript", "S"))
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithTechnologies(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                List.of(createTechnology("java", TechnologyPreference.EXCLUDED))
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.ELIGIBLE);
+    }
+
+    @Test
+    void salaryRangeEntirelyBelowMinimumIsIneligible() {
+        JobOffer offer = createOfferWithSalaryRange(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                new BigDecimal("30000"),
+                new BigDecimal("40000"),
+                SalaryPeriod.ANNUAL
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithSalary(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                45000,
+                SalaryPeriod.ANNUAL
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.INELIGIBLE);
+        assertThat(result.reasons()).anyMatch(r -> r.type() == EligibilityReasonType.SALARY_BELOW_MINIMUM);
+    }
+
+    @Test
+    void salaryRangeOverlapsMinimumIsEligible() {
+        JobOffer offer = createOfferWithSalaryRange(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                new BigDecimal("40000"),
+                new BigDecimal("50000"),
+                SalaryPeriod.ANNUAL
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithSalary(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                45000,
+                SalaryPeriod.ANNUAL
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.ELIGIBLE);
+    }
+
+    @Test
+    void salaryRangeEntirelyAboveMinimumIsEligible() {
+        JobOffer offer = createOfferWithSalaryRange(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                new BigDecimal("50000"),
+                new BigDecimal("60000"),
+                SalaryPeriod.ANNUAL
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithSalary(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                45000,
+                SalaryPeriod.ANNUAL
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.ELIGIBLE);
+    }
+
+    @Test
+    void salaryUnknownWithNoMinimumPreferenceIsEligible() {
+        JobOffer offer = createOfferWithSalary(
+                ContractType.CDI,
+                WorkMode.HYBRID,
+                null,
+                null
+        );
+        JobSearchPreferencesEntity prefs = createPreferences(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                null,
+                null
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.ELIGIBLE);
+    }
+
+    @Test
+    void precedenceSalaryBelowAndWorkModeUnknownIsIneligible() {
+        JobOffer offer = new JobOffer(
+                "france-travail", "12345", "https://example.com",
+                java.time.Instant.now(), "Developer", "Desc", "Co",
+                "M1855", "Dev web", "Dev back", "75 - Paris", "75056", "75001",
+                BigDecimal.valueOf(48.85), BigDecimal.valueOf(2.35),
+                ContractType.CDI, "CDI", "CDI",
+                List.of(), "3 ans", null, "35H",
+                "Annuel de 40000 Euros sur 12 mois",
+                new BigDecimal("40000"), new BigDecimal("40000"),
+                SalaryPeriod.ANNUAL,
+                java.time.Instant.now(), java.time.Instant.now()
+        );
+        JobSearchPreferencesEntity prefs = createPreferencesWithSalary(
+                Set.of(ContractType.CDI),
+                Set.of(WorkMode.HYBRID),
+                50000,
+                SalaryPeriod.ANNUAL
+        );
+
+        EligibilityResult result = EligibilityEvaluator.evaluate(offer, prefs);
+
+        assertThat(result.status()).isEqualTo(EligibilityStatus.INELIGIBLE);
+        assertThat(result.reasons()).anyMatch(r -> r.type() == EligibilityReasonType.SALARY_BELOW_MINIMUM);
+    }
+
+    @Test
     void noRejectionWhenPreferencesEmpty() {
         JobOffer offer = createOffer(ContractType.CDI, WorkMode.HYBRID, null);
         JobSearchPreferencesEntity prefs = createPreferences(
@@ -285,6 +451,41 @@ class EligibilityEvaluatorTest {
                 salaryMin != null ? "Annuel de " + salaryMin + " Euros sur 12 mois" : null,
                 salaryMin,
                 salaryMin,
+                salaryPeriod,
+                java.time.Instant.now(),
+                java.time.Instant.now()
+        );
+    }
+
+    private JobOffer createOfferWithSalaryRange(ContractType contractType, WorkMode workMode,
+                                                 BigDecimal salaryMin, BigDecimal salaryMax,
+                                                 SalaryPeriod salaryPeriod) {
+        return new JobOffer(
+                "france-travail",
+                "12345",
+                "https://example.com",
+                java.time.Instant.now(),
+                "Developer Java",
+                "Description",
+                "Company",
+                "M1855",
+                "Développeur web",
+                "Développeur back-end",
+                "75 - Paris",
+                "75056",
+                "75001",
+                BigDecimal.valueOf(48.8566),
+                BigDecimal.valueOf(2.3522),
+                contractType,
+                "CDI",
+                "CDI",
+                List.of(),
+                "3 ans",
+                workMode,
+                "35H/semaine",
+                "Annuel de " + salaryMin + " Euros à " + salaryMax + " Euros sur 12 mois",
+                salaryMin,
+                salaryMax,
                 salaryPeriod,
                 java.time.Instant.now(),
                 java.time.Instant.now()

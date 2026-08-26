@@ -76,12 +76,13 @@ public final class EligibilityEvaluator {
                         "Salaire non renseigné"));
                 hasUnresolved = true;
             } else if (offer.salaryPeriod() != null && preferences.getSalaryPeriod() != null) {
-                BigDecimal offerAnnual = toAnnual(offer.salaryMinAmount(), offer.salaryPeriod());
+                BigDecimal offerMax = offer.salaryMaxAmount() != null ? offer.salaryMaxAmount() : offer.salaryMinAmount();
+                BigDecimal offerAnnualMax = toAnnual(offerMax, offer.salaryPeriod());
                 BigDecimal prefAnnual = toAnnual(BigDecimal.valueOf(preferences.getSalaryMinAmount()), preferences.getSalaryPeriod());
-                if (offerAnnual.compareTo(prefAnnual) < 0) {
+                if (offerAnnualMax.compareTo(prefAnnual) < 0) {
                     reasons.add(EligibilityReason.of(
                             EligibilityReasonType.SALARY_BELOW_MINIMUM,
-                            "Salaire minimum estimé " + offerAnnual + " EUR/an inférieur au seuil " + prefAnnual + " EUR/an"));
+                            "Salaire maximum estimé " + offerAnnualMax + " EUR/an inférieur au seuil " + prefAnnual + " EUR/an"));
                     hasRejection = true;
                 }
             }

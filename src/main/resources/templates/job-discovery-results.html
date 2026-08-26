@@ -34,7 +34,7 @@
                         <div th:each="offer : ${results.offers}" class="os-card job-offer-card" style="margin-bottom: 1rem;">
                             <div class="job-offer-header">
                                 <h3 class="job-offer-title">
-                                    <a th:if="${offer.originUrl}" th:href="${offer.originUrl}" th:text="${offer.title}" target="_blank"></a>
+                                    <a th:if="${offer.safeUrl}" th:href="${offer.safeUrl}" th:text="${offer.title}" target="_blank"></a>
                                     <span th:unless="${offer.originUrl}" th:text="${offer.title}"></span>
                                 </h3>
                                 <span class="os-badge" th:classappend="${offer.statusCssClass}" th:text="${offer.statusLabel}"></span>

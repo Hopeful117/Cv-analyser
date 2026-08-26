@@ -24,47 +24,55 @@ Le port `JobOfferProvider` définit un contrat minimal (search) que tout fournis
 - **CONTRACT_NOT_ACCEPTED** : type contrat hors ensemble accepté (non vide) ;
 - **WORK_MODE_NOT_ACCEPTED** : mode hors ensemble accepté (non vide) ;
 - **TECHNOLOGY_EXCLUDED** : technologie exclue présente dans l'offre ;
-- **TECHNOLOGY_PREFERRED_MISSING** : technologie préférée absente (REVIEW_REQUIRED) ;
-- **SALARY_BELOW_MINIMUM** : salaire affiché sous le minimum (REVIEW_REQUIRED) ;
-- Priorité : toute INELIGIBLE → INELIGIBLE globale ; sinon tout REVIEW_REQUIRED → REVIEW_REQUIRED ; sinon → ELIGIBLE.
+- **TECHNOLOGY_PREFERRED_FOUND** : technologie préférée présente — preuve positive uniquement, sans effet sur l'éligibilité formelle ;
+- **PREFERRED_TECHNOLOGY_MISSING** : technologie préférée absente — AUCUN EFFET sur l'éligibilité (ne produit ni INELIGIBLE ni REVIEW_REQUIRED) ;
+- **SALARY_BELOW_MINIMUM** : salaire déterministicement connu et comparé inférieur au minimum — INELIGIBLE ;
+- **SALARY_UNKNOWN** : salaire non disponible — REVIEW_REQUIRED uniquement si le salaire minimum est une contrainte active ;
+- **PREFERRED_TECHNOLOGY_FOUND** : technologie préférée détectée — preuve positive uniquement ;
+- Priorité : INELIGIBLE > REVIEW_REQUIRED > ELIGIBLE.
 
-## Real API Findings
+Any explicit hard violation
+→ INELIGIBLE
 
-- Auth : scope requis = `api_offresdemploiv2 o2dsoffre application_{client_id}` (sans le dernier, `invalid_client`) ;
-- Résultats : `Content-Range: offres 0-49/424` ; pagination `range` param (max 150/call) ;
-- Salaires : format réel `Annuel de 65000.0 Euros sur 12.0 mois` (single) ou `Annuel de 40000.0 Euros à 50000.0 Euros sur 12.0 mois` (range) ;
-- `teletravail` : champ existe souvent à null ; pas de filtre remote structuré côté FT ;
-- `competences[].exigence` : "S" (Souhaitée) / "N" (Non souhaitée) / "R" (Obligatoire).
+else any unresolved ACTIVE HARD constraint
+→ REVIEW_REQUIRED
 
-## Application Layer
+else
+→ ELIGIBLE.
 
-`DiscoverJobOffers` orchestre : provider.search → mapper (interne à l'adaptateur) → EligibilityEvaluator → filtrage + tri. Le contrôleur ne fait que routing et assemblage des viewModels.
+Therefore:
 
-## UX
+salary below minimum + unknown work mode → INELIGIBLE (not REVIEW_REQUIRED).
 
-Deux écrans dans le design existant : formulaire de recherche (query + ville + départements) + résultats avec badges colorés (ELIGIBLE = vert, INELIGIBLE = rouge, REVIEW_REQUIRED = orange). La sidebar affiche « Offres trouvées ». Templates responsive existants.
+preferred technology missing + otherwise fully compatible offer → ELIGIBLE.
 
-## Tests
+excluded technology found → INELIGIBLE.
 
-21 nouveaux tests unitaires :
-- `EligibilityEvaluatorTest` : 10 scénarios (CDI rejeté, remote obligatoire, techno exclue, techno préférée absente, salaire sous minimum, tous ELIGIBLE, priorité INELIGIBLE, REVIEW_REQUIRED sans INELIGIBLE, pas de préférences) ;
-- `FranceTravailOfferMapperTest` : 11 scénarios (mapping complet, salaire simple/range/absent, compétences, date, expériences, localisation, contrat INTERIM/AUTRE).
+java preference/exclusion does not accidentally match javascript.
+
+## Provider Adapter Pattern
+
+Le port `JobOfferProvider` définit un contrat minimal (search) que tout fournisseur doit implémenter. L'adaptateur FT comprend :
+- `FranceTravailTokenClient` : OAuth2 client_credentials avec cache TTL et retry 401 ;
+- `FranceTravailApiClient` : recherche `range=0-49`, un seul appel par recherche utilisateur, max 50 offres ;
+- `FranceTravailOfferMapper` : mapping complet FT→domaine, regex salaire validée sur le vrai format ;
+- `DisabledFranceTravailJobOfferProvider` : fallback gracieux si credentials absents.
 
 ## Quality Pipeline
 
 - `./mvnw compile test-compile` : **0 erreur** ;
-- Tests unitaires S3 : **21/21 passent** ;
+- Tests unitaires S3 : **34/34 passent** (EligibilityEvaluatorTest + FranceTravailOfferMapperTest + JobDiscoveryViewModelsTest) ;
 - Tests existants : 0 régression (16 erreurs pré-existantes = tests intégration persistance sans BDD) ;
-- `git log --oneline` : branche propre, 1 commit logique.
+- `git diff --check` : propre sur la branche.
 
 ## Known Limitations
 
 - Pas de persistance des résultats (scope S3 = spike) ;
 - Pas de gestion rate limit / bulk ;
-- `rawDescription()` en HTML brut — nettoyage nécessaire pour affichage produit ;
+- Description provider : échappée par défaut via `th:text` + `stripHTML` dans le view model ;
 - Pas de test d'intégration avec vrai FT (validé manuellement au curl) ;
 - Rendu navigateur/mobile non vérifié visuellement (Chromium absent) ;
-- La description HTML des offres est affichée telle quelle via `| raw` dans le template.
+- La description HTML des offres est nettoyée (tags HTML retirés) avant affichage échappé.
 
 ## Suggested Next Story
 

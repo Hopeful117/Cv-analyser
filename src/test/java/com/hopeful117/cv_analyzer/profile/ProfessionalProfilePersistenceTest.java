@@ -120,6 +120,24 @@ class ProfessionalProfilePersistenceTest {
     }
 
     @Test
+    void manualEditKeepingAnExistingSkillDoesNotViolateUniqueness() {
+        ProfileForm initial = new ProfileForm();
+        initial.setFullName("Test");
+        initial.setSkillsText("Java\nDocker");
+        service.saveFromForm(initial);
+
+        ProfileForm edited = new ProfileForm();
+        edited.setFullName("Test");
+        edited.setSkillsText("Java\nKubernetes");
+        service.saveFromForm(edited);
+        repository.flush();
+
+        assertThat(service.getProfileView().orElseThrow().skills())
+                .extracting(ProfileViewModels.SkillView::label)
+                .containsExactlyInAnyOrder("Java", "Kubernetes");
+    }
+
+    @Test
     void invalidManualSubmissionLeavesExistingProfileIntact() {
         ProfileForm initial = new ProfileForm();
         initial.setSkillsText("Java");

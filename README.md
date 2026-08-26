@@ -18,6 +18,9 @@ par l’utilisateur et ne constituent pas une certification ATS.
 - export PDF monopage depuis une version sauvegardée ;
 - génération, sauvegarde et édition d’une lettre de motivation ;
 - dashboard alimenté par les données réelles ;
+- profil professionnel persistant : création et édition manuelles, ou initialisation depuis un CV
+  via une proposition IA revue case par case avant validation (aucune donnée extraite ne devient
+  fiable sans accord explicite) ;
 - CRM personnel : entreprises, opportunités, candidatures, statuts, priorités et relances ;
 - historique des changements de statut et association aux CV, lettres et analyses ;
 - import contrôlé d’un historique `.xlsx` avec prévisualisation ;
@@ -93,6 +96,7 @@ mvn spring-boot:run
 Routes principales :
 
 - `/` : dashboard ;
+- `/profile` : profil professionnel fiable, initialisation assistée par CV ;
 - `/analyze` : nouvelle analyse ;
 - `/analyses` : historique ;
 - `/applications` : CRM et historique des candidatures ;
@@ -141,8 +145,10 @@ hors dépôt, puis redémarrez. Ne commitez jamais une clé.
 - scraping générique, sans prise en charge spécialisée des plateformes ;
 - entretien expérimental et modèle de persistance encore fragile ;
 - import prévisualisé conservé en mémoire pendant une heure (pas de reprise après redémarrage) ;
+- proposition de profil issue d’un CV conservée uniquement dans l’écran de revue : quitter la page
+  sans valider impose de relancer l’extraction ;
 - projection exécutée dans le processus applicatif, sans file durable ;
-- pas de profil professionnel, d’authentification ou de CRM multi-utilisateur.
+- pas d’authentification ni de séparation multi-utilisateur (le profil est local et unique).
 
 Voir [l’architecture du Career Workspace](docs/architecture/career-workspace.md) et
 [la décision de persistance](docs/adr/persist-career-intelligence-analyses-and-documents.md).

@@ -82,23 +82,26 @@ public class ProfessionalProfileService {
 
         ProfessionalProfileEntity profile = repository.findLocalProfile()
                 .orElseGet(ProfessionalProfileEntity::new);
+        if (profile.getId() != null) {
+            // Remplacement explicite : suppression ORM de l'agrégat (cascade enfants) puis
+            // recréation. Réinsérer dans les collections existantes après suppressions partielles
+            // produit des ordres SQL non fiables (insert avant delete) selon le fournisseur.
+            // Aucune autre table ne référence le profil : l'identité reste locale à cet agrégat.
+            profile.setFullName(fullName);
+            profile.setProfessionalTitle(professionalTitle);
+            profile.setReferenceLocation(referenceLocation);
+            repository.delete(profile);
+            repository.flush();
+            profile = new ProfessionalProfileEntity();
+        }
         profile.setFullName(fullName);
         profile.setProfessionalTitle(professionalTitle);
         profile.setReferenceLocation(referenceLocation);
 
-        profile.getSkills().clear();
         skills.forEach(profile::addSkill);
-        profile.getLanguages().clear();
         languages.forEach(profile::addLanguage);
-        profile.getEducations().clear();
         educations.forEach(profile::addEducation);
-        profile.getExperiences().clear();
         experiences.forEach(profile::addExperience);
-
-        profile.setAiProvider(null);
-        profile.setAiModel(null);
-        profile.setPromptVersion(null);
-        profile.setCvAssistedAt(null);
 
         return repository.save(profile).getId();
     }

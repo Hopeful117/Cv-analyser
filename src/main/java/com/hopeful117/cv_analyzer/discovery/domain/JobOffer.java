@@ -42,4 +42,8 @@ public record JobOffer(
     public JobOffer {
         competencies = competencies == null ? Collections.emptyList() : Collections.unmodifiableList(competencies);
     }
+
+    public JobOfferIdentity providerIdentity() {
+        return JobOfferIdentity.from(this);
+    }
 }

@@ -2,7 +2,6 @@ package com.hopeful117.cv_analyzer.discovery.infrastructure.adzuna;
 
 import com.hopeful117.cv_analyzer.career.domain.ContractType;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
-import com.hopeful117.cv_analyzer.search.domain.WorkMode;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -33,12 +32,12 @@ public final class AdzunaOfferMapper {
                 null,
                 dto.latitude(),
                 dto.longitude(),
-                mapContractType(dto.contract_type()),
+                ContractType.fromCode(dto.contract_type()),
                 dto.contract_type(),
                 dto.contract_time(),
                 List.of(),
                 null,
-                (WorkMode) null,
+                null,
                 null,
                 salaryText(dto),
                 dto.salary_min(),
@@ -47,18 +46,6 @@ public final class AdzunaOfferMapper {
                 parseInstant(dto.created()),
                 null
         );
-    }
-
-    private static ContractType mapContractType(String value) {
-        if (value == null) return null;
-        return switch (value.trim().toLowerCase()) {
-            case "permanent" -> ContractType.CDI;
-            case "contract" -> ContractType.CDD;
-            case "temporary" -> ContractType.INTERIM;
-            case "internship" -> ContractType.STAGE;
-            case "freelance" -> ContractType.FREELANCE;
-            default -> null;
-        };
     }
 
     private static String salaryText(AdzunaSearchResponse.AdzunaOfferDto dto) {

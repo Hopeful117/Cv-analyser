@@ -38,12 +38,12 @@
                             <div>
                                 <label class="os-label" for="opportunityTitle">Intitulé du poste</label>
                                 <input class="os-input" id="opportunityTitle" name="opportunityTitle"
-                                       maxlength="200" placeholder="Ex. Développeur Java">
+                                       maxlength="200" placeholder="Ex. Développeur Java" th:value="${opportunityTitle}">
                             </div>
                             <div>
                                 <label class="os-label" for="companyName">Entreprise</label>
                                 <input class="os-input" id="companyName" name="companyName"
-                                       maxlength="200" placeholder="Si elle est connue">
+                                       maxlength="200" placeholder="Si elle est connue" th:value="${companyName}">
                             </div>
                         </div>
                     </section>
@@ -122,7 +122,7 @@
                                           id="jobOffer"
                                           name="jobOffer"
                                           rows="10"
-                                          placeholder="Collez ici le texte complet de l’offre..."></textarea>
+                                           placeholder="Collez ici le texte complet de l’offre..." th:text="${jobOffer}"></textarea>
                                 <p class="form-help">Un texte complet améliore la pertinence de la comparaison.</p>
                             </div>
                             <div class="tab-pane fade"
@@ -134,7 +134,7 @@
                                 <input type="url"
                                        class="os-input"
                                        id="jobOfferUrl"
-                                       name="jobOfferUrl"
+                                        name="jobOfferUrl" th:value="${jobOfferUrl}"
                                        placeholder="https://exemple.com/offre">
                                 <p class="form-help">La page sera lue automatiquement. Certaines plateformes peuvent limiter cette extraction.</p>
                             </div>

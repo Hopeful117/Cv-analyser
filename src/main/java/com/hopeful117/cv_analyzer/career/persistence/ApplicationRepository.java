@@ -17,6 +17,9 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
     long countByFollowUpPlannedAtLessThanEqualAndStatusNotIn(
             LocalDate date, Collection<ApplicationStatus> statuses);
     List<ApplicationEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"opportunity", "opportunity.company"})
+    List<ApplicationEntity> findAllByOpportunityIdOrderByUpdatedAtDesc(Long opportunityId);
     List<ApplicationEntity> findByFollowUpPlannedAtLessThanEqualAndStatusNotInOrderByFollowUpPlannedAtAsc(
             LocalDate date, Collection<ApplicationStatus> statuses, Pageable pageable);
     List<ApplicationEntity> findByPriorityAndStatusNotInOrderByUpdatedAtDesc(

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Opportunités')}"></head>
+<body class="developer-os"><div class="app-shell">
+<aside th:replace="~{fragments/sidebar :: sidebar('opportunities')}"></aside><div class="app-main">
+<header th:replace="~{fragments/topbar :: topbar('Opportunités', 'Un espace de travail par poste ciblé')}"></header>
+<main class="app-content" id="main-content"><div class="page-stack">
+<section class="section-heading"><div><div class="eyebrow">Career Workspace</div><h2 class="section-title">Opportunités</h2><p class="section-description mt-2">Les postes sauvegardés et leur préparation associée.</p></div><a class="os-button os-button-primary" th:href="@{/job-discovery}">Trouver une offre</a></section>
+<section class="os-card" th:if="${#lists.isEmpty(opportunities)}"><div class="empty-state"><h3 class="empty-state-title">Aucune opportunité</h3><p>Sélectionnez une offre depuis Discovery pour commencer.</p><a class="os-button os-button-primary" th:href="@{/job-discovery}">Ouvrir Discovery</a></div></section>
+<section class="page-stack" th:if="${!#lists.isEmpty(opportunities)}"><article class="os-card os-card-interactive" th:each="item : ${opportunities}"><div class="section-heading"><div><span class="os-badge" th:text="${item.status}">ACTIVE</span><h3 class="feature-title mt-3" th:text="${item.displayTitle()}">Poste</h3><p class="form-help" th:text="${item.displayCompany()}">Entreprise</p><p class="stat-meta" th:text="${item.analysisCount + ' analyse(s) · ' + item.resumeCount + ' CV · ' + item.letterCount + ' lettre(s) · ' + item.applicationCount + ' candidature(s)'}">Artefacts</p></div><a class="os-button os-button-secondary" th:href="@{/opportunities/{id}(id=${item.id})}">Ouvrir</a></div></article></section>
+</div></main><footer th:replace="~{fragments/footer :: footer}"></footer></div></div><th:block th:replace="~{fragments/footer :: scripts}"></th:block></body>
+</html>

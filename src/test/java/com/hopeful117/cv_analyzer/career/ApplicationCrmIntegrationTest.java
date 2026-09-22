@@ -3,6 +3,9 @@ package com.hopeful117.cv_analyzer.career;
 import com.hopeful117.cv_analyzer.career.application.ApplicationCrmService;
 import com.hopeful117.cv_analyzer.career.domain.*;
 import com.hopeful117.cv_analyzer.career.persistence.ApplicationStatusHistoryRepository;
+import com.hopeful117.cv_analyzer.career.persistence.OpportunityRepository;
+import com.hopeful117.cv_analyzer.career.application.OpportunityCreationRequest;
+import com.hopeful117.cv_analyzer.career.application.OpportunityService;
 import com.hopeful117.cv_analyzer.career.web.ApplicationForm;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ApplicationCrmIntegrationTest {
     @Autowired ApplicationCrmService service;
     @Autowired ApplicationStatusHistoryRepository historyRepository;
+    @Autowired OpportunityService opportunityService;
+    @Autowired OpportunityRepository opportunityRepository;
 
     @Test
     void createsApplicationAndOnlyHistoriesRealStatusChanges() {
@@ -45,4 +50,38 @@ class ApplicationCrmIntegrationTest {
                 0, 20, "desc").getContent())
                 .extracting(item -> item.id()).contains(id);
     }
+
+    @Test
+    void createsApplicationFromExistingOpportunityWithoutCreatingAnotherOpportunity() {
+        long opportunitiesBefore = opportunityRepository.count();
+        Long opportunityId = opportunityService.create(new OpportunityCreationRequest(
+                null, "Développeur Kotlin", "ACME Workspace", null, null, null, null, null,
+                "manual", null, null, "Lyon", OpportunitySourceType.MANUAL, null,
+                "Description", "Description", "fr", OpportunityStatus.DRAFT)).getId();
+        long opportunitiesAfterCreation = opportunityRepository.count();
+
+        ApplicationForm prefilled = service.getFormForOpportunity(opportunityId);
+        assertThat(prefilled.getOpportunityId()).isEqualTo(opportunityId);
+        assertThat(prefilled.getCompanyName()).isEqualTo("ACME Workspace");
+        assertThat(prefilled.getJobTitle()).isEqualTo("Développeur Kotlin");
+
+        assertThat(service.findForOpportunity(opportunityId)).isEmpty();
+
+        ApplicationForm form = new ApplicationForm();
+        form.setOpportunityId(opportunityId);
+        form.setCompanyName("ACME Workspace");
+        form.setJobTitle("Développeur Kotlin");
+        form.setStatus(ApplicationStatus.NOT_CONTACTED);
+        form.setPriority(ApplicationPriority.MEDIUM);
+        form.setRemoteMode(RemoteMode.UNSPECIFIED);
+        form.setInterviewStatus(InterviewStatus.NONE);
+        form.setDecision(ApplicationDecision.PENDING);
+
+        long applicationId = service.create(form, ChangeSource.USER);
+
+        assertThat(opportunityRepository.count()).isEqualTo(opportunitiesBefore + 1);
+        assertThat(service.getDetails(applicationId).opportunityId()).isEqualTo(opportunityId);
+        assertThat(service.dashboard().opportunities()).isEqualTo(opportunitiesAfterCreation);
+    }
+
 }

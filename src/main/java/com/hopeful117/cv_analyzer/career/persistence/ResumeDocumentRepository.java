@@ -16,4 +16,9 @@ public interface ResumeDocumentRepository extends JpaRepository<ResumeDocumentEn
 
     @EntityGraph(attributePaths = {"analysis", "analysis.opportunity", "versions"})
     List<ResumeDocumentEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"analysis", "analysis.opportunity", "versions"})
+    List<ResumeDocumentEntity> findAllByAnalysisOpportunityIdOrderByUpdatedAtDesc(Long opportunityId);
+
+    long countByAnalysisOpportunityId(Long opportunityId);
 }

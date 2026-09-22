@@ -16,7 +16,13 @@ import java.io.IOException;
 public class CoverLetterGeneratorController {
     private final CareerWorkspaceService careerWorkspaceService;
     @GetMapping("/generator")
-    public String getGenerator(){
+    public String getGenerator(@RequestParam(required = false) String opportunityTitle,
+                               @RequestParam(required = false) String companyName,
+                               @RequestParam(required = false) String jobOfferUrl,
+                               Model model){
+        model.addAttribute("opportunityTitle", opportunityTitle);
+        model.addAttribute("companyName", companyName);
+        model.addAttribute("jobOfferUrl", jobOfferUrl);
         return "generator";
     }
     @PostMapping("/generator")

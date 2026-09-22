@@ -58,8 +58,11 @@ public class ApplicationCrmService {
 
     private Long createInternal(ApplicationForm form, ChangeSource source, String legacyExternalId,
                                 boolean publishProjection) {
-        CompanyEntity company = findOrCreateCompany(form);
-        OpportunityEntity opportunity = createOpportunity(form, company);
+        CompanyEntity company = form.getOpportunityId() == null ? findOrCreateCompany(form) : null;
+        OpportunityEntity opportunity = form.getOpportunityId() == null
+                ? createOpportunity(form, company)
+                : opportunityRepository.findById(form.getOpportunityId())
+                .orElseThrow(() -> new EntityNotFoundException("Opportunité introuvable."));
 
         ApplicationEntity application = new ApplicationEntity();
         application.setOpportunity(opportunity);
@@ -186,11 +189,18 @@ public class ApplicationCrmService {
     }
 
     @Transactional(readOnly = true)
+    public List<ApplicationListItem> findForOpportunity(long opportunityId) {
+        return applicationRepository.findAllByOpportunityIdOrderByUpdatedAtDesc(opportunityId)
+                .stream().map(this::toListItem).toList();
+    }
+
+    @Transactional(readOnly = true)
     public ApplicationForm getForm(long id) {
         ApplicationEntity application = requireApplication(id);
         OpportunityEntity opportunity = application.getOpportunity();
         CompanyEntity company = opportunity.getCompany();
         ApplicationForm form = new ApplicationForm();
+        form.setOpportunityId(opportunity.getId());
         form.setCompanyName(companyName(opportunity));
         if (company != null) {
             form.setCity(company.getCity());
@@ -224,6 +234,36 @@ public class ApplicationCrmService {
         form.setResumeVersionId(id(application.getResumeVersion()));
         form.setCoverLetterId(id(application.getCoverLetter()));
         form.setAnalysisId(id(application.getAnalysis()));
+        return form;
+    }
+
+    @Transactional(readOnly = true)
+    public ApplicationForm getFormForOpportunity(long opportunityId) {
+        OpportunityEntity opportunity = opportunityRepository.findById(opportunityId)
+                .orElseThrow(() -> new EntityNotFoundException("Opportunité introuvable."));
+        ApplicationForm form = new ApplicationForm();
+        form.setOpportunityId(opportunity.getId());
+        form.setCompanyName(companyName(opportunity));
+        CompanyEntity company = opportunity.getCompany();
+        if (company != null) {
+            form.setCity(company.getCity());
+            form.setAddress(company.getAddress());
+            form.setPhone(company.getPhone());
+            form.setEmail(company.getEmail());
+            form.setWebsite(company.getWebsite());
+        }
+        form.setJobTitle(opportunity.getTitle());
+        form.setOfferUrl(opportunity.getSourceUrl());
+        form.setContractType(opportunity.getContractType());
+        form.setContractTypeRaw(opportunity.getContractTypeRaw());
+        form.setWorkSchedule(opportunity.getWorkSchedule());
+        form.setWorkScheduleRaw(opportunity.getWorkScheduleRaw());
+        form.setRemoteMode(opportunity.getRemoteMode());
+        form.setSource(opportunity.getSource());
+        form.setSalaryText(opportunity.getSalaryText());
+        form.setDistanceText(opportunity.getDistanceText());
+        form.setLocation(opportunity.getLocation());
+        form.setDescription(opportunity.getNormalizedDescription());
         return form;
     }
 

@@ -14,7 +14,13 @@ public class AnalyzerController {
     private final CareerWorkspaceService careerWorkspaceService;
 
     @GetMapping("/analyze")
-    public String getAnalyzer(){
+    public String getAnalyzer(@RequestParam(required = false) String opportunityTitle,
+                              @RequestParam(required = false) String companyName,
+                              @RequestParam(required = false) String jobOfferUrl,
+                              org.springframework.ui.Model model){
+        model.addAttribute("opportunityTitle", opportunityTitle);
+        model.addAttribute("companyName", companyName);
+        model.addAttribute("jobOfferUrl", jobOfferUrl);
         return "analyzer";
     }
 

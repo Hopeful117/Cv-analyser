@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ResumeAnalysisRecordRepository extends JpaRepository<ResumeAnalysisRecordEntity, Long> {
@@ -13,6 +14,9 @@ public interface ResumeAnalysisRecordRepository extends JpaRepository<ResumeAnal
 
     @EntityGraph(attributePaths = "opportunity")
     Optional<ResumeAnalysisRecordEntity> findOneById(Long id);
+
+    @EntityGraph(attributePaths = "opportunity")
+    List<ResumeAnalysisRecordEntity> findAllByOpportunityIdOrderByCreatedAtDesc(Long opportunityId);
 
     long countByOpportunityId(Long opportunityId);
 }

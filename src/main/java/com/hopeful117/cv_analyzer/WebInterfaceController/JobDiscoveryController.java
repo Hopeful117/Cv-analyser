@@ -73,8 +73,8 @@ public class JobDiscoveryController {
             redirectAttributes.addFlashAttribute("errorMessage", "L’offre sélectionnée est invalide.");
             return "redirect:/job-discovery";
         }
-        selectJobOffer.select(form.toJobOffer());
+        Long opportunityId = selectJobOffer.select(form.toJobOffer());
         redirectAttributes.addFlashAttribute("successMessage", "L’opportunité a été ajoutée.");
-        return "redirect:/";
+        return "redirect:/opportunities/" + opportunityId;
     }
 }

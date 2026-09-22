@@ -45,9 +45,10 @@ public class ApplicationController {
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) {
+    public String createForm(@RequestParam(required = false) Long opportunityId, Model model) {
         if (!model.containsAttribute("applicationForm")) {
-            model.addAttribute("applicationForm", new ApplicationForm());
+            model.addAttribute("applicationForm", opportunityId == null
+                    ? new ApplicationForm() : crmService.getFormForOpportunity(opportunityId));
         }
         prepareForm(model, null);
         return "application-form";

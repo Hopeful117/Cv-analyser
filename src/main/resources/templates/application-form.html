@@ -11,6 +11,7 @@
                 <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <form class="page-stack" method="post" th:object="${applicationForm}"
                       th:action="${applicationId == null} ? @{/applications} : @{/applications/{id}(id=${applicationId})}">
+                    <input type="hidden" th:field="*{opportunityId}">
                     <section class="os-card form-section">
                         <div class="eyebrow">1 · Entreprise</div>
                         <div class="os-grid os-grid-2">

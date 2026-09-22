@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ApplicationForm {
+    private Long opportunityId;
     @NotBlank @Size(max = 200)
     private String companyName;
     @Size(max = 160)

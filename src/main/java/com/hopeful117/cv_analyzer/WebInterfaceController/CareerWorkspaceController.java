@@ -2,17 +2,37 @@ package com.hopeful117.cv_analyzer.WebInterfaceController;
 
 import com.hopeful117.cv_analyzer.career.application.CareerWorkspaceService;
 import com.hopeful117.cv_analyzer.career.application.CareerViewModels.AnalysisDetails;
+import com.hopeful117.cv_analyzer.career.application.OpportunityWorkspaceService;
 import com.hopeful117.cv_analyzer.model.ResumePdfStyle;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequiredArgsConstructor
 public class CareerWorkspaceController {
     private final CareerWorkspaceService careerWorkspaceService;
+    private final OpportunityWorkspaceService opportunityWorkspaceService;
+
+    @Autowired
+    public CareerWorkspaceController(CareerWorkspaceService careerWorkspaceService,
+                                     OpportunityWorkspaceService opportunityWorkspaceService) {
+        this.careerWorkspaceService = careerWorkspaceService;
+        this.opportunityWorkspaceService = opportunityWorkspaceService;
+    }
+
+    @GetMapping("/opportunities")
+    public String opportunities(Model model) {
+        model.addAttribute("opportunities", opportunityWorkspaceService.list());
+        return "opportunities";
+    }
+
+    @GetMapping("/opportunities/{id}")
+    public String opportunity(@PathVariable long id, Model model) {
+        model.addAttribute("workspace", opportunityWorkspaceService.get(id));
+        return "opportunity-workspace";
+    }
 
     @GetMapping("/analyses")
     public String analyses(@RequestParam(defaultValue = "0") int page, Model model) {

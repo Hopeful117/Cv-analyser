@@ -29,11 +29,11 @@
                         <div class="os-grid os-grid-2">
                             <div>
                                 <label class="os-label" for="opportunityTitle">Intitulé du poste (facultatif)</label>
-                                <input class="os-input" id="opportunityTitle" name="opportunityTitle" maxlength="200">
+                                 <input class="os-input" id="opportunityTitle" name="opportunityTitle" maxlength="200" th:value="${opportunityTitle}">
                             </div>
                             <div>
                                 <label class="os-label" for="companyName">Entreprise (facultatif)</label>
-                                <input class="os-input" id="companyName" name="companyName" maxlength="200">
+                                 <input class="os-input" id="companyName" name="companyName" maxlength="200" th:value="${companyName}">
                             </div>
                         </div>
                     </section>
@@ -122,7 +122,7 @@
                                           id="jobOffer"
                                           name="jobOffer"
                                           rows="10"
-                                          placeholder="Collez ici le texte de l’offre..."></textarea>
+                                           placeholder="Collez ici le texte de l’offre..." th:text="${jobOffer}"></textarea>
                             </div>
                             <div class="tab-pane fade"
                                  id="url-pane"
@@ -133,7 +133,7 @@
                                 <input type="url"
                                        class="os-input"
                                        id="jobOfferUrl"
-                                       name="jobOfferUrl"
+                                        name="jobOfferUrl" th:value="${jobOfferUrl}"
                                        placeholder="https://exemple.com/offre">
                             </div>
                         </div>

@@ -76,7 +76,7 @@ class JobDiscoveryControllerMvcTest {
                         .param("company", "Example")
                         .param("originUrl", "https://example.com/offres/12345"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/"));
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/opportunities/0"));
 
         verify(selectJobOffer).select(argThat(offer ->
                 offer.providerKey().equals("france-travail")

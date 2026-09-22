@@ -14,5 +14,8 @@ public interface CoverLetterRepository extends JpaRepository<CoverLetterEntity, 
     @EntityGraph(attributePaths = "opportunity")
     List<CoverLetterEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 
+    @EntityGraph(attributePaths = "opportunity")
+    List<CoverLetterEntity> findAllByOpportunityIdOrderByUpdatedAtDesc(Long opportunityId);
+
     long countByOpportunityId(Long opportunityId);
 }

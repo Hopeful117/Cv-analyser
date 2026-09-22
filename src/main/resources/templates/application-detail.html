@@ -11,7 +11,7 @@
                 <div th:replace="~{fragments/alerts :: alerts}"></div>
                 <section class="section-heading">
                     <div><div class="d-flex gap-2 flex-wrap"><span class="os-badge" th:text="${applicationDetails.status == null ? 'Non démarché' : applicationDetails.status.frenchLabel}"></span><span class="os-badge os-badge-warning" th:text="${applicationDetails.priority == null ? 'Moyenne' : applicationDetails.priority.frenchLabel}"></span><span class="os-badge os-badge-ai" th:if="${applicationDetails.analysisId != null}">Analyse IA liée</span></div><h2 class="section-title mt-3" th:text="${applicationDetails.jobTitle}">Poste</h2><p class="section-description" th:text="${applicationDetails.companyName}">Entreprise</p></div>
-                    <div class="action-row"><a class="os-button os-button-secondary" th:href="@{/applications/{id}/edit(id=${applicationDetails.id})}">Modifier</a><a class="os-button os-button-ghost" th:href="@{/applications}">Retour</a></div>
+                     <div class="action-row"><a class="os-button os-button-secondary" th:if="${applicationDetails.opportunityId != null}" th:href="@{/opportunities/{id}(id=${applicationDetails.opportunityId})}">Opportunity</a><a class="os-button os-button-secondary" th:href="@{/applications/{id}/edit(id=${applicationDetails.id})}">Modifier</a><a class="os-button os-button-ghost" th:href="@{/applications}">Retour</a></div>
                 </section>
                 <div class="os-grid os-grid-2">
                     <section class="os-card">

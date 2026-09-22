@@ -35,6 +35,7 @@ public class CareerWorkspaceService {
     private final CoverLetterService coverLetterService;
     private final UploadValidationService uploadValidationService;
     private final OpportunityRepository opportunityRepository;
+    private final OpportunityService opportunityService;
     private final ResumeAnalysisRecordRepository analysisRepository;
     private final ResumeDocumentRepository resumeDocumentRepository;
     private final ResumeVersionRepository resumeVersionRepository;
@@ -55,16 +56,11 @@ public class CareerWorkspaceService {
         GeneratedResume generated = resumeGenerationService.generateCorrectedResume(
                 resumeText, offerText, aiAnalysis);
 
-        OpportunityEntity opportunity = new OpportunityEntity();
-        opportunity.setTitle(cleanLimited(title, 200, "L’intitulé"));
-        opportunity.setCompanyName(cleanLimited(companyName, 200, "L’entreprise"));
-        opportunity.setSourceType(hasText(jobOfferUrl) ? OpportunitySourceType.URL : OpportunitySourceType.MANUAL);
-        opportunity.setSourceUrl(cleanLimited(jobOfferUrl, 2048, "L’URL"));
-        opportunity.setRawDescription(hasText(jobOffer) ? jobOffer.trim() : offerText);
-        opportunity.setNormalizedDescription(offerText.trim());
-        opportunity.setDetectedLanguage(clean(aiAnalysis.getJobOfferLanguage()));
-        opportunity.setStatus(OpportunityStatus.ANALYZED);
-        opportunityRepository.save(opportunity);
+        OpportunityEntity opportunity = opportunityService.create(new OpportunityCreationRequest(
+                null, title, companyName, null, null, null, null, null, null, null, null, null,
+                hasText(jobOfferUrl) ? OpportunitySourceType.URL : OpportunitySourceType.MANUAL,
+                jobOfferUrl, hasText(jobOffer) ? jobOffer : offerText, offerText,
+                aiAnalysis.getJobOfferLanguage(), OpportunityStatus.ANALYZED));
 
         Instant generatedAt = Instant.now();
         ResumeAnalysisRecordEntity analysis = new ResumeAnalysisRecordEntity();
@@ -175,15 +171,11 @@ public class CareerWorkspaceService {
         requireContent(cvText, "Le texte extrait du CV");
         requireContent(offerText, "Le contenu de l’offre");
         String content = coverLetterService.generateFromTexts(existingLetter, cvText, offerText);
-        OpportunityEntity opportunity = new OpportunityEntity();
-        opportunity.setTitle(cleanLimited(title, 200, "L’intitulé"));
-        opportunity.setCompanyName(cleanLimited(companyName, 200, "L’entreprise"));
-        opportunity.setSourceType(hasText(jobOfferUrl) ? OpportunitySourceType.URL : OpportunitySourceType.MANUAL);
-        opportunity.setSourceUrl(cleanLimited(jobOfferUrl, 2048, "L’URL"));
-        opportunity.setRawDescription(hasText(jobOffer) ? jobOffer.trim() : offerText);
-        opportunity.setNormalizedDescription(offerText.trim());
-        opportunity.setStatus(OpportunityStatus.DRAFT);
-        opportunityRepository.save(opportunity);
+        OpportunityEntity opportunity = opportunityService.create(new OpportunityCreationRequest(
+                null, title, companyName, null, null, null, null, null, null, null, null, null,
+                hasText(jobOfferUrl) ? OpportunitySourceType.URL : OpportunitySourceType.MANUAL,
+                jobOfferUrl, hasText(jobOffer) ? jobOffer : offerText, offerText, null,
+                OpportunityStatus.DRAFT));
 
         CoverLetterEntity letter = new CoverLetterEntity();
         letter.setOpportunity(opportunity);

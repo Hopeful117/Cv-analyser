@@ -68,6 +68,18 @@
                                 <span class="job-offer-source">
                                     Source : France Travail
                                 </span>
+                                <form th:action="@{/job-discovery/select}" method="post" style="margin-left: auto;">
+                                    <input type="hidden" name="providerKey" th:value="${offer.providerKey}">
+                                    <input type="hidden" name="providerOfferId" th:value="${offer.providerOfferId}">
+                                    <input type="hidden" name="title" th:value="${offer.title}">
+                                    <input type="hidden" name="company" th:value="${offer.company}">
+                                    <input type="hidden" name="originUrl" th:value="${offer.originUrl}">
+                                    <input type="hidden" name="locationLabel" th:value="${offer.location}">
+                                    <input type="hidden" name="rawContractCode" th:value="${offer.rawContractCode}">
+                                    <input type="hidden" name="rawContractLabel" th:value="${offer.contract}">
+                                    <input type="hidden" name="rawSalaryText" th:value="${offer.salary}">
+                                    <button type="submit" class="os-button os-button-secondary">Ajouter à mes opportunités</button>
+                                </form>
                             </div>
                         </div>
                     </div>

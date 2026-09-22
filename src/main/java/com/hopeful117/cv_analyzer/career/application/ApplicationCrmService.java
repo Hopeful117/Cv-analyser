@@ -28,6 +28,7 @@ public class ApplicationCrmService {
 
     private final CompanyRepository companyRepository;
     private final OpportunityRepository opportunityRepository;
+    private final OpportunityService opportunityService;
     private final ApplicationRepository applicationRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final ExternalProjectionRepository projectionRepository;
@@ -59,7 +60,6 @@ public class ApplicationCrmService {
                                 boolean publishProjection) {
         CompanyEntity company = findOrCreateCompany(form);
         OpportunityEntity opportunity = createOpportunity(form, company);
-        opportunityRepository.save(opportunity);
 
         ApplicationEntity application = new ApplicationEntity();
         application.setOpportunity(opportunity);
@@ -294,15 +294,13 @@ public class ApplicationCrmService {
     }
 
     private OpportunityEntity createOpportunity(ApplicationForm form, CompanyEntity company) {
-        OpportunityEntity opportunity = new OpportunityEntity();
-        opportunity.setCompany(company);
-        opportunity.setCompanyName(company.getName());
-        opportunity.setSourceType(hasText(form.getOfferUrl())
-                ? OpportunitySourceType.URL : OpportunitySourceType.MANUAL);
-        opportunity.setDetectedLanguage(null);
-        opportunity.setStatus(OpportunityStatus.DRAFT);
-        updateOpportunity(opportunity, form);
-        return opportunity;
+        return opportunityService.create(new OpportunityCreationRequest(
+                company, form.getJobTitle(), company.getName(), form.getContractType(), form.getContractTypeRaw(),
+                form.getWorkSchedule(), form.getWorkScheduleRaw(), form.getRemoteMode() == null
+                        ? RemoteMode.UNSPECIFIED : form.getRemoteMode(), form.getSource(),
+                form.getSalaryText(), form.getDistanceText(), form.getLocation(),
+                hasText(form.getOfferUrl()) ? OpportunitySourceType.URL : OpportunitySourceType.MANUAL,
+                form.getOfferUrl(), form.getDescription(), form.getDescription(), null, OpportunityStatus.DRAFT));
     }
 
     private void updateCompany(CompanyEntity company, ApplicationForm form) {
@@ -347,9 +345,10 @@ public class ApplicationCrmService {
         application.setPortfolioSent(form.isPortfolioSent());
         application.setNotes(clean(form.getNotes()));
         application.setPrivateNotes(clean(form.getPrivateNotes()));
-        application.setResumeVersion(optional(form.getResumeVersionId(), resumeVersionRepository, "Version de CV"));
-        application.setCoverLetter(optional(form.getCoverLetterId(), coverLetterRepository, "Lettre"));
-        application.setAnalysis(optional(form.getAnalysisId(), analysisRepository, "Analyse"));
+        OpportunityEntity opportunity = application.getOpportunity();
+        application.setResumeVersion(optionalResumeVersion(form.getResumeVersionId(), opportunity));
+        application.setCoverLetter(optionalCoverLetter(form.getCoverLetterId(), opportunity));
+        application.setAnalysis(optionalAnalysis(form.getAnalysisId(), opportunity));
         if (!update && SENT.contains(application.getStatus()) && application.getAppliedAt() == null) {
             application.setAppliedAt(LocalDate.now());
         }
@@ -431,9 +430,48 @@ public class ApplicationCrmService {
     }
 
     private static <T> T optional(Long id, org.springframework.data.jpa.repository.JpaRepository<T, Long> repository,
-                                  String label) {
+                                   String label) {
         return id == null ? null : repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(label + " introuvable."));
+    }
+
+    private ResumeVersionEntity optionalResumeVersion(Long id, OpportunityEntity opportunity) {
+        if (id == null) {
+            return null;
+        }
+        ResumeVersionEntity version = optional(id, resumeVersionRepository, "Version de CV");
+        if (version.getDocument() == null || version.getDocument().getAnalysis() == null
+                || !sameOpportunity(version.getDocument().getAnalysis().getOpportunity(), opportunity)) {
+            throw new IllegalArgumentException("La version de CV appartient à une autre opportunité.");
+        }
+        return version;
+    }
+
+    private CoverLetterEntity optionalCoverLetter(Long id, OpportunityEntity opportunity) {
+        if (id == null) {
+            return null;
+        }
+        CoverLetterEntity letter = optional(id, coverLetterRepository, "Lettre");
+        if (!sameOpportunity(letter.getOpportunity(), opportunity)) {
+            throw new IllegalArgumentException("La lettre appartient à une autre opportunité.");
+        }
+        return letter;
+    }
+
+    private ResumeAnalysisRecordEntity optionalAnalysis(Long id, OpportunityEntity opportunity) {
+        if (id == null) {
+            return null;
+        }
+        ResumeAnalysisRecordEntity analysis = optional(id, analysisRepository, "Analyse");
+        if (!sameOpportunity(analysis.getOpportunity(), opportunity)) {
+            throw new IllegalArgumentException("L’analyse appartient à une autre opportunité.");
+        }
+        return analysis;
+    }
+
+    private static boolean sameOpportunity(OpportunityEntity first, OpportunityEntity second) {
+        return first != null && second != null && first.getId() != null && second.getId() != null
+                && first.getId().equals(second.getId());
     }
 
     private static Long id(Object entity) {

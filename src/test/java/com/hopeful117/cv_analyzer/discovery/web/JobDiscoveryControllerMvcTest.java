@@ -1,6 +1,7 @@
 package com.hopeful117.cv_analyzer.discovery.web;
 
 import com.hopeful117.cv_analyzer.discovery.application.DiscoverJobOffers;
+import com.hopeful117.cv_analyzer.discovery.application.SelectJobOffer;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityResult;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
 import com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,6 +29,9 @@ class JobDiscoveryControllerMvcTest {
 
     @MockitoBean
     private DiscoverJobOffers discoverJobOffers;
+
+    @MockitoBean
+    private SelectJobOffer selectJobOffer;
 
     @MockitoBean
     private JobSearchPreferencesRepository preferencesRepository;
@@ -59,5 +64,22 @@ class JobDiscoveryControllerMvcTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Example")));
 
         verify(discoverJobOffers).discover("Développeur Java");
+    }
+
+    @Test
+    void selectingAnOfferDelegatesToSelectionUseCaseWithoutApplicationData() throws Exception {
+        mockMvc.perform(post("/job-discovery/select")
+                        .param("providerKey", "france-travail")
+                        .param("providerOfferId", "12345")
+                        .param("title", "Développeur Java")
+                        .param("company", "Example")
+                        .param("originUrl", "https://example.com/offres/12345"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/"));
+
+        verify(selectJobOffer).select(argThat(offer ->
+                offer.providerKey().equals("france-travail")
+                        && offer.providerOfferId().equals("12345")
+                        && offer.title().equals("Développeur Java")));
     }
 }

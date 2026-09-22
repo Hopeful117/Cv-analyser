@@ -55,7 +55,9 @@ public final class JobDiscoveryViewModels {
                 sanitizeUrl(offer.originUrl()),
                 offer.providerOfferId(),
                 offer.providerCreatedAt() != null ? DATE_FORMAT.format(offer.providerCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate()) : null,
-                offer.description() != null ? stripHtml(truncate(offer.description(), 500)) : null
+                offer.description() != null ? stripHtml(truncate(offer.description(), 500)) : null,
+                offer.providerKey(),
+                offer.rawContractCode()
         );
     }
 
@@ -136,7 +138,9 @@ public final class JobDiscoveryViewModels {
             String safeUrl,
             String providerOfferId,
             String createdAt,
-            String descriptionSnippet
+            String descriptionSnippet,
+            String providerKey,
+            String rawContractCode
     ) {
     }
 }

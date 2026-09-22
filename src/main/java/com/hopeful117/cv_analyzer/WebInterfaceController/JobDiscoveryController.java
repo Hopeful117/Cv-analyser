@@ -1,11 +1,15 @@
 package com.hopeful117.cv_analyzer.WebInterfaceController;
 
 import com.hopeful117.cv_analyzer.discovery.application.DiscoverJobOffers;
+import com.hopeful117.cv_analyzer.discovery.application.SelectJobOffer;
 import com.hopeful117.cv_analyzer.discovery.web.JobDiscoveryViewModels;
+import com.hopeful117.cv_analyzer.discovery.web.JobOfferSelectionForm;
 import com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class JobDiscoveryController {
 
     private final DiscoverJobOffers discoverJobOffers;
+    private final SelectJobOffer selectJobOffer;
     private final JobSearchPreferencesRepository preferencesRepository;
 
     @GetMapping
@@ -59,5 +64,17 @@ public class JobDiscoveryController {
         model.addAttribute("results", JobDiscoveryViewModels.toResults(result));
         model.addAttribute("selectedRole", targetRole);
         return "job-discovery-results";
+    }
+
+    @PostMapping("/select")
+    public String select(@Valid JobOfferSelectionForm form, BindingResult bindingResult,
+                         RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "L’offre sélectionnée est invalide.");
+            return "redirect:/job-discovery";
+        }
+        selectJobOffer.select(form.toJobOffer());
+        redirectAttributes.addFlashAttribute("successMessage", "L’opportunité a été ajoutée.");
+        return "redirect:/";
     }
 }

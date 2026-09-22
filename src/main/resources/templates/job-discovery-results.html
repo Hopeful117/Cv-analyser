@@ -38,6 +38,7 @@
                                     <span th:unless="${offer.originUrl}" th:text="${offer.title}"></span>
                                 </h3>
                                 <span class="os-badge" th:classappend="${offer.statusCssClass}" th:text="${offer.statusLabel}"></span>
+                                <span class="os-badge os-badge-info" th:text="'Matching : ' + ${offer.matchScore} + '/100'"></span>
                             </div>
 
                             <div class="job-offer-meta">
@@ -54,6 +55,27 @@
                             <div th:if="${!#lists.isEmpty(offer.reasons)}" class="job-offer-reasons">
                                 <div th:each="reason : ${offer.reasons}" class="job-offer-reason">
                                     <span th:text="${reason}"></span>
+                                </div>
+                            </div>
+
+                            <div th:if="${!#lists.isEmpty(offer.positiveSignals)}" class="job-offer-reasons">
+                                <strong>Correspondances :</strong>
+                                <div th:each="signal : ${offer.positiveSignals}" class="job-offer-reason">
+                                    <span th:text="${signal}"></span>
+                                </div>
+                            </div>
+
+                            <div th:if="${!#lists.isEmpty(offer.gaps)}" class="job-offer-reasons">
+                                <strong>Gaps :</strong>
+                                <div th:each="gap : ${offer.gaps}" class="job-offer-reason">
+                                    <span th:text="${gap}"></span>
+                                </div>
+                            </div>
+
+                            <div th:if="${!#lists.isEmpty(offer.unknowns)}" class="job-offer-reasons">
+                                <strong>Non évalué :</strong>
+                                <div th:each="unknown : ${offer.unknowns}" class="job-offer-reason">
+                                    <span th:text="${unknown}"></span>
                                 </div>
                             </div>
 

@@ -3,7 +3,10 @@ package com.hopeful117.cv_analyzer.discovery.web;
 import com.hopeful117.cv_analyzer.discovery.application.DiscoverJobOffers;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityResult;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityStatus;
+import com.hopeful117.cv_analyzer.discovery.domain.JobMatchResult;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
+import com.hopeful117.cv_analyzer.discovery.domain.MatchSignal;
+import com.hopeful117.cv_analyzer.discovery.domain.MatchSignalType;
 import com.hopeful117.cv_analyzer.search.domain.SalaryPeriod;
 import com.hopeful117.cv_analyzer.career.domain.ContractType;
 import com.hopeful117.cv_analyzer.search.domain.WorkMode;
@@ -97,6 +100,26 @@ class JobDiscoveryViewModelsTest {
 
         assertThat(snippet).doesNotContain("<a");
         assertThat(snippet).contains("Voir ici");
+    }
+
+    @Test
+    void exposesMatchingScoreAndExplanations() {
+        JobOffer offer = offerWithDescription(null);
+        JobMatchResult matching = new JobMatchResult(
+                78,
+                List.of(new MatchSignal(MatchSignalType.SKILL, "Java est présent dans le profil.")),
+                List.of(new MatchSignal(MatchSignalType.SKILL, "Kubernetes manque au profil.")),
+                List.of(new MatchSignal(MatchSignalType.UNKNOWN, "Salaire non comparable.")));
+        DiscoverJobOffers.DiscoveryResult result = DiscoverJobOffers.DiscoveryResult.success(
+                List.of(new DiscoverJobOffers.EligibleOffer(offer, EligibilityResult.eligible(), matching)),
+                1, 1, "Dev Java", "france-travail");
+
+        JobDiscoveryViewModels.OfferViewModel view = JobDiscoveryViewModels.toResults(result).offers().getFirst();
+
+        assertThat(view.matchScore()).isEqualTo(78);
+        assertThat(view.positiveSignals()).containsExactly("Java est présent dans le profil.");
+        assertThat(view.gaps()).containsExactly("Kubernetes manque au profil.");
+        assertThat(view.unknowns()).containsExactly("Salaire non comparable.");
     }
 
     private JobOffer offerWithDescription(String description) {

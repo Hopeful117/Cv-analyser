@@ -61,7 +61,8 @@ class JobDiscoveryControllerMvcTest {
                 .andExpect(model().attribute("selectedRole", "Développeur Java"))
                 .andExpect(model().attribute("results", JobDiscoveryViewModels.toResults(result)))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Développeur Java")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Example")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Example")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Matching : 50/100")));
 
         verify(discoverJobOffers).discover("Développeur Java");
     }

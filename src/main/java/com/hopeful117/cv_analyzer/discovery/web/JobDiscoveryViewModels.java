@@ -3,6 +3,7 @@ package com.hopeful117.cv_analyzer.discovery.web;
 import com.hopeful117.cv_analyzer.discovery.application.DiscoverJobOffers;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityResult;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityStatus;
+import com.hopeful117.cv_analyzer.discovery.domain.JobMatchResult;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
 import com.hopeful117.cv_analyzer.search.persistence.PreferenceRoleEntity;
 
@@ -28,7 +29,7 @@ public final class JobDiscoveryViewModels {
 
     public static ResultsViewModel toResults(DiscoverJobOffers.DiscoveryResult result) {
         List<OfferViewModel> offers = result.offers().stream()
-                .map(e -> toOfferViewModel(e.offer(), e.eligibility()))
+                .map(e -> toOfferViewModel(e.offer(), e.eligibility(), e.matching()))
                 .toList();
 
         return new ResultsViewModel(
@@ -39,7 +40,8 @@ public final class JobDiscoveryViewModels {
         );
     }
 
-    private static OfferViewModel toOfferViewModel(JobOffer offer, EligibilityResult eligibility) {
+    private static OfferViewModel toOfferViewModel(JobOffer offer, EligibilityResult eligibility,
+                                                   JobMatchResult matching) {
         return new OfferViewModel(
                 offer.title(),
                 offer.company(),
@@ -47,6 +49,10 @@ public final class JobDiscoveryViewModels {
                 offer.rawContractLabel(),
                 offer.rawSalaryText(),
                 offer.workDurationLabel(),
+                matching.score(),
+                matching.positiveSignals().stream().map(signal -> signal.message()).toList(),
+                matching.gaps().stream().map(signal -> signal.message()).toList(),
+                matching.unknowns().stream().map(signal -> signal.message()).toList(),
                 eligibility.status().name(),
                 eligibility.status().getLabel(),
                 statusCssClass(eligibility.status()),
@@ -130,6 +136,10 @@ public final class JobDiscoveryViewModels {
             String contract,
             String salary,
             String workDuration,
+            int matchScore,
+            List<String> positiveSignals,
+            List<String> gaps,
+            List<String> unknowns,
             String status,
             String statusLabel,
             String statusCssClass,

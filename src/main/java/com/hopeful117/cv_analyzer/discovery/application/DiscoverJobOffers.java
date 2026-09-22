@@ -5,6 +5,8 @@ import com.hopeful117.cv_analyzer.discovery.application.port.JobOfferSearchReque
 import com.hopeful117.cv_analyzer.discovery.application.port.JobOfferSearchResult;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityEvaluator;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityResult;
+import com.hopeful117.cv_analyzer.discovery.domain.JobMatchResult;
+import com.hopeful117.cv_analyzer.discovery.domain.JobMatchingEngine;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
 import com.hopeful117.cv_analyzer.profile.persistence.ProfessionalProfileRepository;
 import com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -45,7 +48,11 @@ public class DiscoverJobOffers {
             JobOfferSearchResult searchResult = provider.search(request);
 
             List<EligibleOffer> eligibleOffers = searchResult.offers().stream()
-                    .map(offer -> new EligibleOffer(offer, EligibilityEvaluator.evaluate(offer, preferences.get())))
+                    .map(offer -> new EligibleOffer(
+                            offer,
+                            EligibilityEvaluator.evaluate(offer, preferences.get()),
+                            JobMatchingEngine.evaluate(profile.get(), preferences.get(), offer)))
+                    .sorted(Comparator.comparingInt((EligibleOffer item) -> item.matching().score()).reversed())
                     .toList();
 
             return DiscoveryResult.success(
@@ -95,6 +102,9 @@ public class DiscoverJobOffers {
         }
     }
 
-    public record EligibleOffer(JobOffer offer, EligibilityResult eligibility) {
+    public record EligibleOffer(JobOffer offer, EligibilityResult eligibility, JobMatchResult matching) {
+        public EligibleOffer(JobOffer offer, EligibilityResult eligibility) {
+            this(offer, eligibility, JobMatchResult.unknown("Matching non calculé dans ce contexte."));
+        }
     }
 }

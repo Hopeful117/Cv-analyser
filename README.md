@@ -27,6 +27,20 @@ par l’utilisateur et ne constituent pas une certification ATS.
 - projection unidirectionnelle et optionnelle des candidatures vers Google Sheets ;
 - simulation d’entretien expérimentale.
 
+### Job Search
+
+- découverte live via France Travail et Adzuna ;
+- acquisition directe de tableaux d'offres Greenhouse ;
+- saisie manuelle d'offres provenant de sources externes ;
+- modèle transient `JobOffer` indépendant des providers ;
+- éligibilité déterministe et matching séparés de l'acquisition ;
+- normalisation déterministe des contrats et provenance provider-local via
+  `providerKey + providerOfferId` ;
+- prochaine story : [S4 — Deterministic Job Offer Deduplication](docs/stories/S4-deterministic-job-offer-deduplication/story.md).
+
+Les offres découvertes ne sont pas persistées et ne créent pas automatiquement d'`Opportunity`. La déduplication
+cross-source déterministe est planifiée dans S4, mais n'est pas encore implémentée.
+
 ## Stack
 
 - Java 21, Spring Boot MVC 4, Thymeleaf ;
@@ -154,3 +168,7 @@ Voir [l’architecture du Career Workspace](docs/architecture/career-workspace.m
 [la décision de persistance](docs/adr/persist-career-intelligence-analyses-and-documents.md).
 La projection CRM est documentée dans
 [l’ADR Google Sheets](docs/adr/career-intelligence-owns-application-data-and-publishes-google-sheets-projection.md).
+La découverte et l'acquisition Job Search sont décrites dans
+[l'architecture d'acquisition](docs/architecture/job-search-acquisition.md),
+[l'ADR d'acquisition](docs/adr/job-offer-acquisition-architecture.md) et
+[l'ADR de normalisation/provenance](docs/adr/job-offer-normalization-and-provenance.md).

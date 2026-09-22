@@ -6,6 +6,7 @@ import com.hopeful117.cv_analyzer.discovery.application.SelectJobOffer;
 import com.hopeful117.cv_analyzer.discovery.web.JobDiscoveryViewModels;
 import com.hopeful117.cv_analyzer.discovery.web.ManualJobOfferForm;
 import com.hopeful117.cv_analyzer.discovery.web.JobOfferSelectionForm;
+import com.hopeful117.cv_analyzer.discovery.infrastructure.greenhouse.GreenhouseBoardService;
 import com.hopeful117.cv_analyzer.search.domain.WorkMode;
 import com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository;
 import jakarta.validation.Valid;
@@ -29,9 +30,11 @@ public class JobDiscoveryController {
     private final SelectJobOffer selectJobOffer;
     private final EvaluateJobOffer evaluateJobOffer;
     private final JobSearchPreferencesRepository preferencesRepository;
+    private final GreenhouseBoardService greenhouseBoardService;
 
     @GetMapping
     public String index(Model model) {
+        model.addAttribute("greenhouseBoards", greenhouseBoardService.configuredBoards());
         var preferences = preferencesRepository.findActivePreferences();
         if (preferences.isEmpty()) {
             model.addAttribute("errorMessage", "Vos préférences de recherche ne sont pas encore configurées.");
@@ -63,6 +66,7 @@ public class JobDiscoveryController {
             if (preferences.isPresent() && preferences.get().getTargetRoles() != null) {
                 model.addAttribute("searchForm", JobDiscoveryViewModels.createSearchForm(preferences.get().getTargetRoles()));
             }
+            model.addAttribute("greenhouseBoards", greenhouseBoardService.configuredBoards());
             return "job-discovery";
         }
 
@@ -122,9 +126,54 @@ public class JobDiscoveryController {
     @PostMapping("/select")
     public String select(@Valid JobOfferSelectionForm form, BindingResult bindingResult,
                          RedirectAttributes redirectAttributes) {
+        return selectOffer(form, bindingResult, redirectAttributes, "redirect:/job-discovery");
+    }
+
+    @GetMapping("/greenhouse")
+    public String greenhouse(Model model) {
+        model.addAttribute("greenhouseBoards", greenhouseBoardService.configuredBoards());
+        return "job-discovery-greenhouse";
+    }
+
+    @PostMapping("/greenhouse/search")
+    public String greenhouseSearch(Model model) {
+        String readinessError = evaluateJobOffer.readinessError();
+        if (readinessError != null) {
+            model.addAttribute("errorMessage", readinessError);
+            model.addAttribute("greenhouseBoards", greenhouseBoardService.configuredBoards());
+            return "job-discovery-greenhouse";
+        }
+
+        GreenhouseBoardService.BoardFetchResult fetched = greenhouseBoardService.fetchAll();
+        var offers = fetched.offers().stream()
+                .map(offer -> {
+                    var evaluation = evaluateJobOffer.evaluate(offer);
+                    return evaluation.success()
+                            ? new DiscoverJobOffers.EligibleOffer(offer, evaluation.eligibility(), evaluation.matching())
+                            : null;
+                })
+                .filter(java.util.Objects::nonNull)
+                .sorted(java.util.Comparator.comparingInt((DiscoverJobOffers.EligibleOffer item) -> item.matching().score()).reversed())
+                .toList();
+
+        model.addAttribute("results", JobDiscoveryViewModels.toResults(
+                DiscoverJobOffers.DiscoveryResult.success(
+                        offers, offers.size(), offers.size(), "Boards Greenhouse configurés", "greenhouse")));
+        model.addAttribute("boardErrors", fetched.errors());
+        return "job-discovery-greenhouse-results";
+    }
+
+    @PostMapping("/greenhouse/select")
+    public String selectGreenhouse(@Valid JobOfferSelectionForm form, BindingResult bindingResult,
+                                   RedirectAttributes redirectAttributes) {
+        return selectOffer(form, bindingResult, redirectAttributes, "redirect:/job-discovery/greenhouse");
+    }
+
+    private String selectOffer(JobOfferSelectionForm form, BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes, String errorRedirect) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage", "L’offre sélectionnée est invalide.");
-            return "redirect:/job-discovery";
+            return errorRedirect;
         }
         Long opportunityId = selectJobOffer.select(form.toJobOffer());
         redirectAttributes.addFlashAttribute("successMessage", "L’opportunité a été ajoutée.");

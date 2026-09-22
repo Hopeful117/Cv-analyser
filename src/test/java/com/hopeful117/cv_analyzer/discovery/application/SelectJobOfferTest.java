@@ -69,4 +69,24 @@ class SelectJobOfferTest {
         assertThat(captor.getValue().rawDescription()).isEqualTo("Description fournie manuellement");
         assertThat(captor.getValue().normalizedDescription()).isEqualTo("Description fournie manuellement");
     }
+
+    @Test
+    void preservesGreenhouseDescriptionWhenSelected() {
+        JobOffer offer = new JobOffer(
+                "greenhouse", "127817", "https://boards.greenhouse.io/example/jobs/127817", null,
+                "Backend Engineer", "Build APIs with Java", "Example Corp", null, null, null,
+                "Paris", null, null, null, null, null, null, "REQ-50", List.of(), null,
+                null, null, null, null, null, null, null, null
+        );
+        OpportunityEntity persisted = new OpportunityEntity();
+        persisted.setId(3L);
+        org.mockito.Mockito.when(opportunityService.create(any())).thenReturn(persisted);
+
+        selectJobOffer.select(offer);
+
+        ArgumentCaptor<OpportunityCreationRequest> captor = ArgumentCaptor.forClass(OpportunityCreationRequest.class);
+        verify(opportunityService).create(captor.capture());
+        assertThat(captor.getValue().rawDescription()).isEqualTo("Build APIs with Java");
+        assertThat(captor.getValue().normalizedDescription()).isEqualTo("Build APIs with Java");
+    }
 }

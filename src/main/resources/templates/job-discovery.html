@@ -54,6 +54,20 @@
                         </div>
                         <a th:href="@{/job-discovery/manual}" class="os-button os-button-secondary">Saisir une offre manuellement</a>
                     </div>
+
+                    <div class="os-card" style="margin-top: 1rem;">
+                        <div class="section-heading">
+                            <h2 class="section-title">Boards d’entreprises</h2>
+                            <p class="section-description">Récupérez les offres des entreprises Greenhouse configurées, séparément de la recherche globale.</p>
+                        </div>
+                        <div th:if="${#lists.isEmpty(greenhouseBoards)}" class="os-alert os-alert-info">
+                            Aucun board Greenhouse n’est configuré.
+                        </div>
+                        <div th:unless="${#lists.isEmpty(greenhouseBoards)}">
+                            <p class="section-description" th:text="${#lists.size(greenhouseBoards) + ' board(s) configuré(s)'}"></p>
+                            <a th:href="@{/job-discovery/greenhouse}" class="os-button os-button-secondary">Ouvrir les boards Greenhouse</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

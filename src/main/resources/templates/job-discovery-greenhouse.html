@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Boards Greenhouse')}"></head>
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('discovery')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Boards Greenhouse', 'Acquisition ATS ciblée')}"></header>
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <div th:if="${errorMessage}" class="os-alert os-alert-error" th:text="${errorMessage}"></div>
+                <div class="os-card">
+                    <div class="section-heading">
+                        <h2 class="section-title">Offres des entreprises configurées</h2>
+                        <p class="section-description">Cette acquisition est distincte de la recherche globale France Travail et Adzuna.</p>
+                    </div>
+                    <div th:if="${#lists.isEmpty(greenhouseBoards)}" class="os-alert os-alert-info">
+                        Aucun board Greenhouse n’est configuré.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(greenhouseBoards)}">
+                        <div class="job-offer-meta">
+                            <span th:each="board : ${greenhouseBoards}" th:text="${board.companyName != null ? board.companyName : board.boardToken}"></span>
+                        </div>
+                        <form th:action="@{/job-discovery/greenhouse/search}" method="post" style="margin-top: 1rem;">
+                            <button type="submit" class="os-button os-button-primary">Récupérer les offres</button>
+                        </form>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <a th:href="@{/job-discovery}" class="os-button os-button-secondary">Retour à la recherche globale</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

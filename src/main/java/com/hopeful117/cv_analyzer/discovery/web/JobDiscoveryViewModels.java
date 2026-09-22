@@ -60,10 +60,11 @@ public final class JobDiscoveryViewModels {
                 offer.originUrl(),
                 sanitizeUrl(offer.originUrl()),
                 offer.providerOfferId(),
-                offer.providerCreatedAt() != null ? DATE_FORMAT.format(offer.providerCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate()) : null,
-                offer.description() != null ? stripHtml(truncate(offer.description(), 500)) : null,
-                offer.providerKey(),
-                offer.rawContractCode()
+                 offer.providerCreatedAt() != null ? DATE_FORMAT.format(offer.providerCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate()) : null,
+                 offer.description() != null ? stripHtml(truncate(offer.description(), 500)) : null,
+                 offer.providerKey(),
+                 offer.rawContractCode(),
+                 offer.description()
         );
     }
 
@@ -150,7 +151,8 @@ public final class JobDiscoveryViewModels {
             String createdAt,
             String descriptionSnippet,
             String providerKey,
-            String rawContractCode
+            String rawContractCode,
+            String description
     ) {
     }
 }

@@ -33,10 +33,12 @@ public class JobOfferSelectionForm {
     private String rawContractLabel;
     @Size(max = 200)
     private String rawSalaryText;
+    @Size(max = 100_000)
+    private String description;
 
     public JobOffer toJobOffer() {
         return new JobOffer(
-                providerKey.trim(), providerOfferId.trim(), originUrl, null, title.trim(), null, company,
+                providerKey.trim(), providerOfferId.trim(), originUrl, null, title.trim(), description, company,
                 null, null, null, locationLabel, null, null, null, null,
                 ContractType.fromCode(rawContractCode), rawContractCode, rawContractLabel, List.of(), null,
                 null, null, rawSalaryText, null, null, null, null, null

@@ -6,6 +6,7 @@ import com.hopeful117.cv_analyzer.career.domain.OpportunitySourceType;
 import com.hopeful117.cv_analyzer.career.domain.OpportunityStatus;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +36,22 @@ public class SelectJobOffer {
                 offer.locationLabel(),
                 safeUrl == null ? OpportunitySourceType.MANUAL : OpportunitySourceType.URL,
                 safeUrl,
-                "manual".equalsIgnoreCase(offer.providerKey()) ? offer.description() : "",
-                "manual".equalsIgnoreCase(offer.providerKey()) ? offer.description() : "",
+                preservedDescription(offer),
+                preservedDescription(offer),
                 null,
                 OpportunityStatus.DRAFT
         )).getId();
+    }
+
+    private static String preservedDescription(JobOffer offer) {
+        if (!"manual".equalsIgnoreCase(offer.providerKey())
+                && !"greenhouse".equalsIgnoreCase(offer.providerKey())) {
+            return "";
+        }
+        if (offer.description() == null || offer.description().isBlank()) {
+            return "";
+        }
+        return Jsoup.parse(offer.description()).text().trim();
     }
 
     private static String safeHttpUrl(String value) {

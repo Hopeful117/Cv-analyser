@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Ajouter une offre')}" />
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('discovery')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Ajouter une offre', 'Entrée manuelle')}" />
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div th:replace="~{fragments/alerts :: alerts}"></div>
+                <div th:if="${errorMessage}" class="os-alert os-alert-error" th:text="${errorMessage}"></div>
+                <form th:action="@{/job-discovery/manual/preview}" th:object="${manualForm}" method="post" class="os-form os-card">
+                    <div class="section-heading">
+                        <h2 class="section-title">Saisir une offre externe</h2>
+                        <p class="section-description">Les données restent transientes jusqu'à l'ajout explicite aux opportunités.</p>
+                    </div>
+                    <div class="os-field"><label class="os-label" for="title">Titre *</label><input class="os-input" id="title" th:field="*{title}" required><p class="os-form-error" th:errors="*{title}"></p></div>
+                    <div class="os-field"><label class="os-label" for="company">Entreprise</label><input class="os-input" id="company" th:field="*{company}"><p class="os-form-error" th:errors="*{company}"></p></div>
+                    <div class="os-field"><label class="os-label" for="originUrl">URL source</label><input class="os-input" id="originUrl" type="url" th:field="*{originUrl}" placeholder="https://..."><p class="os-form-error" th:errors="*{originUrl}"></p></div>
+                    <div class="os-field"><label class="os-label" for="locationLabel">Lieu</label><input class="os-input" id="locationLabel" th:field="*{locationLabel}"></div>
+                    <div class="os-field"><label class="os-label" for="rawContractCode">Type de contrat</label><select class="os-select" id="rawContractCode" th:field="*{rawContractCode}"><option value="">Non précisé</option><option th:each="contract : ${contractTypes}" th:value="${contract.name()}" th:text="${contract.name()}"></option></select></div>
+                    <div class="os-field"><label class="os-label" for="rawSalaryText">Salaire</label><input class="os-input" id="rawSalaryText" th:field="*{rawSalaryText}"></div>
+                    <div class="os-field"><label class="os-label" for="workMode">Mode de travail</label><select class="os-select" id="workMode" th:field="*{workMode}"><option value="">Non précisé</option><option th:each="mode : ${workModes}" th:value="${mode.name()}" th:text="${mode.frenchLabel}"></option></select></div>
+                    <div class="os-field"><label class="os-label" for="competencies">Compétences (séparées par des virgules)</label><input class="os-input" id="competencies" th:field="*{competencies}" placeholder="Java, Spring Boot, SQL"></div>
+                    <div class="os-field"><label class="os-label" for="description">Description *</label><textarea class="os-textarea" id="description" rows="12" th:field="*{description}" required></textarea><p class="os-form-error" th:errors="*{description}"></p></div>
+                    <div class="os-field"><button type="submit" class="os-button os-button-primary">Prévisualiser l'évaluation</button></div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

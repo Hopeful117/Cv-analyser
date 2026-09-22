@@ -3,15 +3,11 @@ package com.hopeful117.cv_analyzer.discovery.application;
 import com.hopeful117.cv_analyzer.discovery.application.port.JobOfferProvider;
 import com.hopeful117.cv_analyzer.discovery.application.port.JobOfferSearchRequest;
 import com.hopeful117.cv_analyzer.discovery.application.port.JobOfferSearchResult;
-import com.hopeful117.cv_analyzer.discovery.domain.EligibilityEvaluator;
 import com.hopeful117.cv_analyzer.discovery.domain.EligibilityResult;
 import com.hopeful117.cv_analyzer.discovery.domain.JobMatchResult;
-import com.hopeful117.cv_analyzer.discovery.domain.JobMatchingEngine;
 import com.hopeful117.cv_analyzer.discovery.domain.JobOffer;
-import com.hopeful117.cv_analyzer.profile.persistence.ProfessionalProfileRepository;
-import com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,27 +16,33 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class DiscoverJobOffers {
 
     private final JobOfferProvider provider;
-    private final ProfessionalProfileRepository profileRepository;
-    private final JobSearchPreferencesRepository preferencesRepository;
+    private final EvaluateJobOffer evaluateJobOffer;
+
+    @Autowired
+    public DiscoverJobOffers(JobOfferProvider provider, EvaluateJobOffer evaluateJobOffer) {
+        this.provider = provider;
+        this.evaluateJobOffer = evaluateJobOffer;
+    }
+
+    public DiscoverJobOffers(JobOfferProvider provider,
+                             com.hopeful117.cv_analyzer.profile.persistence.ProfessionalProfileRepository profileRepository,
+                             com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository preferencesRepository) {
+        this(provider, new EvaluateJobOffer(profileRepository, preferencesRepository));
+    }
 
     @Transactional(readOnly = true)
     public DiscoveryResult discover(String targetRole) {
         if (!provider.isAvailable()) {
             return DiscoveryResult.providerUnavailable();
         }
-
-        var profile = profileRepository.findLocalProfile();
-        if (profile.isEmpty()) {
-            return DiscoveryResult.profileMissing();
-        }
-
-        var preferences = preferencesRepository.findActivePreferences();
-        if (preferences.isEmpty()) {
-            return DiscoveryResult.preferencesMissing();
+        String readinessError = evaluateJobOffer.readinessError();
+        if (readinessError != null) {
+            return readinessError.contains("profil")
+                    ? DiscoveryResult.profileMissing()
+                    : DiscoveryResult.preferencesMissing();
         }
 
         try {
@@ -48,10 +50,13 @@ public class DiscoverJobOffers {
             JobOfferSearchResult searchResult = provider.search(request);
 
             List<EligibleOffer> eligibleOffers = searchResult.offers().stream()
-                    .map(offer -> new EligibleOffer(
-                            offer,
-                            EligibilityEvaluator.evaluate(offer, preferences.get()),
-                            JobMatchingEngine.evaluate(profile.get(), preferences.get(), offer)))
+                    .map(offer -> {
+                        EvaluateJobOffer.EvaluationResult evaluation = evaluateJobOffer.evaluate(offer);
+                        if (!evaluation.success()) {
+                            throw new IllegalStateException(evaluation.errorMessage());
+                        }
+                        return new EligibleOffer(offer, evaluation.eligibility(), evaluation.matching());
+                    })
                     .sorted(Comparator.comparingInt((EligibleOffer item) -> item.matching().score()).reversed())
                     .toList();
 

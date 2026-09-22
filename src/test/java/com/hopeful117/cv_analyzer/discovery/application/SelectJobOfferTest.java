@@ -49,4 +49,24 @@ class SelectJobOfferTest {
         assertThat(request.rawDescription()).isEmpty();
         assertThat(request.normalizedDescription()).isEmpty();
     }
+
+    @Test
+    void preservesDescriptionOnlyForExplicitManualOffers() {
+        JobOffer offer = new JobOffer(
+                "manual", "manual-1", "https://example.com/manual", null,
+                "Développeur Java", "Description fournie manuellement", "Example", null, null, null,
+                "Paris", null, null, null, null, null, "CDI", "CDI", List.of(), null,
+                null, null, "45k", null, null, null, null, null
+        );
+        OpportunityEntity persisted = new OpportunityEntity();
+        persisted.setId(2L);
+        org.mockito.Mockito.when(opportunityService.create(any())).thenReturn(persisted);
+
+        selectJobOffer.select(offer);
+
+        ArgumentCaptor<OpportunityCreationRequest> captor = ArgumentCaptor.forClass(OpportunityCreationRequest.class);
+        verify(opportunityService).create(captor.capture());
+        assertThat(captor.getValue().rawDescription()).isEqualTo("Description fournie manuellement");
+        assertThat(captor.getValue().normalizedDescription()).isEqualTo("Description fournie manuellement");
+    }
 }

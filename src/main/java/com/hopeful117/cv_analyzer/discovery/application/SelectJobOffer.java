@@ -35,8 +35,8 @@ public class SelectJobOffer {
                 offer.locationLabel(),
                 safeUrl == null ? OpportunitySourceType.MANUAL : OpportunitySourceType.URL,
                 safeUrl,
-                "",
-                "",
+                "manual".equalsIgnoreCase(offer.providerKey()) ? offer.description() : "",
+                "manual".equalsIgnoreCase(offer.providerKey()) ? offer.description() : "",
                 null,
                 OpportunityStatus.DRAFT
         )).getId();

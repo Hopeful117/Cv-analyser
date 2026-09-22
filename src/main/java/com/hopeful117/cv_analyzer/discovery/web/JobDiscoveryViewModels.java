@@ -40,7 +40,7 @@ public final class JobDiscoveryViewModels {
         );
     }
 
-    private static OfferViewModel toOfferViewModel(JobOffer offer, EligibilityResult eligibility,
+    public static OfferViewModel toOfferViewModel(JobOffer offer, EligibilityResult eligibility,
                                                    JobMatchResult matching) {
         return new OfferViewModel(
                 offer.title(),

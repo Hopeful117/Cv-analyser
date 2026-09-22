@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Prévisualiser une offre')}" />
+<body class="developer-os">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('discovery')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/topbar :: topbar('Prévisualiser une offre', 'Évaluation déterministe')}" />
+        <main class="app-content" id="main-content">
+            <div class="page-stack">
+                <div class="os-card">
+                    <div class="job-offer-header"><h2 class="section-title" th:text="${preview.title}"></h2><span class="os-badge" th:classappend="${preview.statusCssClass}" th:text="${preview.statusLabel}"></span><span class="os-badge os-badge-info" th:text="'Matching : ' + ${preview.matchScore} + '/100'"></span></div>
+                    <div class="job-offer-meta"><span th:if="${preview.company}" th:text="${preview.company}"></span><span th:if="${preview.location}" th:text="' • ' + ${preview.location}"></span><span th:if="${preview.contract}" th:text="' • ' + ${preview.contract}"></span><span th:if="${preview.salary}" th:text="' • ' + ${preview.salary}"></span></div>
+                    <div th:each="reason : ${preview.reasons}" class="job-offer-reason" th:text="${reason}"></div>
+                    <div th:if="${!#lists.isEmpty(preview.positiveSignals)}" class="job-offer-reasons"><strong>Correspondances :</strong><div th:each="signal : ${preview.positiveSignals}" th:text="${signal}"></div></div>
+                    <div th:if="${!#lists.isEmpty(preview.gaps)}" class="job-offer-reasons"><strong>Gaps :</strong><div th:each="gap : ${preview.gaps}" th:text="${gap}"></div></div>
+                    <div th:if="${!#lists.isEmpty(preview.unknowns)}" class="job-offer-reasons"><strong>Non évalué :</strong><div th:each="unknown : ${preview.unknowns}" th:text="${unknown}"></div></div>
+                    <div class="job-offer-description" th:text="${preview.descriptionSnippet}"></div>
+                    <form th:action="@{/job-discovery/manual/select}" th:object="${manualForm}" method="post" style="margin-top: 1rem;">
+                        <input type="hidden" th:field="*{title}"><input type="hidden" th:field="*{company}"><input type="hidden" th:field="*{originUrl}"><input type="hidden" th:field="*{locationLabel}"><input type="hidden" th:field="*{rawContractCode}"><input type="hidden" th:field="*{rawContractLabel}"><input type="hidden" th:field="*{rawSalaryText}"><input type="hidden" th:field="*{workMode}"><input type="hidden" th:field="*{workDurationLabel}"><input type="hidden" th:field="*{competencies}"><input type="hidden" th:field="*{description}"><input type="hidden" th:field="*{providerOfferId}">
+                        <button type="submit" class="os-button os-button-primary">Ajouter à mes opportunités</button>
+                        <a th:href="@{/job-discovery/manual}" class="os-button os-button-secondary">Modifier</a>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

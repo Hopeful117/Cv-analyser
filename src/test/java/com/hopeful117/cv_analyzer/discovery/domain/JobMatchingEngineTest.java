@@ -92,6 +92,26 @@ class JobMatchingEngineTest {
     }
 
     @Test
+    void matchingDoesNotDependOnProviderIdentity() {
+        ProfessionalProfileEntity profile = profile("Développeur Java", "Java");
+        JobSearchPreferencesEntity preferences = preferences("Développeur Java", "Java");
+        JobOffer providerOffer = offer("Développeur Java", "Java");
+        JobOffer manualOffer = new JobOffer(
+                "manual", providerOffer.providerOfferId(), providerOffer.originUrl(), providerOffer.fetchedAt(),
+                providerOffer.title(), providerOffer.description(), providerOffer.company(), providerOffer.romeCode(),
+                providerOffer.romeLabel(), providerOffer.appellationLabel(), providerOffer.locationLabel(),
+                providerOffer.communeCode(), providerOffer.postalCode(), providerOffer.latitude(), providerOffer.longitude(),
+                providerOffer.canonicalContractType(), providerOffer.rawContractCode(), providerOffer.rawContractLabel(),
+                providerOffer.competencies(), providerOffer.experienceLabel(), providerOffer.workMode(),
+                providerOffer.workDurationLabel(), providerOffer.rawSalaryText(), providerOffer.salaryMinAmount(),
+                providerOffer.salaryMaxAmount(), providerOffer.salaryPeriod(), providerOffer.providerCreatedAt(),
+                providerOffer.providerUpdatedAt());
+
+        assertThat(JobMatchingEngine.evaluate(profile, preferences, manualOffer))
+                .isEqualTo(JobMatchingEngine.evaluate(profile, preferences, providerOffer));
+    }
+
+    @Test
     void duplicateOfferSkillsCountOnceAndKeepTheStrongestRequirement() {
         ProfessionalProfileEntity profile = profile("Développeur Java", "Java");
         JobOffer offer = new JobOffer(

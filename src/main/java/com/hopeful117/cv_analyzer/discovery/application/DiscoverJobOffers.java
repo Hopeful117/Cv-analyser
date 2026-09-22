@@ -13,30 +13,40 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class DiscoverJobOffers {
 
-    private final JobOfferProvider provider;
+    private final List<JobOfferProvider> providers;
     private final EvaluateJobOffer evaluateJobOffer;
 
     @Autowired
-    public DiscoverJobOffers(JobOfferProvider provider, EvaluateJobOffer evaluateJobOffer) {
-        this.provider = provider;
+    public DiscoverJobOffers(List<JobOfferProvider> providers, EvaluateJobOffer evaluateJobOffer) {
+        this.providers = providers;
         this.evaluateJobOffer = evaluateJobOffer;
     }
 
     public DiscoverJobOffers(JobOfferProvider provider,
                              com.hopeful117.cv_analyzer.profile.persistence.ProfessionalProfileRepository profileRepository,
                              com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository preferencesRepository) {
-        this(provider, new EvaluateJobOffer(profileRepository, preferencesRepository));
+        this(List.of(provider), new EvaluateJobOffer(profileRepository, preferencesRepository));
+    }
+
+    public DiscoverJobOffers(List<JobOfferProvider> providers,
+                             com.hopeful117.cv_analyzer.profile.persistence.ProfessionalProfileRepository profileRepository,
+                             com.hopeful117.cv_analyzer.search.persistence.JobSearchPreferencesRepository preferencesRepository) {
+        this(providers, new EvaluateJobOffer(profileRepository, preferencesRepository));
     }
 
     @Transactional(readOnly = true)
     public DiscoveryResult discover(String targetRole) {
-        if (!provider.isAvailable()) {
-            return DiscoveryResult.providerUnavailable();
+        List<JobOfferProvider> availableProviders = providers.stream()
+                .filter(JobOfferProvider::isAvailable)
+                .toList();
+        if (availableProviders.isEmpty()) {
+            return DiscoveryResult.providersUnavailable();
         }
         String readinessError = evaluateJobOffer.readinessError();
         if (readinessError != null) {
@@ -45,11 +55,18 @@ public class DiscoverJobOffers {
                     : DiscoveryResult.preferencesMissing();
         }
 
-        try {
-            JobOfferSearchRequest request = JobOfferSearchRequest.of(targetRole);
-            JobOfferSearchResult searchResult = provider.search(request);
+        JobOfferSearchRequest request = JobOfferSearchRequest.of(targetRole);
+        List<JobOfferSearchResult> results = availableProviders.stream()
+                .flatMap(provider -> search(provider, request))
+                .toList();
 
-            List<EligibleOffer> eligibleOffers = searchResult.offers().stream()
+        if (results.isEmpty()) {
+            return DiscoveryResult.error("Aucun fournisseur d'offres n'a pu répondre à la recherche.");
+        }
+
+        try {
+            List<EligibleOffer> eligibleOffers = results.stream()
+                    .flatMap(result -> result.offers().stream())
                     .map(offer -> {
                         EvaluateJobOffer.EvaluationResult evaluation = evaluateJobOffer.evaluate(offer);
                         if (!evaluation.success()) {
@@ -62,14 +79,23 @@ public class DiscoverJobOffers {
 
             return DiscoveryResult.success(
                     eligibleOffers,
-                    searchResult.returnedCount(),
-                    searchResult.totalAvailable(),
-                    searchResult.targetRole(),
-                    searchResult.providerKey()
+                    results.stream().mapToInt(JobOfferSearchResult::returnedCount).sum(),
+                    results.stream().mapToInt(JobOfferSearchResult::totalAvailable).sum(),
+                    targetRole,
+                    results.size() == 1 ? results.getFirst().providerKey() : "multiple"
             );
         } catch (Exception e) {
-            log.error("Error searching France Travail: {}", e.getMessage(), e);
+            log.error("Error evaluating discovered job offers: {}", e.getMessage(), e);
             return DiscoveryResult.error(e.getMessage());
+        }
+    }
+
+    private Stream<JobOfferSearchResult> search(JobOfferProvider provider, JobOfferSearchRequest request) {
+        try {
+            return Stream.of(provider.search(request));
+        } catch (Exception e) {
+            log.error("Error searching provider {}: {}", provider.getClass().getSimpleName(), e.getMessage(), e);
+            return Stream.empty();
         }
     }
 
@@ -87,9 +113,9 @@ public class DiscoverJobOffers {
             return new DiscoveryResult(true, offers, returnedCount, totalAvailable, targetRole, providerKey, null);
         }
 
-        public static DiscoveryResult providerUnavailable() {
+        public static DiscoveryResult providersUnavailable() {
             return new DiscoveryResult(false, List.of(), 0, 0, null, null,
-                    "L'intégration France Travail n'est pas configurée.");
+                    "Aucune intégration d'offres n'est configurée.");
         }
 
         public static DiscoveryResult profileMissing() {

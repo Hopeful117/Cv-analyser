@@ -72,6 +72,31 @@ class DiscoverJobOffersTest {
                 .containsExactly(50, 50);
     }
 
+    @Test
+    void combinesAvailableProvidersAndKeepsSearchingWhenOneFails() {
+        JobOfferProvider failingProvider = org.mockito.Mockito.mock(JobOfferProvider.class);
+        JobOfferProvider workingProvider = org.mockito.Mockito.mock(JobOfferProvider.class);
+        ProfessionalProfileEntity profile = new ProfessionalProfileEntity();
+        JobSearchPreferencesEntity preferences = new JobSearchPreferencesEntity();
+        when(failingProvider.isAvailable()).thenReturn(true);
+        when(workingProvider.isAvailable()).thenReturn(true);
+        when(failingProvider.search(org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new IllegalStateException("provider unavailable"));
+        when(workingProvider.search(org.mockito.ArgumentMatchers.any())).thenReturn(
+                new JobOfferSearchResult(List.of(offer("Adzuna result")), 1, 1, "Role", "adzuna", null));
+        when(profileRepository.findLocalProfile()).thenReturn(Optional.of(profile));
+        when(preferencesRepository.findActivePreferences()).thenReturn(Optional.of(preferences));
+
+        DiscoverJobOffers.DiscoveryResult result = new DiscoverJobOffers(
+                List.of(failingProvider, workingProvider), profileRepository, preferencesRepository)
+                .discover("Role");
+
+        assertThat(result.success()).isTrue();
+        assertThat(result.offers()).extracting(item -> item.offer().title())
+                .containsExactly("Adzuna result");
+        assertThat(result.providerKey()).isEqualTo("adzuna");
+    }
+
     private JobOffer offer(String title) {
         return new JobOffer(
                 "provider", title, "https://example.com", null, title, null, "Company",

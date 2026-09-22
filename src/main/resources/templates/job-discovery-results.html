@@ -88,7 +88,7 @@
                                     Publiée le <span th:text="${offer.createdAt}"></span>
                                 </span>
                                 <span class="job-offer-source">
-                                    Source : France Travail
+                                    Source : <span th:text="${offer.providerKey}"></span>
                                 </span>
                                 <form th:action="@{/job-discovery/select}" method="post" style="margin-left: auto;">
                                     <input type="hidden" name="providerKey" th:value="${offer.providerKey}">
